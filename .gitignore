@@ -1,0 +1,8 @@
+/vendor/
+/.phpunit.result.cache
+/.DS_Store
+/.idea/
+/.vscode/
+*.log
+matrix-store/
+credentials.json

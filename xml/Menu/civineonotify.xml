@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/admin/setting/civineonotify</path>
+    <page_callback>CRM_Admin_Form_Generic</page_callback>
+    <title>CiviNeo Notify: Settings</title>
+    <access_arguments>administer matrix notify</access_arguments>
+  </item>
+  <item><path>civicrm/admin/civineonotify/connections</path><page_callback>CRM_Civineonotify_Form_Admin</page_callback><title>CiviNeo Notify: Connections</title><access_arguments>administer matrix notify</access_arguments></item>
+  <item><path>civicrm/admin/civineonotify/connection</path><page_callback>CRM_Civineonotify_Form_Connection</page_callback><title>CiviNeo Notify: Connection</title><access_arguments>administer matrix notify</access_arguments></item>
+  <item><path>civicrm/admin/civineonotify/rooms</path><page_callback>CRM_Civineonotify_Form_Admin</page_callback><title>CiviNeo Notify: Rooms</title><access_arguments>administer matrix notify</access_arguments></item>
+  <item><path>civicrm/admin/civineonotify/room</path><page_callback>CRM_Civineonotify_Form_Room</page_callback><title>CiviNeo Notify: Room</title><access_arguments>administer matrix notify</access_arguments></item>
+  <item><path>civicrm/admin/civineonotify/rules</path><page_callback>CRM_Civineonotify_Form_Admin</page_callback><title>CiviNeo Notify: Rules</title><access_arguments>administer matrix notify</access_arguments></item>
+  <item><path>civicrm/admin/civineonotify/rule</path><page_callback>CRM_Civineonotify_Form_Rule</page_callback><title>CiviNeo Notify: Rule</title><access_arguments>administer matrix notify</access_arguments></item>
+  <item><path>civicrm/admin/civineonotify/log</path><page_callback>CRM_Civineonotify_Form_Admin</page_callback><title>CiviNeo Notify: Delivery log</title><access_arguments>view matrix notification log</access_arguments></item>
+</menu>
