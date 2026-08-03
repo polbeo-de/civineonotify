@@ -8,6 +8,7 @@
 - Expose the shared scheduled-job bridge as `CiviNeoNotifyDelivery.runoutbox`;
   transports are processed through one common outbox.
 - Add administration screens for connections, rooms, rules, delivery log, editable configuration records, contextual breadcrumbs and per-room Matrix tests.
+- Retire the superseded `MatrixNotification.runoutbox` API-v3 bridge.
 - Add a searchable event selector for rules and deterministic JSON conditions, including a `changed` operator for state transitions.
 - Add case-status change routing for `polishubinstanz` cases, with message tokens for case ID, old/new status and associated contact name.
 - Add connections, rooms, rules, persistent outbox worker, retries, recovery and scheduled-job processing through the CiviCRM API v3 job bridge.
