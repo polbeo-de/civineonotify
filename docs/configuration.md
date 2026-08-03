@@ -11,7 +11,7 @@ and room ID. The token is read from a protected file and must never become a
 process argument, log value, or database value. This follows the established
 operational pattern in the polbeo POC Matrix client.
 
-Set global defaults, create inactive example rules, then enable both a specific rule and the extension. Configure the `MatrixNotification.runoutbox` scheduled job to run serially. This is a CiviCRM API v3 bridge to the extension worker; scheduled jobs do not invoke custom API v4 actions directly. Back up credentials and the Matrix store separately from the database, using protected backup storage.
+Set global defaults, create inactive example rules, then enable both a specific rule and the extension. Configure the `CiviNeoNotifyDelivery.runoutbox` scheduled job to run serially. This is a CiviCRM API v3 bridge to the extension worker; scheduled jobs do not invoke custom API v4 actions directly. Back up credentials and the Matrix store separately from the database, using protected backup storage.
 
 ## Rules and conditions
 

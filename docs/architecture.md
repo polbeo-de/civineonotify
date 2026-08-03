@@ -4,7 +4,7 @@ CiviNeo Notify implements outbound Matrix notifications only. A narrow `hook_civ
 
 The scheduled worker is the only component permitted to send. It owns a single global lock because a local Matrix client store must not be used concurrently. It invokes the deployed `matrix-commander-rs` 0.11.0 client using separate process arguments and stdin for the message. Stable correlation and transaction IDs are persisted before send.
 
-The CiviCRM Scheduled Jobs runner uses API v3. `MatrixNotification.runoutbox` is therefore a narrow API v3 bridge to the worker; the administrative UI uses API v4 actions separately. A rule match only enqueues a notification. Retrying an entry returns it to `pending`; the serial worker performs the actual send.
+The CiviCRM Scheduled Jobs runner uses API v3. `CiviNeoNotifyDelivery.runoutbox` is therefore a narrow API v3 bridge to the worker; the administrative UI uses API v4 actions separately. A rule match only enqueues a notification. Retrying an entry returns it to `pending`; the serial worker performs the actual send.
 
 The resolver boundary is `rule → event default (reserved) → entity default (reserved) → global setting`. Version 0.0.1 exposes rule and global values. Inbound Matrix support is deliberately not implemented; see `inbound-roadmap.md`.
 
