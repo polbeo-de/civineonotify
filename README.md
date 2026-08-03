@@ -4,6 +4,14 @@
 rule-based outbound Matrix notifications. It is currently at implementation
 baseline **0.0.1** and is disabled by default.
 
+## Why “CiviNeo Notify”?
+
+The first working transport was Matrix, and “Neo” is a small nod to that
+origin. It became clear very quickly, however, that CiviCRM needs a general
+outbound-notification capability rather than a Matrix-only feature. CiviNeo
+Notify therefore starts with Matrix as its reference transport, while its
+product direction is to support further destinations and messenger services.
+
 ## What it does
 
 - Normalizes `hook_civicrm_post` events into stable names such as
@@ -26,7 +34,7 @@ commands are documented but intentionally not present.
 Target runtime is CiviCRM 6.15+ and PHP 8.1+; development reference is Civix
 format 25.10.2. Install the extension normally into CiviCRM's extension
 directory, install Composer development dependencies when running tests, enable
-it in CiviCRM, then configure it under **Administer → System Settings → Matrix
+it in CiviCRM, then configure it under **Administer → System Settings → CiviNeo
 Notify**. Keep it disabled until a connection, room, and explicit rule are
 reviewed.
 
