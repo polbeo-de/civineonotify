@@ -6,6 +6,21 @@ The verified `phprime8` binary is `/home/phprime8/bin/matrix-commander-rs` versi
 
 Follow the complete [encrypted Matrix provisioning procedure](matrix-provisioning.md) before creating the transport. It explains how the Matrix administrator creates the bot account and how the supplied helper creates its dedicated device, credentials file and persistent E2EE store without putting the bot password or generated token in a process argument, log, or database field.
 
+## Matrix-Nio prototype
+
+Matrix-Nio is evaluated as a lower-memory E2EE client where
+matrix-commander-rs cannot be provisioned within the host's memory limit. It
+has successfully provisioned a device and delivered encrypted probes, but its
+Element SAS device-verification flow is incomplete. It is not a production
+alternative where verified-device trust is required. The precise observed
+behaviour, workaround and criteria for lifting that restriction are documented
+in [Matrix-Nio E2EE and device-verification status](matrix-nio-limitations.md).
+
+In particular, **allow unverified recipient devices** is a separate, explicit
+risk decision. It permits message-key sharing with unverified recipient
+devices; it does not verify the bot device and must not be used to mask a
+failed Matrix-Nio SAS verification.
+
 Set global defaults, create inactive example rules, then enable both a specific rule and the extension. Configure the `CiviNeoNotifyDelivery.runoutbox` scheduled job to run serially. This is a CiviCRM API v3 bridge to the extension worker; scheduled jobs do not invoke custom API v4 actions directly. Back up credentials and the Matrix store together, separately from the database, using protected backup storage.
 
 ## Rules and conditions

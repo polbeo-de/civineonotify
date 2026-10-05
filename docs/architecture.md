@@ -15,9 +15,16 @@ installations with sufficient memory for its initial E2EE device synchronisation
 It is not the only intended implementation. On the phprime8 reference host,
 an isolated `matrix-nio` E2EE proof successfully created a device, persisted a
 store, synchronised, and delivered a test notification within a 350 MiB service
-limit, where matrix-commander-rs was OOM-killed. The proof helper is deliberately
-non-production code until a Matrix-Nio transport, deployment dependency and UI
-configuration are implemented.
+limit, where matrix-commander-rs was OOM-killed. The Matrix-Nio helper remains
+deliberately non-production code pending a complete verification flow and a
+validated deployment dependency.
+
+The prototype can also send the first targeted verification request to Element,
+but it cannot yet complete an Element SAS comparison. Its raw request/ready
+compatibility workaround, the observed Matrix-Nio limitations and production
+exit criteria are documented in [matrix-nio-limitations.md](matrix-nio-limitations.md).
+It must not be represented as a trusted-device implementation before those
+criteria are met.
 
 Matrix-Nio refuses by default to share message keys with unverified recipient
 devices. A future transport must retain that safe default and expose any

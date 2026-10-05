@@ -2,9 +2,11 @@
 
 ## Unreleased
 
-- Let CiviNeo Notify initiate Matrix-Nio SAS verification against an explicitly
-  selected Element device, reset stale verification controls before retrying,
-  and display the available peer devices in the verification form.
+- Add an experimental Matrix-Nio SAS verification diagnostic that can initiate
+  a request against an explicitly selected Element device, reset stale controls
+  before retrying, and display available peer devices. Document that Element
+  SAS completion remains unproven and that this path is not trusted-device
+  production functionality yet.
 
 - Add a non-sending Matrix-Nio E2EE probe to evaluate an additional Matrix
   client implementation while retaining matrix-commander-rs for deployments

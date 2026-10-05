@@ -48,6 +48,12 @@ For encrypted Matrix transports, follow the dedicated
 [provisioning guide](docs/matrix-provisioning.md). It documents the bot account,
 one-time token, credentials bundle, persistent E2EE store, and safe test order.
 
+The optional Matrix-Nio E2EE/SAS path is currently a staging prototype. It can
+provision a device and send encrypted probes, but device verification with
+Element is not yet complete. Read the [Matrix-Nio limitations and design
+rationale](docs/matrix-nio-limitations.md) before selecting it for an
+installation that requires verified-device trust.
+
 Deployment responsibilities and the staging/release-artifact workflow are
 documented in [deployment](docs/deployment.md). Production installations must
 use the validated release ZIP, not a source checkout.
@@ -57,6 +63,7 @@ use the validated release ZIP, not a source checkout.
 - [Architecture](docs/architecture.md)
 - [Configuration](docs/configuration.md)
 - [Initial transport provisioning](docs/provisioning.md)
+- [Matrix-Nio E2EE and device-verification status](docs/matrix-nio-limitations.md)
 - [Security and privacy](docs/security.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [Inbound roadmap](docs/inbound-roadmap.md)
