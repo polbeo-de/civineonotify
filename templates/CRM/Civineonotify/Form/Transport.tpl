@@ -8,8 +8,26 @@
     <tr><td class="label">{$form.store_path.label}</td><td>{$form.store_path.html}<div class="description">{ts}Leave empty during initial setup; provisioning creates a dedicated, writable E2EE store outside the web root.{/ts}</div></td></tr>
     <tr><td class="label">{$form.working_directory.label}</td><td>{$form.working_directory.html}</td></tr>
     <tr><td class="label">{$form.timeout_seconds.label}</td><td>{$form.timeout_seconds.html}</td></tr>
+    <tr class="nio-field"><td class="label">{$form.homeserver.label}</td><td>{$form.homeserver.html}</td></tr>
+    <tr class="nio-field"><td class="label">{$form.python_path.label}</td><td>{$form.python_path.html}</td></tr>
+    <tr class="nio-field"><td class="label">{$form.nio_client_path.label}</td><td>{$form.nio_client_path.html}<div class="description">{ts}The bundled client script must run in a Python environment with matrix-nio[e2e] installed.{/ts}</div></td></tr>
+    <tr class="nio-field"><td class="label">{$form.session_path.label}</td><td>{$form.session_path.html}<div class="description">{ts}Private session JSON outside the web root. It contains an access token and must be mode 0600.{/ts}</div></td></tr>
+    <tr class="nio-field"><td class="label">{$form.allow_unverified_recipient_devices.label}</td><td>{$form.allow_unverified_recipient_devices.html}<div class="description">{ts}Off by default. Enabling it still encrypts messages but shares their session with recipient devices which have not been verified.{/ts}</div></td></tr>
     <tr><td class="label">{$form.is_active.label}</td><td>{$form.is_active.html}</td></tr>
     <tr><td class="label">{$form.default_destination_id.label}</td><td>{$form.default_destination_id.html}</td></tr>
     <tr><td></td><td>{$form.buttons.html}{if $provisionUrl}<a class="button" href="{$provisionUrl}">{ts}Provision Matrix credentials{/ts}</a>{/if}</td></tr>
   </table>
 </div>
+{literal}
+<script>
+CRM.$(function($) {
+  function chooseTransport() {
+    var nio = $('#transport_type').val() === 'matrix_nio';
+    $('.nio-field').toggle(nio);
+    $('#binary_path, #credentials_path').closest('tr').toggle(!nio);
+  }
+  $('#transport_type').on('change', chooseTransport);
+  chooseTransport();
+});
+</script>
+{/literal}
