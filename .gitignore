@@ -6,3 +6,4 @@
 *.log
 matrix-store/
 credentials.json
+/dist/

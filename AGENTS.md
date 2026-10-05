@@ -2,6 +2,10 @@
 
 This repository implements the CiviCRM extension `de.polbeo.civicrm.civineonotify`.
 
+- Staging deployments go to `phprime8` from the Polgito `staging` branch using
+  `bin/deploy-staging`; production deployments to `mcc8` accept only a
+  validated release ZIP through `bin/deploy-release`. Never deploy a working
+  tree or a branch directly to production.
 - The deployed extension directory on `phprime8` is `/home/phprime8/www/html/civicrm-standalone/ext/de.polbeo.civicrm.civineonotify`.
 - The predecessor `de.polbeo.civicrm.matrixnotify` was retired during the key migration; do not deploy it again.
 

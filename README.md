@@ -44,6 +44,10 @@ Its supported credentials/store, stdin-message, room, timeout, and JSON-output
 options have been verified against that binary. See
 [configuration](docs/configuration.md).
 
+Deployment responsibilities and the staging/release-artifact workflow are
+documented in [deployment](docs/deployment.md). Production installations must
+use the validated release ZIP, not a source checkout.
+
 ## Documentation and support
 
 - [Architecture](docs/architecture.md)
