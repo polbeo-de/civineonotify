@@ -15,7 +15,10 @@ final class CRM_Civineonotify_Form_VerifyMatrixNio extends CRM_Core_Form {
   public function buildQuickForm(): void {
     CRM_Utils_System::setTitle(E::ts('Verify Matrix Nio device'));
     $this->assign('verification', $this->readStatus());
-    $this->add('select', 'verification_device_id', E::ts('Element device'), $this->deviceOptions());
+    $devices = $this->deviceOptions();
+    $this->add('select', 'verification_device_id', E::ts('Element device'), $devices);
+    $deviceIds = array_values(array_filter(array_keys($devices)));
+    if (count($deviceIds) === 1) $this->setDefaults(['verification_device_id' => $deviceIds[0]]);
     $this->addButtons([['type'=>'submit','name'=>E::ts('Start verification'),'subName'=>'start'],['type'=>'submit','name'=>E::ts('Confirm matching SAS'),'subName'=>'confirm'],['type'=>'submit','name'=>E::ts('Cancel verification'),'subName'=>'cancel'],['type'=>'cancel','name'=>E::ts('Close')]]);
   }
   public function postProcess(): void {
@@ -25,7 +28,7 @@ final class CRM_Civineonotify_Form_VerifyMatrixNio extends CRM_Core_Form {
     elseif (str_ends_with($action, 'start')) {
       $device = (string) $this->exportValue('verification_device_id');
       $options = $this->deviceOptions();
-      if (!isset($options[$device])) { $this->setElementError('verification_device_id', E::ts('Choose an Element device.')); return; }
+      if ($device === '' || !isset($options[$device])) { $this->setElementError('verification_device_id', E::ts('Choose an Element device.')); return; }
       $uid = posix_geteuid(); $runtime = '/run/user/' . $uid;
       (new Process(['/usr/bin/systemctl','--user','stop','civineonotify-verify-' . $this->id], NULL, ['PATH'=>'/usr/bin:/bin','XDG_RUNTIME_DIR'=>$runtime,'DBUS_SESSION_BUS_ADDRESS'=>'unix:path=' . $runtime . '/bus'], NULL, 10))->run();
       foreach ([$status, $confirm, $cancel] as $file) if (is_file($file) && !unlink($file)) throw new CRM_Core_Exception(E::ts('Could not reset the previous verification.'));
