@@ -25,7 +25,7 @@ async def main() -> int:
   p.add_argument('--max-seconds', type=int, default=300)
   a = p.parse_args(); private(a.session_file); private(a.store_path, True)
   data = json.loads(a.session_file.read_text()); c = AsyncClient(a.homeserver, data['user_id'], device_id=data['device_id'], store_path=str(a.store_path), config=AsyncClientConfig(encryption_enabled=True, store_sync_tokens=True, request_timeout=20, max_timeouts=0)); c.restore_login(data['user_id'], data['device_id'], data['access_token'])
-  deadline = time.monotonic() + a.max_seconds; transaction = str(uuid4()); ready = False; started = False; accepted = False
+  deadline = time.monotonic() + a.max_seconds; transaction = str(uuid4()); ready = False; started = False; accepted = False; observed = []
   try:
     reply = await c.sync(timeout=0, full_state=True)
     if not isinstance(reply, SyncResponse): status(a.status_file, {'state':'failed'}); return 1
@@ -36,7 +36,7 @@ async def main() -> int:
     request = ToDeviceMessage('m.key.verification.request', data['user_id'], a.target_device_id, {'from_device': data['device_id'], 'methods': ['m.sas.v1'], 'timestamp': int(time.time() * 1000), 'transaction_id': transaction})
     reply = await c.to_device(request)
     if not isinstance(reply, ToDeviceResponse): status(a.status_file, {'state':'failed'}); return 1
-    status(a.status_file, {'state':'waiting'})
+    status(a.status_file, {'state':'waiting', 'phase':'request_sent'})
     while time.monotonic() < deadline:
       if a.cancel_file.exists(): status(a.status_file, {'state':'cancelled'}); return 1
       reply = await c.sync(timeout=1000, full_state=False)
@@ -44,13 +44,16 @@ async def main() -> int:
       for event in reply.to_device_events:
         source = getattr(event, 'source', {})
         content = source.get('content', {})
-        if source.get('type') == 'm.key.verification.ready' and source.get('sender') == data['user_id'] and content.get('from_device') == a.target_device_id and content.get('transaction_id') == transaction: ready = True
+        event_type = source.get('type')
+        if isinstance(event_type, str) and event_type not in observed and len(observed) < 8: observed.append(event_type)
+        if event_type == 'm.key.verification.ready' and source.get('sender') == data['user_id'] and content.get('from_device') == a.target_device_id and content.get('transaction_id') == transaction: ready = True
       if ready and not started:
+        status(a.status_file, {'state':'waiting', 'phase':'ready_received', 'events':observed})
         sas = Sas(data['user_id'], data['device_id'], c.olm.account.identity_keys['ed25519'], peer, transaction_id=transaction)
         c.key_verifications[transaction] = sas
         reply = await c.to_device(sas.start_verification())
         if not isinstance(reply, ToDeviceResponse): status(a.status_file, {'state':'failed'}); return 1
-        started = True
+        started = True; status(a.status_file, {'state':'waiting', 'phase':'sas_start_sent', 'events':observed})
       sas = c.key_verifications.get(transaction)
       if sas is None: continue
       if sas.canceled: status(a.status_file, {'state':'cancelled'}); return 1
@@ -61,7 +64,7 @@ async def main() -> int:
         accepted = True
       try: emoji = sas.get_emoji(); decimals = sas.get_decimals()
       except Exception: continue
-      status(a.status_file, {'state':'compare', 'transaction_id':transaction, 'emoji':emoji, 'decimals':decimals})
+      status(a.status_file, {'state':'compare', 'transaction_id':transaction, 'emoji':emoji, 'decimals':decimals, 'events':observed})
       if a.confirm_file.exists(): a.confirm_file.unlink(); await c.confirm_short_auth_string(transaction); status(a.status_file, {'state':'confirming'})
     status(a.status_file, {'state':'timed_out'}); return 1
   except Exception as error:
