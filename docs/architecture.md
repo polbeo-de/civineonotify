@@ -8,6 +8,23 @@ The CiviCRM Scheduled Jobs runner uses API v3. `CiviNeoNotifyDelivery.runoutbox`
 
 The resolver boundary is `rule → event default (reserved) → entity default (reserved) → global setting`. Version 0.0.1 exposes rule and global values. Inbound Matrix support is deliberately not implemented; see `inbound-roadmap.md`.
 
+## Matrix client strategy
+
+`matrix-commander-rs` remains a supported Matrix transport implementation for
+installations with sufficient memory for its initial E2EE device synchronisation.
+It is not the only intended implementation. On the phprime8 reference host,
+an isolated `matrix-nio` E2EE proof successfully created a device, persisted a
+store, synchronised, and delivered a test notification within a 350 MiB service
+limit, where matrix-commander-rs was OOM-killed. The proof helper is deliberately
+non-production code until a Matrix-Nio transport, deployment dependency and UI
+configuration are implemented.
+
+Matrix-Nio refuses by default to share message keys with unverified recipient
+devices. A future transport must retain that safe default and expose any
+`allow unverified recipient devices` setting as an explicit, documented
+administrator choice. It does not replace verification of the persistent bot
+device itself.
+
 ## Environment evidence
 
 On 2026-07-30, the local development shell has PHP 8.4.16 and Composer 2.10.1. The authoritative `phprime8` environment has CiviCRM 6.16.2 Standalone, PHP 8.4.22, `cv` 0.3.71, and `matrix-commander-rs` 0.11.0 at `/home/phprime8/bin/matrix-commander-rs`. Civix is not installed there; the extension follows the local CiviVerify Civix reference (`format 25.10.2`, entity-types PHP mixin, CiviMix schema upgrader). The verified CLI supports credentials/store paths, stdin message input, rooms, timeouts and JSON output; it exposes no explicit transaction-ID option, so timeout-after-send is `delivery_unknown`.

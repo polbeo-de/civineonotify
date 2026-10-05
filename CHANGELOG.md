@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add a non-sending Matrix-Nio E2EE probe to evaluate an additional Matrix
+  client implementation while retaining matrix-commander-rs for deployments
+  with sufficient memory. The probe requires an explicit opt-in before sharing
+  a message session with unverified recipient devices.
+
 - Generalize the Alpha data model from Matrix connections and rooms to transports and destinations; a forward-only upgrade preserves existing Matrix configuration and delivery history.
 - Move the default destination to each transport and remove global Matrix connection/room defaults.
 
