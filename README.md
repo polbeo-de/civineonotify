@@ -1,8 +1,8 @@
 # CiviNeo Notify
 
 `de.polbeo.civicrm.civineonotify` is an AGPL-3.0-or-later CiviCRM extension for
-rule-based outbound Matrix notifications. It is currently at implementation
-baseline **0.0.1** and is disabled by default.
+rule-based outbound notifications. Matrix is its first transport. It is
+currently an alpha and is disabled by default.
 
 ## Why “CiviNeo Notify”?
 
@@ -20,8 +20,8 @@ product direction is to support further destinations and messenger services.
   expression evaluator is accepted.
 - Renders an explicit, small token set and writes materialized delivery records
   to a persistent outbox.
-- Provides a searchable event selector, JSON conditions, editable configuration
-  records, delivery log, and an explicitly requested per-room Matrix test.
+- Provides a searchable event selector, JSON conditions, editable transport and
+  destination records, delivery log, and an explicitly requested Matrix test.
 - Separates hooks from transport. Sending is reserved for a serial scheduled
   worker and is designed for `matrix-commander-rs` through a safe transport
   boundary.
@@ -35,14 +35,18 @@ Target runtime is CiviCRM 6.15+ and PHP 8.1+; development reference is Civix
 format 25.10.2. Install the extension normally into CiviCRM's extension
 directory, install Composer development dependencies when running tests, enable
 it in CiviCRM, then configure it under **Administer → System Settings → CiviNeo
-Notify**. Keep it disabled until a connection, room, and explicit rule are
-reviewed.
+Notify**. Keep it disabled until a transport, destination, and explicit rule
+are reviewed.
 
 `matrix-commander-rs` is an external deployment prerequisite and is installed
 on `phprime8` as `/home/phprime8/bin/matrix-commander-rs` (version 0.11.0).
 Its supported credentials/store, stdin-message, room, timeout, and JSON-output
 options have been verified against that binary. See
 [configuration](docs/configuration.md).
+
+For encrypted Matrix transports, follow the dedicated
+[provisioning guide](docs/matrix-provisioning.md). It documents the bot account,
+one-time token, credentials bundle, persistent E2EE store, and safe test order.
 
 Deployment responsibilities and the staging/release-artifact workflow are
 documented in [deployment](docs/deployment.md). Production installations must

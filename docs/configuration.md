@@ -1,17 +1,12 @@
 # Configuration
 
-Create a Matrix connection, then named rooms, and finally rules. Configure an absolute executable path, credentials path, store path, working directory and timeout. Only `matrix_commander_rs` is intended for production in 0.0.1. The Rooms list provides a **Test** action which immediately sends the configured default message template to that room and records the outcome in the delivery log.
+Create a Matrix transport, then named destinations, and finally rules. Configure an absolute executable path, credentials path, E2EE store path, working directory and timeout. Only `matrix_commander_rs` is intended for production in this alpha. The Destination list provides a **Test** action which immediately sends the configured default message template to that destination and records the outcome in the delivery log.
 
 The verified `phprime8` binary is `/home/phprime8/bin/matrix-commander-rs` version 0.11.0. It supports `--credentials`, `--store`, `--timeout`, `--message -` for stdin, `--room`, and `--output json`. Do not enable arbitrary extra options. Credential files should be owned by the service account and readable only by it (normally mode 0600). No explicit transaction-ID option was found, so delivery idempotency cannot be guaranteed after an ambiguous timeout.
 
-For a supplied access token, provisioning must first call the homeserver's
-`/_matrix/client/v3/account/whoami` endpoint using an authorization header,
-then create the CLI credentials JSON with homeserver, user ID, device ID, token,
-and room ID. The token is read from a protected file and must never become a
-process argument, log value, or database value. This follows the established
-operational pattern in the polbeo POC Matrix client.
+Follow the complete [encrypted Matrix provisioning procedure](matrix-provisioning.md) before creating the transport. It explains how the Matrix administrator creates the bot account and token, and how the supplied helper obtains the identity, builds the credentials file, and creates the persistent E2EE store without putting the token in a process argument, log, or database field.
 
-Set global defaults, create inactive example rules, then enable both a specific rule and the extension. Configure the `CiviNeoNotifyDelivery.runoutbox` scheduled job to run serially. This is a CiviCRM API v3 bridge to the extension worker; scheduled jobs do not invoke custom API v4 actions directly. Back up credentials and the Matrix store separately from the database, using protected backup storage.
+Set global defaults, create inactive example rules, then enable both a specific rule and the extension. Configure the `CiviNeoNotifyDelivery.runoutbox` scheduled job to run serially. This is a CiviCRM API v3 bridge to the extension worker; scheduled jobs do not invoke custom API v4 actions directly. Back up credentials and the Matrix store together, separately from the database, using protected backup storage.
 
 ## Rules and conditions
 

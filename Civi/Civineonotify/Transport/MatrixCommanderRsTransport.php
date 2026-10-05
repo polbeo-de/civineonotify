@@ -12,12 +12,12 @@ final class MatrixCommanderRsTransport implements MatrixTransportInterface {
   public function __construct(private readonly array $connection, private readonly Redactor $redactor = new Redactor(), private readonly ?ErrorClassifier $classifier = NULL) {}
 
   public function send(MatrixMessage $message, MatrixDestination $destination, string $transactionId): MatrixTransportResult {
-    try { return $this->run($this->arguments($destination), $message->body); }
+    try { return $this->withStoreLock($this->connection, fn() => $this->run($this->arguments($destination), $message->body)); }
     catch (\Throwable $exception) { return new MatrixTransportResult(FALSE, 'configuration_error', NULL, NULL, $this->redactor->redact($exception->getMessage())); }
   }
 
   public function testConnection(array $connection): MatrixTransportResult {
-    try { return $this->run($this->baseArguments($connection, ['--whoami', '--output', 'json'])); }
+    try { return $this->withStoreLock($connection, fn() => $this->run($this->baseArguments($connection, ['--whoami', '--output', 'json']))); }
     catch (\Throwable $exception) { return new MatrixTransportResult(FALSE, 'configuration_error', NULL, NULL, $this->redactor->redact($exception->getMessage())); }
   }
 
@@ -52,6 +52,25 @@ final class MatrixCommanderRsTransport implements MatrixTransportInterface {
     }
     catch (\Symfony\Component\Process\Exception\ProcessTimedOutException) { return new MatrixTransportResult(FALSE, 'unknown_delivery_state', NULL, NULL, 'Matrix command timed out.', TRUE); }
     catch (\Throwable $exception) { return new MatrixTransportResult(FALSE, 'configuration_error', NULL, NULL, $this->redactor->redact($exception->getMessage())); }
+  }
+
+  /**
+   * matrix-commander-rs mutates its persistent E2EE store. A non-blocking lock
+   * turns a concurrent worker/test into a retryable delivery instead of risking
+   * store corruption or an ambiguous send.
+   */
+  private function withStoreLock(array $connection, callable $operation): MatrixTransportResult {
+    $store = $this->directory($connection['store_path'] ?? '');
+    $lock = @fopen($store . '/.civineonotify.lock', 'c');
+    if ($lock === FALSE) throw new \RuntimeException('Configured Matrix store lock is not usable.');
+    try {
+      if (!flock($lock, LOCK_EX | LOCK_NB)) return new MatrixTransportResult(FALSE, 'store_locked', NULL, NULL, 'Matrix encryption store is busy.');
+      return $operation();
+    }
+    finally {
+      flock($lock, LOCK_UN);
+      fclose($lock);
+    }
   }
 
   private function path(string $path, bool $executable): string {
