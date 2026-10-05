@@ -61,11 +61,11 @@ and enters its emoji-comparison dialog. It then remains loading; neither side
 has produced a SAS for the administrator to compare. This prevents a claim of
 successful verification even though the preceding request was delivered.
 
-One current upstream report, [matrix-nio#570](https://github.com/matrix-nio/matrix-nio/issues/570), describes a SAS commitment encoding incompatibility with
-Element in a recent Matrix-Nio release. It is a plausible lead for this
-symptom, but it has **not** been proven to be its cause in the CiviNeo Notify
-test. Do not report it as the root cause without a minimal upstream
-reproduction or event-level evidence.
+Matrix-Nio 0.26.0 also has a separate confirmed SAS-commitment encoding
+regression, [matrix-nio#570](https://github.com/matrix-nio/matrix-nio/issues/570), with a proposed fix in [matrix-nio#572](https://github.com/matrix-nio/matrix-nio/pull/572). A staging trial with that fix still stopped earlier on an
+unknown-transaction event, before a SAS could be compared. The commitment fix
+is therefore relevant but does not by itself fix CiviNeo Notify's current
+request/start interoperability gap.
 
 ### 4. Own-device discovery requires an explicit key query
 
