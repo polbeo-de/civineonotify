@@ -15,7 +15,7 @@
     <tr class="nio-field"><td class="label">{$form.allow_unverified_recipient_devices.label}</td><td>{$form.allow_unverified_recipient_devices.html}<div class="description">{ts}Off by default. Enabling it still encrypts messages but shares their session with recipient devices which have not been verified.{/ts}</div></td></tr>
     <tr><td class="label">{$form.is_active.label}</td><td>{$form.is_active.html}</td></tr>
     <tr><td class="label">{$form.default_destination_id.label}</td><td>{$form.default_destination_id.html}</td></tr>
-    <tr><td></td><td>{$form.buttons.html}{if $provisionUrl}<a class="button" href="{$provisionUrl}">{ts}Provision Matrix credentials{/ts}</a>{/if}</td></tr>
+    <tr><td></td><td>{$form.buttons.html}{if $provisionUrl}<a class="button" href="{$provisionUrl}">{ts}Provision Matrix credentials{/ts}</a>{/if}{if $verifyUrl}<a class="button" href="{$verifyUrl}">{ts}Verify Matrix device{/ts}</a>{/if}</td></tr>
   </table>
 </div>
 {literal}
