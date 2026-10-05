@@ -13,7 +13,7 @@ final class CRM_Civineonotify_Form_ProvisionMatrix extends CRM_Core_Form {
   public function preProcess(): void {
     $id = (int) CRM_Utils_Request::retrieve('id', 'Positive', $this, TRUE);
     $transport = \Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $id)->execute()->first();
-    if (!$transport || ($transport['transport_type'] ?? NULL) !== 'matrix_commander_rs') throw new CRM_Core_Exception(E::ts('Matrix transport not found.'));
+    if (!$transport || !in_array($transport['transport_type'] ?? NULL, ['matrix_commander_rs', 'matrix_nio'], TRUE)) throw new CRM_Core_Exception(E::ts('Matrix transport not found.'));
     $this->id = $id;
     $this->transport = $transport;
     civineonotify_appendBreadcrumb('Transports', 'civicrm/admin/civineonotify/transports');
@@ -34,7 +34,7 @@ final class CRM_Civineonotify_Form_ProvisionMatrix extends CRM_Core_Form {
 
   public function setDefaultValues(): array {
     $config = is_array($this->transport['config_json'] ?? NULL) ? $this->transport['config_json'] : [];
-    $credentials = (string) ($config['credentials_path'] ?? '');
+    $credentials = (string) (($this->transport['transport_type'] ?? NULL) === 'matrix_nio' ? ($config['session_path'] ?? '') : ($config['credentials_path'] ?? ''));
     return ['homeserver' => $config['homeserver'] ?? '', 'user_login' => $config['provisioned_user_login'] ?? 'monitoring_bot', 'room_id' => $config['provisioned_room_id'] ?? '', 'storage_root' => $credentials !== '' ? dirname($credentials) : ''];
   }
 
@@ -61,11 +61,12 @@ final class CRM_Civineonotify_Form_ProvisionMatrix extends CRM_Core_Form {
       $statusFile = $storageRoot . '/.civineonotify-provision-' . $job . '.status';
       if (file_put_contents($passwordFile, $password, LOCK_EX) === FALSE || !chmod($passwordFile, 0600)) throw new RuntimeException('Bot password cannot be secured.');
       $password = '';
-      $credentials = $storageRoot . '/credentials.json';
+      $isNio = ($this->transport['transport_type'] ?? NULL) === 'matrix_nio';
+      $credentials = $storageRoot . ($isNio ? '/session.json' : '/credentials.json');
       $store = $storageRoot . '/store';
-      $helper = dirname(__DIR__, 3) . '/bin/provision-matrix-credentials';
+      $helper = dirname(__DIR__, 3) . '/bin/' . ($isNio ? 'probe-matrix-nio' : 'provision-matrix-credentials');
       $config = is_array($this->transport['config_json'] ?? NULL) ? $this->transport['config_json'] : [];
-      $config['credentials_path'] = $credentials;
+      if ($isNio) $config['session_path'] = $credentials; else $config['credentials_path'] = $credentials;
       $config['store_path'] = $store;
       $config['working_directory'] = $storageRoot;
       $config['homeserver'] = $homeserver;
@@ -77,7 +78,11 @@ final class CRM_Civineonotify_Form_ProvisionMatrix extends CRM_Core_Form {
       if (!is_int($uid) || $uid < 1) throw new RuntimeException('User systemd runtime cannot be determined.');
       $runtime = '/run/user/' . $uid;
       $environment = ['PATH' => '/usr/bin:/bin', 'XDG_RUNTIME_DIR' => $runtime, 'DBUS_SESSION_BUS_ADDRESS' => 'unix:path=' . $runtime . '/bus'];
-      $process = new Process(['/usr/bin/systemd-run', '--user', '--no-block', '--collect', '--unit', 'civineonotify-provision-' . $this->id . '-' . $job, '--property=RuntimeMaxSec=5min', '--property=MemoryHigh=900M', '--', $helper, '--matrix-client', (string) ($config['binary_path'] ?? ''), '--homeserver', $homeserver, '--user-login', $userLogin, '--room-id', $roomId, '--password-file', $passwordFile, '--remove-password-file', '--status-file', $statusFile, '--credentials-file', $credentials, '--store-path', $store, '--timeout', (string) ($config['timeout_seconds'] ?? 30), '--device-name', 'CiviNeo Notify phprime8'], NULL, $environment, NULL, 10);
+      $command = $isNio
+        ? [(string) ($config['python_path'] ?? ''), $helper, '--homeserver', $homeserver, '--user-login', $userLogin, '--password-file', $passwordFile, '--store-path', $store, '--session-file', $credentials, '--status-file', $statusFile, '--device-name', 'CiviNeo Notify', '--initial-sync']
+        : [$helper, '--matrix-client', (string) ($config['binary_path'] ?? ''), '--homeserver', $homeserver, '--user-login', $userLogin, '--room-id', $roomId, '--password-file', $passwordFile, '--remove-password-file', '--status-file', $statusFile, '--credentials-file', $credentials, '--store-path', $store, '--timeout', (string) ($config['timeout_seconds'] ?? 30), '--device-name', 'CiviNeo Notify phprime8'];
+      $limit = $isNio ? '--property=MemoryMax=350M' : '--property=MemoryHigh=900M';
+      $process = new Process(array_merge(['/usr/bin/systemd-run', '--user', '--no-block', '--collect', '--unit', 'civineonotify-provision-' . $this->id . '-' . $job, '--property=RuntimeMaxSec=5min', $limit, '--'], $command), NULL, $environment, NULL, 10);
       $process->run();
       if (!$process->isSuccessful()) throw new RuntimeException('Matrix provisioning job cannot be started.');
       $passwordFile = '';
