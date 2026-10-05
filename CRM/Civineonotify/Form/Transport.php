@@ -17,7 +17,10 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $this->add('textarea', 'description', E::ts('Description'), ['rows' => 3, 'cols' => 70]);
     $this->add('checkbox', 'is_active', E::ts('Active'));
     $this->addButtons([['type' => 'submit', 'name' => E::ts('Save transport'), 'isDefault' => TRUE], ['type' => 'cancel', 'name' => E::ts('Cancel')]]);
-    if ($this->id) $this->assign('provisionUrl', CRM_Utils_System::url('civicrm/admin/civineonotify/provision-matrix', ['reset' => 1, 'id' => $this->id]));
+    if ($this->id) {
+      $row = \Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? [];
+      if (($row['transport_type'] ?? NULL) === 'matrix_commander_rs') $this->assign('provisionUrl', CRM_Utils_System::url('civicrm/admin/civineonotify/provision-matrix', ['reset' => 1, 'id' => $this->id]));
+    }
   }
   public function setDefaultValues(): array {
     if (!$this->id) return ['is_active' => 1, 'transport_type' => 'matrix_commander_rs', 'timeout_seconds' => 30, 'working_directory' => '/tmp', 'nio_client_path' => dirname(__DIR__, 3) . '/bin/matrix-nio-client'];
@@ -35,7 +38,8 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     }
     else {
       if (!preg_match('#^https://[^\s]+$#', (string) $v['homeserver'])) { $this->setElementError('homeserver', E::ts('Use an HTTPS homeserver URL.')); return; }
-      foreach (['python_path', 'nio_client_path', 'session_path', 'store_path'] as $path) if (empty($v[$path]) || !str_starts_with((string) $v[$path], '/')) { $this->setElementError($path, E::ts('Use an absolute path.')); return; }
+      foreach (['python_path', 'nio_client_path'] as $path) if (empty($v[$path]) || !str_starts_with((string) $v[$path], '/')) { $this->setElementError($path, E::ts('Use an absolute path.')); return; }
+      foreach (['session_path', 'store_path'] as $path) if (!empty($v[$path]) && !str_starts_with((string) $v[$path], '/')) { $this->setElementError($path, E::ts('Use an absolute path.')); return; }
       if (!is_file((string) $v['python_path']) || !is_executable((string) $v['python_path'])) { $this->setElementError('python_path', E::ts('The Matrix Nio Python executable does not exist or is not executable.')); return; }
       if (!is_file((string) $v['nio_client_path']) || !is_readable((string) $v['nio_client_path'])) { $this->setElementError('nio_client_path', E::ts('The Matrix Nio client does not exist or is not readable.')); return; }
       $config = array_filter(array_intersect_key($v, array_flip(['homeserver', 'python_path', 'nio_client_path', 'session_path', 'store_path', 'working_directory', 'timeout_seconds', 'allow_unverified_recipient_devices'])), static fn($value) => $value !== '' && $value !== NULL && $value !== FALSE);
