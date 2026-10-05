@@ -18,7 +18,7 @@ The administrator needs four ordinary, non-secret facts: the HTTPS homeserver UR
 
 ## Create the credential bundle
 
-The protected **Provision Matrix credentials** action on an existing Matrix transport uploads a one-time password file. `matrix-commander-rs` uses it from standard input to create a dedicated Matrix device, credentials JSON, access token and persistent E2EE store together. The upload is deleted immediately. Neither password nor token is an argument to a process or a CiviCRM API, and neither is stored in the CiviCRM database.
+The protected **Provision Matrix credentials** action on an existing Matrix transport accepts the bot password once over HTTPS. `matrix-commander-rs` receives it only on standard input to create a dedicated Matrix device, credentials JSON, access token and persistent E2EE store together. Neither password nor token is an argument to a process or a CiviCRM API, and neither is stored in the CiviCRM database.
 
 The browser action runs as the PHP service account, which must be the same operating-system account that executes the CiviCRM worker. On the phprime8 reference host both are `phprime8`. Enter `/home/phprime8/tmp/civineonotify` as the private storage directory: the action creates this child directory as `0700`; do not use the world-readable `~/tmp` parent itself.
 
@@ -56,4 +56,4 @@ Back up the credentials file and E2EE store together in protected storage, with 
 
 ## Browser provisioning
 
-The provisioning page is restricted to **administer CiviNeo Notify**. It accepts only a small plain-text password file, moves it to a randomly named `0600` file inside the selected private directory, invokes the same audited helper, and removes that temporary file in all success and failure paths. It deliberately exposes neither the password, generated token nor helper output to the browser or CiviCRM logs.
+The provisioning page is restricted to **administer CiviNeo Notify**. It passes the password directly to the audited helper through standard input. It deliberately exposes neither the password, generated token nor helper output to the browser or CiviCRM logs.

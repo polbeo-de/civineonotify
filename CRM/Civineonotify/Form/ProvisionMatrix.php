@@ -27,8 +27,7 @@ final class CRM_Civineonotify_Form_ProvisionMatrix extends CRM_Core_Form {
     $this->add('text', 'user_login', E::ts('Matrix bot user'), ['size' => 70], TRUE);
     $this->add('text', 'room_id', E::ts('Matrix internal room ID'), ['size' => 70], TRUE);
     $this->add('text', 'storage_root', E::ts('Private storage directory'), ['size' => 70], TRUE);
-    $this->add('file', 'bot_password_file', E::ts('One-time bot-password file'), ['size' => 70]);
-    $this->addRule('bot_password_file', E::ts('Upload the one-time bot-password file.'), 'uploadedfile');
+    $this->add('password', 'bot_password', E::ts('One-time bot password'), ['size' => 70], TRUE);
     $this->addButtons([['type' => 'submit', 'name' => E::ts('Provision securely'), 'isDefault' => TRUE], ['type' => 'cancel', 'name' => E::ts('Cancel')]]);
   }
 
@@ -47,26 +46,20 @@ final class CRM_Civineonotify_Form_ProvisionMatrix extends CRM_Core_Form {
     if (!preg_match('#^https://[^\s]+$#', $homeserver)) { $this->setElementError('homeserver', E::ts('Use an HTTPS homeserver URL.')); return; }
     if (!preg_match('/^![^\/\s]+:[^\/\s]+$/', $roomId)) { $this->setElementError('room_id', E::ts('Use an internal Matrix room ID beginning with !.')); return; }
     if (!str_starts_with($storageRoot, '/')) { $this->setElementError('storage_root', E::ts('Use an absolute path outside the web root.')); return; }
-    $upload = $_FILES['bot_password_file'] ?? NULL;
-    if (!is_array($upload) || ($upload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || !is_uploaded_file((string) ($upload['tmp_name'] ?? ''))) {
-      $this->setElementError('bot_password_file', E::ts('A valid bot-password upload is required.')); return;
-    }
     if ($userLogin === '') { $this->setElementError('user_login', E::ts('Provide the Matrix bot user.')); return; }
-    if ((int) ($upload['size'] ?? 0) < 1 || (int) $upload['size'] > 4096) { $this->setElementError('bot_password_file', E::ts('The bot-password file must be between 1 and 4096 bytes.')); return; }
+    $password = (string) ($values['bot_password'] ?? '');
+    if ($password === '' || strlen($password) > 4096) { $this->setElementError('bot_password', E::ts('Provide the bot password.')); return; }
 
-    $temporaryToken = '';
     try {
       if (!is_dir($storageRoot) && !mkdir($storageRoot, 0700, TRUE) && !is_dir($storageRoot)) throw new RuntimeException('Private storage directory cannot be created.');
       $mode = fileperms($storageRoot);
       if ($mode === FALSE || ($mode & 0077) !== 0 || !is_writable($storageRoot)) throw new RuntimeException('Private storage directory is not private and writable.');
-      $temporaryToken = $storageRoot . '/.civineonotify-password-' . bin2hex(random_bytes(16));
-      if (!move_uploaded_file((string) $upload['tmp_name'], $temporaryToken)) throw new RuntimeException('Access-token upload cannot be secured.');
-      chmod($temporaryToken, 0600);
       $credentials = $storageRoot . '/credentials.json';
       $store = $storageRoot . '/store';
       $helper = dirname(__DIR__, 3) . '/bin/provision-matrix-credentials';
       $config = is_array($this->transport['config_json'] ?? NULL) ? $this->transport['config_json'] : [];
-      $process = new Process([$helper, '--matrix-client', (string) ($config['binary_path'] ?? ''), '--homeserver', $homeserver, '--user-login', $userLogin, '--room-id', $roomId, '--password-file', $temporaryToken, '--credentials-file', $credentials, '--store-path', $store, '--timeout', (string) ($config['timeout_seconds'] ?? 30), '--device-name', 'CiviNeo Notify phprime8'], NULL, ['PATH' => '/usr/bin:/bin'], NULL, 45);
+      $process = new Process([$helper, '--matrix-client', (string) ($config['binary_path'] ?? ''), '--homeserver', $homeserver, '--user-login', $userLogin, '--room-id', $roomId, '--password-stdin', '--credentials-file', $credentials, '--store-path', $store, '--timeout', (string) ($config['timeout_seconds'] ?? 30), '--device-name', 'CiviNeo Notify phprime8'], NULL, ['PATH' => '/usr/bin:/bin'], $password . "\n", 45);
+      $password = '';
       $process->run();
       if (!$process->isSuccessful()) throw new RuntimeException('Matrix provisioning helper failed.');
       $config['credentials_path'] = $credentials;
@@ -81,10 +74,10 @@ final class CRM_Civineonotify_Form_ProvisionMatrix extends CRM_Core_Form {
     }
     catch (\Throwable $exception) {
       \Civi::log()->warning('CiviNeo Notify Matrix provisioning failed.', ['transport_id' => $this->id, 'exception' => get_class($exception)]);
-      $this->setElementError('bot_password_file', E::ts('Provisioning failed. Verify the homeserver, bot password, room ID and private directory.'));
+      $this->setElementError('bot_password', E::ts('Provisioning failed. Verify the homeserver, bot password, room ID and private directory.'));
     }
     finally {
-      if ($temporaryToken !== '' && is_file($temporaryToken)) unlink($temporaryToken);
+      $password = '';
     }
   }
 }
