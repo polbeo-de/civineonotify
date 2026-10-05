@@ -16,7 +16,7 @@ import stat
 import sys
 from pathlib import Path
 
-from nio import AsyncClient, AsyncClientConfig, LoginResponse, RoomSendResponse, SyncResponse
+from nio import AsyncClient, AsyncClientConfig, KeysUploadResponse, LoginResponse, RoomSendResponse, SyncResponse
 
 
 def private_directory(path: Path) -> None:
@@ -102,6 +102,11 @@ async def provision(arguments: argparse.Namespace) -> None:
       }) + '\n', encoding='utf-8')
       temporary.chmod(0o600)
       temporary.replace(arguments.session_file)
+
+      if client.should_upload_keys:
+        response = await client.keys_upload()
+        if not isinstance(response, KeysUploadResponse):
+          raise RuntimeError('Matrix encryption keys could not be uploaded.')
 
     if arguments.initial_sync:
       write_status(arguments.status_file, 'running:initial-sync')
