@@ -3,7 +3,10 @@
 from __future__ import annotations
 import argparse, asyncio, json, stat, time
 from pathlib import Path
-from nio import AsyncClient, AsyncClientConfig, KeysQueryResponse, SyncResponse, ToDeviceResponse
+from uuid import uuid4
+from nio import AsyncClient, AsyncClientConfig, KeysQueryResponse, SyncResponse, ToDeviceMessage, ToDeviceResponse
+from nio.crypto.sas import Sas
+from nio.events.to_device import UnknownToDeviceEvent
 
 def private(path: Path, directory: bool = False) -> None:
   if (not path.is_dir() if directory else not path.is_file()) or stat.S_IMODE(path.stat().st_mode) & 0o077:
@@ -23,7 +26,7 @@ async def main() -> int:
   p.add_argument('--max-seconds', type=int, default=300)
   a = p.parse_args(); private(a.session_file); private(a.store_path, True)
   data = json.loads(a.session_file.read_text()); c = AsyncClient(a.homeserver, data['user_id'], device_id=data['device_id'], store_path=str(a.store_path), config=AsyncClientConfig(encryption_enabled=True, store_sync_tokens=True, request_timeout=20, max_timeouts=0)); c.restore_login(data['user_id'], data['device_id'], data['access_token'])
-  deadline = time.monotonic() + a.max_seconds
+  deadline = time.monotonic() + a.max_seconds; transaction = str(uuid4()); ready = False; started = False; accepted = False
   try:
     reply = await c.sync(timeout=0, full_state=True)
     if not isinstance(reply, SyncResponse): status(a.status_file, {'state':'failed'}); return 1
@@ -31,20 +34,33 @@ async def main() -> int:
     if not isinstance(reply, KeysQueryResponse): status(a.status_file, {'state':'failed'}); return 1
     peer = c.device_store[data['user_id']].get(a.target_device_id)
     if peer is None: status(a.status_file, {'state':'failed'}); return 1
-    reply = await c.start_key_verification(peer)
+    def receive_ready(event):
+      nonlocal ready
+      content = event.source.get('content', {})
+      if event.type == 'm.key.verification.ready' and event.sender == data['user_id'] and content.get('from_device') == a.target_device_id and content.get('transaction_id') == transaction: ready = True
+    c.add_to_device_callback(receive_ready, UnknownToDeviceEvent)
+    request = ToDeviceMessage('m.key.verification.request', data['user_id'], a.target_device_id, {'from_device': data['device_id'], 'methods': ['m.sas.v1'], 'timestamp': int(time.time() * 1000), 'transaction_id': transaction})
+    reply = await c.to_device(request)
     if not isinstance(reply, ToDeviceResponse): status(a.status_file, {'state':'failed'}); return 1
-    transactions = [tx for tx, sas in c.key_verifications.items() if sas.other_olm_device.device_id == a.target_device_id]
-    if len(transactions) != 1: status(a.status_file, {'state':'failed'}); return 1
-    transaction = transactions[0]
     status(a.status_file, {'state':'waiting'})
     while time.monotonic() < deadline:
       if a.cancel_file.exists(): status(a.status_file, {'state':'cancelled'}); return 1
       reply = await c.sync(timeout=1000, full_state=False)
       if not isinstance(reply, SyncResponse): status(a.status_file, {'state':'failed'}); return 1
+      if ready and not started:
+        sas = Sas(data['user_id'], data['device_id'], c.olm.account.identity_keys['ed25519'], peer, transaction_id=transaction)
+        c.key_verifications[transaction] = sas
+        reply = await c.to_device(sas.start_verification())
+        if not isinstance(reply, ToDeviceResponse): status(a.status_file, {'state':'failed'}); return 1
+        started = True
       sas = c.key_verifications.get(transaction)
       if sas is None: continue
       if sas.canceled: status(a.status_file, {'state':'cancelled'}); return 1
       if sas.verified: status(a.status_file, {'state':'verified'}); return 0
+      if not sas.we_started and sas.state.name == 'started' and not accepted:
+        reply = await c.accept_key_verification(transaction)
+        if not isinstance(reply, ToDeviceResponse): status(a.status_file, {'state':'failed'}); return 1
+        accepted = True
       try: emoji = sas.get_emoji(); decimals = sas.get_decimals()
       except Exception: continue
       status(a.status_file, {'state':'compare', 'transaction_id':transaction, 'emoji':emoji, 'decimals':decimals})
