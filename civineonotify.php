@@ -12,6 +12,7 @@ require_once __DIR__ . '/CRM/Civineonotify/Form/Admin.php';
 require_once __DIR__ . '/CRM/Civineonotify/Form/Transport.php';
 require_once __DIR__ . '/CRM/Civineonotify/Form/ProvisionMatrix.php';
 require_once __DIR__ . '/CRM/Civineonotify/Form/VerifyMatrixNio.php';
+require_once __DIR__ . '/CRM/Civineonotify/Form/DeleteTransport.php';
 require_once __DIR__ . '/CRM/Civineonotify/Form/Destination.php';
 require_once __DIR__ . '/CRM/Civineonotify/Form/Rule.php';
 

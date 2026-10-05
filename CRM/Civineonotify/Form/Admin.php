@@ -21,7 +21,13 @@ final class CRM_Civineonotify_Form_Admin extends CRM_Core_Form {
     $query = call_user_func(["Civi\\Api4\\{$this->entity}", 'get'], FALSE)->setLimit(100);
     if ($this->view !== 'log') $query->addWhere('is_active', '=', TRUE);
     $this->assign('civineonotifyView', $this->view);
-    $this->assign('civineonotifyRows', $query->execute());
+    $rows = [];
+    foreach ($query->execute() as $row) {
+      $row = (array) $row;
+      if ($this->view === 'transports') $row += $this->transportStatus($row);
+      $rows[] = $row;
+    }
+    $this->assign('civineonotifyRows', $rows);
   }
 
   public function setDefaultValues(): array {
@@ -43,5 +49,50 @@ final class CRM_Civineonotify_Form_Admin extends CRM_Core_Form {
     if ($this->entity === 'CiviNeoNotifyDelivery' && in_array($action, ['cancel', 'retry'], TRUE) && CRM_Core_Permission::check('retry civineo notify deliveries')) {
       call_user_func([\Civi\Api4\CiviNeoNotifyDelivery::class, $action], FALSE)->setId($id)->execute();
     }
+  }
+
+  /** Return only operator-facing state; private paths and credential details never leave this method. */
+  private function transportStatus(array $transport): array {
+    $type = (string) ($transport['transport_type'] ?? '');
+    if (!in_array($type, ['matrix_commander_rs', 'matrix_nio'], TRUE)) {
+      return ['provisioning_status' => E::ts('Not applicable'), 'trust_status' => E::ts('Not applicable'), 'is_matrix_nio' => FALSE];
+    }
+    $config = is_array($transport['config_json'] ?? NULL) ? $transport['config_json'] : [];
+    $provisioning = $this->readProvisioningStatus((string) ($config['provision_status_file'] ?? ''));
+    if ($provisioning === '') $provisioning = E::ts('Not provisioned');
+    if ($type !== 'matrix_nio') {
+      return ['provisioning_status' => $provisioning, 'trust_status' => E::ts('Not applicable'), 'is_matrix_nio' => FALSE];
+    }
+    $trust = $this->readVerificationStatus((string) ($config['verification_status_file'] ?? ''));
+    return ['provisioning_status' => $provisioning, 'trust_status' => $trust, 'is_matrix_nio' => TRUE];
+  }
+
+  private function readProvisioningStatus(string $file): string {
+    if ($file === '' || !is_readable($file)) return '';
+    $status = trim((string) file_get_contents($file));
+    $labels = [
+      'succeeded' => E::ts('Provisioned'),
+      'running' => E::ts('Provisioning in progress'),
+      'running:preparing' => E::ts('Provisioning in progress'),
+      'running:creating-device' => E::ts('Provisioning in progress'),
+      'running:checking-identity' => E::ts('Provisioning in progress'),
+      'failed' => E::ts('Provisioning failed'),
+      'failed:preparing' => E::ts('Provisioning failed'),
+      'failed:creating-device' => E::ts('Provisioning failed'),
+      'failed:checking-identity' => E::ts('Provisioning failed'),
+    ];
+    return $labels[$status] ?? E::ts('Provisioning status unavailable');
+  }
+
+  private function readVerificationStatus(string $file): string {
+    if ($file === '' || !is_readable($file)) return E::ts('Not verified');
+    $status = json_decode((string) file_get_contents($file), TRUE);
+    $state = is_array($status) ? (string) ($status['state'] ?? '') : '';
+    return match ($state) {
+      'verified' => E::ts('Trusted'),
+      'waiting', 'compare', 'confirming' => E::ts('Verification in progress'),
+      'failed', 'cancelled', 'timed_out' => E::ts('Not trusted'),
+      default => E::ts('Not verified'),
+    };
   }
 }

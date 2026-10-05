@@ -73,6 +73,8 @@ final class CRM_Civineonotify_Form_ProvisionMatrix extends CRM_Core_Form {
       $config['provisioned_room_id'] = $roomId;
       $config['provisioned_user_login'] = $userLogin;
       $config['provision_status_file'] = $statusFile;
+      // A fresh Matrix device has no inherited SAS verification state.
+      unset($config['verification_status_file']);
       \Civi\Api4\CiviNeoNotifyTransport::update(FALSE)->setWhere([['id', '=', $this->id]])->setValues(['config_json' => $config])->execute();
       $uid = function_exists('posix_geteuid') ? posix_geteuid() : NULL;
       if (!is_int($uid) || $uid < 1) throw new RuntimeException('User systemd runtime cannot be determined.');
