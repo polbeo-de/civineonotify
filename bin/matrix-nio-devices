@@ -9,7 +9,7 @@ import stat
 import sys
 from pathlib import Path
 
-from nio import AsyncClient, AsyncClientConfig, SyncResponse
+from nio import AsyncClient, AsyncClientConfig, KeysQueryResponse, SyncResponse
 
 
 def private(path: Path, directory: bool = False) -> None:
@@ -30,6 +30,8 @@ async def main() -> int:
   try:
     response = await client.sync(timeout=0, full_state=True)
     if not isinstance(response, SyncResponse): raise RuntimeError('Matrix device sync failed.')
+    response = await client.keys_query()
+    if not isinstance(response, KeysQueryResponse): raise RuntimeError('Matrix device query failed.')
     own_devices = client.device_store[session['user_id']]
     devices = [{'id': device_id, 'name': f"{getattr(device, 'display_name', '') or device_id} ({device_id})"} for device_id, device in own_devices.items() if device_id != session['device_id']]
     print(json.dumps({'devices': devices}, separators=(',', ':')))
