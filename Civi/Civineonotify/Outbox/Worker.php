@@ -7,7 +7,7 @@ namespace Civi\Civineonotify\Outbox;
 use Civi\Api4\CiviNeoNotifyDelivery;
 use Civi\Api4\CiviNeoNotifyDestination;
 use Civi\Api4\CiviNeoNotifyTransport;
-use Civi\Civineonotify\Transport\{MatrixCommanderRsTransport, MatrixDestination, MatrixMessage};
+use Civi\Civineonotify\Transport\{MatrixDestination, MatrixMessage, TransportFactory};
 
 final class Worker {
   public function __construct(private readonly ?RetryPolicy $retryPolicy = NULL) {}
@@ -20,10 +20,12 @@ final class Worker {
       CiviNeoNotifyDelivery::update(FALSE)->addWhere('id', '=', $row['id'])->addWhere('status', 'IN', ['pending', 'retry'])->setValues(['status' => 'processing', 'last_attempt_at' => gmdate('Y-m-d H:i:s')])->execute();
       $transport = CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $row['transport_id'])->addWhere('is_active', '=', TRUE)->execute()->first();
       $destination = CiviNeoNotifyDestination::get(FALSE)->addWhere('id', '=', $row['destination_id'])->addWhere('is_active', '=', TRUE)->execute()->first();
-      if (!$transport || !$destination || ($transport['transport_type'] ?? NULL) !== 'matrix_commander_rs') { $this->failConfiguration($row['id']); continue; }
+      if (!$transport || !$destination) { $this->failConfiguration($row['id']); continue; }
       $transportConfig = is_array($transport['config_json'] ?? NULL) ? $transport['config_json'] : [];
       $destinationConfig = is_array($destination['config_json'] ?? NULL) ? $destination['config_json'] : [];
-      $result = (new MatrixCommanderRsTransport($transportConfig))->send(new MatrixMessage($row['message_body']), new MatrixDestination($destinationConfig['room_id'] ?? NULL, $destinationConfig['room_alias'] ?? NULL), $row['transaction_id']);
+      try { $client = TransportFactory::create((string) $transport['transport_type'], $transportConfig); }
+      catch (\Throwable) { $this->failConfiguration($row['id']); continue; }
+      $result = $client->send(new MatrixMessage($row['message_body']), new MatrixDestination($destinationConfig['room_id'] ?? NULL, $destinationConfig['room_alias'] ?? NULL), $row['transaction_id']);
       $attempt = (int) $row['attempt_count'] + 1; $policy = $this->retryPolicy ?? new RetryPolicy();
       $retry = !$result->success && !$result->deliveryUnknown && $attempt < (int) \Civi::settings()->get('civineonotify_max_attempts') && $policy->isRetryable($result->category);
       CiviNeoNotifyDelivery::update(FALSE)->addWhere('id', '=', $row['id'])->setValues(['status' => $result->success ? 'sent' : ($result->deliveryUnknown ? 'delivery_unknown' : ($retry ? 'retry' : 'failed')), 'attempt_count' => $attempt, 'next_attempt_at' => $retry ? $policy->nextAttempt($attempt) : NULL, 'last_attempt_at' => gmdate('Y-m-d H:i:s'), 'sent_at' => $result->success ? gmdate('Y-m-d H:i:s') : NULL, 'external_id' => $result->matrixEventId, 'exit_code' => $result->exitCode, 'error_code' => $result->success ? NULL : $result->category, 'error_message' => $result->message])->execute();
