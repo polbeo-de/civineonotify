@@ -57,7 +57,7 @@ async def main() -> int:
       if sas is None: continue
       if sas.canceled: status(a.status_file, {'state':'cancelled'}); return 1
       if sas.verified: status(a.status_file, {'state':'verified'}); return 0
-      if not sas.we_started and sas.state.name == 'started' and not accepted:
+      if not sas.we_started_it and sas.state.name == 'started' and not accepted:
         reply = await c.accept_key_verification(transaction)
         if not isinstance(reply, ToDeviceResponse): status(a.status_file, {'state':'failed'}); return 1
         accepted = True
