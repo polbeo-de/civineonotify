@@ -12,8 +12,11 @@ CiviNeo Notify uses this contract for every such transport:
    process argument, or browser-visible status.
 3. It starts a bounded, one-shot user-systemd service. The service is separate
    from PHP-FPM, has a startup timeout and a memory high-water limit.
-4. The job removes the secret file and writes only `running`, `succeeded`, or
-   `failed` to a private status file. The form may display that status.
+4. The job removes the secret file and writes a safe stage status to a private
+   status file. It may identify only `preparing`, `creating-device`, or
+   `checking-identity`, plus `running`, `succeeded`, or `failed`; it never
+   includes client output, credentials, tokens, room content, or server
+   responses. The form may display that status.
 5. Only after a successful status may an administrator run the explicit
    non-sending connection test; sending a destination test remains a separate,
    audited action.

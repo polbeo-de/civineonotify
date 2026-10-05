@@ -12,7 +12,7 @@ Neither belongs in the database, the CiviCRM file area, the web root, a shell hi
 1. Ask the Matrix homeserver administrator to create a dedicated bot/service account. Do not use a person's account.
 2. Have the bot join the intended room. For encrypted notifications, the room must already use Matrix E2EE and the bot device must be trusted according to the homeserver's device-verification policy.
 3. Obtain the password for that dedicated bot account through the homeserver's approved account-management process. Do not use a personal account or its Element device.
-4. On the CiviCRM host, save the password in a temporary protected file containing only the password. Make it readable only by the account performing the provisioning. Never paste it into a CiviCRM field, command line, log, or configuration file.
+4. Obtain the password only through the homeserver's approved account-management process. The protected **Provision Matrix credentials** form transmits it once over HTTPS to its isolated provisioning job; it is not stored in CiviCRM, a command line, a log, or configuration file. For the optional command-line procedure below, use a temporary protected file containing only the password and make it readable only by the provisioning account.
 
 The administrator needs four ordinary, non-secret facts: the HTTPS homeserver URL, the bot's target **internal room ID** (for example `!opaque:example.org`), the executable path for `matrix-commander-rs`, and a private directory outside the web root where the service account can maintain the credential file and store.
 
@@ -20,7 +20,7 @@ The administrator needs four ordinary, non-secret facts: the HTTPS homeserver UR
 
 The protected **Provision Matrix credentials** action on an existing Matrix transport accepts the bot password once over HTTPS. `matrix-commander-rs` receives it only on standard input to create a dedicated Matrix device, credentials JSON, access token and persistent E2EE store together. Neither password nor token is an argument to a process or a CiviCRM API, and neither is stored in the CiviCRM database.
 
-The browser action runs as the PHP service account, which must be the same operating-system account that executes the CiviCRM worker. On the phprime8 reference host both are `phprime8`. Enter `/home/phprime8/tmp/civineonotify` as the private storage directory: the action creates this child directory as `0700`; do not use the world-readable `~/tmp` parent itself.
+The browser action runs as the PHP service account, which must be the same operating-system account that executes the CiviCRM worker. On the phprime8 reference host both are `phprime8`. Enter `/home/phprime8/tmp/civineonotify` as the private storage directory: the action creates this child directory as `0700`; do not use the world-readable `~/tmp` parent itself. The page reports only safe provisioning stages and never exposes Matrix client output.
 
 For controlled operational use, the extension also ships the equivalent `bin/provision-matrix-credentials` helper. Run it as that same account. Adapt all paths to the host; these are illustrative only:
 

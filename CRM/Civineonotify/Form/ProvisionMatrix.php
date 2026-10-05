@@ -99,6 +99,18 @@ final class CRM_Civineonotify_Form_ProvisionMatrix extends CRM_Core_Form {
     $file = (string) ($config['provision_status_file'] ?? '');
     if ($file === '' || !is_file($file) || !is_readable($file)) return '';
     $status = trim((string) file_get_contents($file));
-    return in_array($status, ['running', 'succeeded', 'failed'], TRUE) ? $status : '';
+    $labels = [
+      'running:preparing' => E::ts('running (preparing protected storage)'),
+      'running:creating-device' => E::ts('running (creating Matrix device and encryption store)'),
+      'running:checking-identity' => E::ts('running (checking Matrix identity)'),
+      'succeeded' => E::ts('succeeded'),
+      'failed:preparing' => E::ts('failed while preparing protected storage'),
+      'failed:creating-device' => E::ts('failed or timed out while creating the Matrix device and encryption store'),
+      'failed:checking-identity' => E::ts('failed while checking the Matrix identity'),
+      // Compatibility with status files created by earlier releases.
+      'running' => E::ts('running'),
+      'failed' => E::ts('failed'),
+    ];
+    return $labels[$status] ?? '';
   }
 }
