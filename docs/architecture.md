@@ -1,6 +1,6 @@
 # Architecture
 
-CiviNeo Notify implements outbound Matrix notifications only. A narrow `hook_civicrm_post` normalizes a CiviCRM change, evaluates active rules, renders an allowlisted-token message, and materializes it in `MatrixNotification`. It never opens a process or network connection.
+CiviNeo Notify implements outbound Matrix notifications only. A narrow `hook_civicrm_post` normalizes a CiviCRM change, evaluates active rules, renders an allowlisted-token message, and materializes it in `CiviNeoNotifyDelivery`. It never opens a process or network connection.
 
 The scheduled worker is the only component permitted to send. It owns a single global lock because a local Matrix client store must not be used concurrently. It invokes the deployed `matrix-commander-rs` 0.11.0 client using separate process arguments and stdin for the message. Stable correlation and transaction IDs are persisted before send.
 

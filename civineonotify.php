@@ -9,8 +9,8 @@ if (!in_array(__DIR__, explode(PATH_SEPARATOR, get_include_path()), TRUE)) {
 require_once __DIR__ . '/CRM/Civineonotify/ExtensionUtil.php';
 require_once __DIR__ . '/CRM/Civineonotify/OptionProvider.php';
 require_once __DIR__ . '/CRM/Civineonotify/Form/Admin.php';
-require_once __DIR__ . '/CRM/Civineonotify/Form/Connection.php';
-require_once __DIR__ . '/CRM/Civineonotify/Form/Room.php';
+require_once __DIR__ . '/CRM/Civineonotify/Form/Transport.php';
+require_once __DIR__ . '/CRM/Civineonotify/Form/Destination.php';
 require_once __DIR__ . '/CRM/Civineonotify/Form/Rule.php';
 
 use Civi\Civineonotify\Event\PostHookSubscriber;
@@ -57,10 +57,10 @@ function civineonotify_civicrm_post(string $op, string $objectName, int|string $
 
 function civineonotify_civicrm_permission(array &$permissions): void {
   foreach ([
-    'administer matrix notify' => 'Administer CiviNeo Notify configuration.',
-    'view matrix notification log' => 'View CiviNeo Notify delivery history.',
-    'retry matrix notifications' => 'Retry or cancel Matrix notifications.',
-    'send matrix test messages' => 'Send explicitly requested Matrix test messages.',
+    'administer civineo notify' => 'Administer CiviNeo Notify configuration.',
+    'view civineo notify delivery log' => 'View CiviNeo Notify delivery history.',
+    'retry civineo notify deliveries' => 'Retry or cancel Matrix notifications.',
+    'send civineo notify test messages' => 'Send explicitly requested Matrix test messages.',
   ] as $permission => $description) {
     $permissions[$permission] = ['label' => CRM_Civineonotify_ExtensionUtil::ts(ucwords(str_replace(' matrix ', ' Matrix ', $permission))), 'description' => CRM_Civineonotify_ExtensionUtil::ts($description)];
   }
@@ -74,13 +74,13 @@ function civineonotify_civicrm_navigationMenu(array &$menu): void {
   $id = civineonotify_nextNavigationId($menu);
   $children = [];
   foreach ([
-    ['Settings', 'CiviNeoNotifySettings', 'civicrm/admin/setting/civineonotify?reset=1', 'administer matrix notify'],
-    ['Connections', 'CiviNeoNotifyConnections', 'civicrm/admin/civineonotify/connections?reset=1', 'administer matrix notify'],
-    ['Rooms', 'CiviNeoNotifyRooms', 'civicrm/admin/civineonotify/rooms?reset=1', 'administer matrix notify'],
-    ['Rules', 'CiviNeoNotifyRules', 'civicrm/admin/civineonotify/rules?reset=1', 'administer matrix notify'],
-    ['Delivery log', 'CiviNeoNotifyLog', 'civicrm/admin/civineonotify/log?reset=1', 'view matrix notification log'],
+    ['Settings', 'CiviNeoNotifySettings', 'civicrm/admin/setting/civineonotify?reset=1', 'administer civineo notify'],
+    ['Transports', 'CiviNeoNotifyTransports', 'civicrm/admin/civineonotify/transports?reset=1', 'administer civineo notify'],
+    ['Destinations', 'CiviNeoNotifyDestinations', 'civicrm/admin/civineonotify/destinations?reset=1', 'administer civineo notify'],
+    ['Rules', 'CiviNeoNotifyRules', 'civicrm/admin/civineonotify/rules?reset=1', 'administer civineo notify'],
+    ['Delivery log', 'CiviNeoNotifyLog', 'civicrm/admin/civineonotify/log?reset=1', 'view civineo notify delivery log'],
   ] as $offset => [$label, $name, $url, $permission]) $children[$id + $offset + 1] = ['attributes' => ['label' => CRM_Civineonotify_ExtensionUtil::ts($label), 'name' => $name, 'url' => $url, 'permission' => $permission, 'operator' => 'OR', 'parentID' => $id, 'navID' => $id + $offset + 1, 'active' => 1]];
-  $menu[$admin]['child'][$id] = ['attributes' => ['label' => CRM_Civineonotify_ExtensionUtil::ts('CiviNeo Notify'), 'name' => 'CiviNeoNotify', 'url' => NULL, 'permission' => 'administer matrix notify', 'operator' => 'OR', 'parentID' => $admin, 'navID' => $id, 'active' => 1], 'child' => $children];
+  $menu[$admin]['child'][$id] = ['attributes' => ['label' => CRM_Civineonotify_ExtensionUtil::ts('CiviNeo Notify'), 'name' => 'CiviNeoNotify', 'url' => NULL, 'permission' => 'administer civineo notify', 'operator' => 'OR', 'parentID' => $admin, 'navID' => $id, 'active' => 1], 'child' => $children];
 }
 
 function civineonotify_nextNavigationId(array $menu): int { $ids = []; $collect = function (array $items) use (&$collect, &$ids): void { foreach ($items as $key => $item) { $ids[] = (int) ($item['attributes']['navID'] ?? $key); if (!empty($item['child'])) $collect($item['child']); } }; $collect($menu); return max(array_merge([0], $ids)) + 1; }
@@ -99,19 +99,15 @@ function civineonotify_appendBreadcrumb(?string $currentTitle = NULL, ?string $c
   CRM_Utils_System::appendBreadCrumb($crumbs);
 }
 
-function civineonotify_connectionOptions(bool $optional = FALSE): array {
-  $options = $optional ? ['' => CRM_Civineonotify_ExtensionUtil::ts('- Use default connection -')] : ['' => CRM_Civineonotify_ExtensionUtil::ts('- Select connection -')];
-  foreach (\Civi\Api4\MatrixConnection::get(FALSE)->addWhere('is_active', '=', TRUE)->addOrderBy('name', 'ASC')->execute() as $connection) {
-    $options[(string) $connection['id']] = $connection['name'];
-  }
+function civineonotify_transportOptions(bool $optional = FALSE): array {
+  $options = $optional ? ['' => CRM_Civineonotify_ExtensionUtil::ts('- Use destination transport -')] : ['' => CRM_Civineonotify_ExtensionUtil::ts('- Select transport -')];
+  foreach (\Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('is_active', '=', TRUE)->addOrderBy('name', 'ASC')->execute() as $transport) $options[(string) $transport['id']] = $transport['name'];
   return $options;
 }
 
-function civineonotify_roomOptions(bool $optional = FALSE): array {
-  $options = $optional ? ['' => CRM_Civineonotify_ExtensionUtil::ts('- Use default room -')] : ['' => CRM_Civineonotify_ExtensionUtil::ts('- Select room -')];
-  foreach (\Civi\Api4\MatrixRoom::get(FALSE)->addWhere('is_active', '=', TRUE)->addOrderBy('name', 'ASC')->execute() as $room) {
-    $options[(string) $room['id']] = $room['name'];
-  }
+function civineonotify_destinationOptions(bool $optional = FALSE): array {
+  $options = $optional ? ['' => CRM_Civineonotify_ExtensionUtil::ts('- Use transport default destination -')] : ['' => CRM_Civineonotify_ExtensionUtil::ts('- Select destination -')];
+  foreach (\Civi\Api4\CiviNeoNotifyDestination::get(FALSE)->addWhere('is_active', '=', TRUE)->addOrderBy('name', 'ASC')->execute() as $destination) $options[(string) $destination['id']] = $destination['name'];
   return $options;
 }
 

@@ -1,12 +1,12 @@
-{if $civineonotifyView eq 'connections'}
-  <p><a class="button" href="{crmURL p='civicrm/admin/civineonotify/connection' q='reset=1'}">{ts}Add connection{/ts}</a></p>
+{if $civineonotifyView eq 'transports'}
+  <p><a class="button" href="{crmURL p='civicrm/admin/civineonotify/transport' q='reset=1'}">{ts}Add transport{/ts}</a></p>
   <table class="crm-info-panel"><thead><tr><th>{ts}Name{/ts}</th><th>{ts}Default{/ts}</th><th>{ts}Actions{/ts}</th></tr></thead><tbody>
-  {foreach from=$civineonotifyRows item=row}<tr><td>{$row.name|escape}</td><td>{if $row.is_default}{ts}Yes{/ts}{/if}</td><td><a href="{crmURL p='civicrm/admin/civineonotify/connection' q="reset=1&id=`$row.id`"}">{ts}Edit{/ts}</a> · <a href="{crmURL p='civicrm/admin/civineonotify/connections' q="reset=1&action=test&id=`$row.id`"}">{ts}Test{/ts}</a></td></tr>{/foreach}
+  {foreach from=$civineonotifyRows item=row}<tr><td>{$row.name|escape}</td><td>{if $row.default_destination_id}{ts}Yes{/ts}{/if}</td><td><a href="{crmURL p='civicrm/admin/civineonotify/transport' q="reset=1&id=`$row.id`"}">{ts}Edit{/ts}</a> · <a href="{crmURL p='civicrm/admin/civineonotify/transports' q="reset=1&action=test&id=`$row.id`"}">{ts}Test{/ts}</a></td></tr>{/foreach}
   </tbody></table>
-{elseif $civineonotifyView eq 'rooms'}
-  <p><a class="button" href="{crmURL p='civicrm/admin/civineonotify/room' q='reset=1'}">{ts}Add room{/ts}</a></p>
-  <table class="crm-info-panel"><thead><tr><th>{ts}Name{/ts}</th><th>{ts}Room ID / alias{/ts}</th><th>{ts}Default{/ts}</th><th>{ts}Actions{/ts}</th></tr></thead><tbody>
-  {foreach from=$civineonotifyRows item=row}<tr><td>{$row.name|escape}</td><td>{$row.room_id|default:$row.room_alias|escape}</td><td>{if $row.is_default}{ts}Yes{/ts}{/if}</td><td><a href="{crmURL p='civicrm/admin/civineonotify/room' q="reset=1&id=`$row.id`"}">{ts}Edit{/ts}</a> · <a href="{crmURL p='civicrm/admin/civineonotify/rooms' q="reset=1&action=test&id=`$row.id`"}">{ts}Test{/ts}</a></td></tr>{/foreach}
+{elseif $civineonotifyView eq 'destinations'}
+  <p><a class="button" href="{crmURL p='civicrm/admin/civineonotify/destination' q='reset=1'}">{ts}Add destination{/ts}</a></p>
+  <table class="crm-info-panel"><thead><tr><th>{ts}Name{/ts}</th><th>{ts}Type{/ts}</th><th>{ts}Actions{/ts}</th></tr></thead><tbody>
+  {foreach from=$civineonotifyRows item=row}<tr><td>{$row.name|escape}</td><td>{$row.destination_type|escape}</td><td><a href="{crmURL p='civicrm/admin/civineonotify/destination' q="reset=1&id=`$row.id`"}">{ts}Edit{/ts}</a> · <a href="{crmURL p='civicrm/admin/civineonotify/destinations' q="reset=1&action=test&id=`$row.id`"}">{ts}Test{/ts}</a></td></tr>{/foreach}
   </tbody></table>
 {elseif $civineonotifyView eq 'rules'}
   <p><a class="button" href="{crmURL p='civicrm/admin/civineonotify/rule' q='reset=1'}">{ts}Add rule{/ts}</a></p>

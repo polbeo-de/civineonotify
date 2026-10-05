@@ -10,8 +10,8 @@ final class CRM_Civineonotify_Form_Admin extends CRM_Core_Form {
 
   public function preProcess(): void {
     $path = (string) ($_GET['q'] ?? '');
-    $this->view = str_contains($path, '/connections') ? 'connections' : (str_contains($path, '/rooms') ? 'rooms' : (str_contains($path, '/rules') ? 'rules' : 'log'));
-    $this->entity = ['connections' => 'MatrixConnection', 'rooms' => 'MatrixRoom', 'rules' => 'MatrixNotificationRule', 'log' => 'MatrixNotification'][$this->view];
+    $this->view = str_contains($path, '/transports') ? 'transports' : (str_contains($path, '/destinations') ? 'destinations' : (str_contains($path, '/rules') ? 'rules' : 'log'));
+    $this->entity = ['transports' => 'CiviNeoNotifyTransport', 'destinations' => 'CiviNeoNotifyDestination', 'rules' => 'CiviNeoNotifyRule', 'log' => 'CiviNeoNotifyDelivery'][$this->view];
     civineonotify_appendBreadcrumb(ucfirst($this->view === 'log' ? 'Delivery log' : $this->view));
   }
 
@@ -32,16 +32,16 @@ final class CRM_Civineonotify_Form_Admin extends CRM_Core_Form {
     $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
     $action = (string) ($_GET['action'] ?? '');
     if (!$id || !$action) return;
-    if ($this->entity === 'MatrixConnection' && $action === 'test' && CRM_Core_Permission::check('send matrix test messages')) {
-      $test = \Civi\Api4\MatrixConnection::testConnection(FALSE)->setId($id)->execute()->first();
-      CRM_Core_Session::setStatus(($test['success'] ?? FALSE) ? E::ts('Matrix connection test succeeded.') : E::ts('Matrix connection test failed: %1', [1 => $test['category'] ?? 'unknown']));
+    if ($this->entity === 'CiviNeoNotifyTransport' && $action === 'test' && CRM_Core_Permission::check('send civineo notify test messages')) {
+      $test = \Civi\Api4\CiviNeoNotifyTransport::testTransport(FALSE)->setId($id)->execute()->first();
+      CRM_Core_Session::setStatus(($test['success'] ?? FALSE) ? E::ts('Transport test succeeded.') : E::ts('Transport test failed: %1', [1 => $test['category'] ?? 'unknown']));
     }
-    if ($this->entity === 'MatrixRoom' && $action === 'test' && CRM_Core_Permission::check('send matrix test messages')) {
-      $test = \Civi\Api4\MatrixRoom::testRoom(FALSE)->setId($id)->execute()->first();
-      CRM_Core_Session::setStatus(($test['success'] ?? FALSE) ? E::ts('Matrix test message sent.') : E::ts('Matrix test message failed: %1', [1 => $test['category'] ?? 'unknown']));
+    if ($this->entity === 'CiviNeoNotifyDestination' && $action === 'test' && CRM_Core_Permission::check('send civineo notify test messages')) {
+      $test = \Civi\Api4\CiviNeoNotifyDestination::testDestination(FALSE)->setId($id)->execute()->first();
+      CRM_Core_Session::setStatus(($test['success'] ?? FALSE) ? E::ts('Destination test message sent.') : E::ts('Destination test message failed: %1', [1 => $test['category'] ?? 'unknown']));
     }
-    if ($this->entity === 'MatrixNotification' && in_array($action, ['cancel', 'retry'], TRUE) && CRM_Core_Permission::check('retry matrix notifications')) {
-      call_user_func([\Civi\Api4\MatrixNotification::class, $action], FALSE)->setId($id)->execute();
+    if ($this->entity === 'CiviNeoNotifyDelivery' && in_array($action, ['cancel', 'retry'], TRUE) && CRM_Core_Permission::check('retry civineo notify deliveries')) {
+      call_user_func([\Civi\Api4\CiviNeoNotifyDelivery::class, $action], FALSE)->setId($id)->execute();
     }
   }
 }

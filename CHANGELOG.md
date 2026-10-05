@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Generalize the Alpha data model from Matrix connections and rooms to transports and destinations; a forward-only upgrade preserves existing Matrix configuration and delivery history.
+- Move the default destination to each transport and remove global Matrix connection/room defaults.
+
 - Rename the extension key from `de.polbeo.civicrm.matrixnotify` to
   `de.polbeo.civicrm.civineonotify`; Matrix remains the first supported transport.
 - Reconcile the initial scaffolding with CiviCRM 6.16.2 Standalone and the deployed matrix-commander-rs 0.11.0 CLI.

@@ -1,4 +1,4 @@
-<div class="crm-block crm-form-block crm-civineonotify-connection-form-block">
+<div class="crm-block crm-form-block crm-civineonotify-transport-form-block">
   <table class="form-layout">
     <tr><td class="label">{$form.name.label}</td><td>{$form.name.html}</td></tr>
     <tr><td class="label">{$form.description.label}</td><td>{$form.description.html}</td></tr>
@@ -8,7 +8,7 @@
     <tr><td class="label">{$form.working_directory.label}</td><td>{$form.working_directory.html}</td></tr>
     <tr><td class="label">{$form.timeout_seconds.label}</td><td>{$form.timeout_seconds.html}</td></tr>
     <tr><td class="label">{$form.is_active.label}</td><td>{$form.is_active.html}</td></tr>
-    <tr><td class="label">{$form.is_default.label}</td><td>{$form.is_default.html}</td></tr>
+    <tr><td class="label">{$form.default_destination_id.label}</td><td>{$form.default_destination_id.html}</td></tr>
     <tr><td></td><td>{$form.buttons.html}</td></tr>
   </table>
 </div>

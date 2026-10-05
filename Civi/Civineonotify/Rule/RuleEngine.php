@@ -10,7 +10,7 @@ use Civi\Civineonotify\Outbox\OutboxRepository;
 final class RuleEngine {
   public function __construct(private readonly ConditionEngine $conditions, private readonly MessageRenderer $renderer, private readonly DefaultResolver $defaults, private readonly OutboxRepository $outbox) {}
   public function route(NormalizedEvent $event): void {
-    $rules = \Civi\Api4\MatrixNotificationRule::get(FALSE)->addWhere('is_active', '=', TRUE)->addWhere('event_pattern', '=', $event->eventName)->addOrderBy('priority', 'ASC')->addOrderBy('id', 'ASC')->execute();
+    $rules = \Civi\Api4\CiviNeoNotifyRule::get(FALSE)->addWhere('is_active', '=', TRUE)->addWhere('event_pattern', '=', $event->eventName)->addOrderBy('priority', 'ASC')->addOrderBy('id', 'ASC')->execute();
     foreach ($rules as $rule) {
       if (($rule['entity_type'] ?? NULL) && $rule['entity_type'] !== $event->entityType) { continue; }
       if (($rule['operation'] ?? NULL) && strtolower($rule['operation']) !== $event->operation) { continue; }

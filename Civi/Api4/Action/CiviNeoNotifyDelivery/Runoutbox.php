@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Civi\Api4\Action\MatrixNotification;
+namespace Civi\Api4\Action\CiviNeoNotifyDelivery;
 
 use Civi\Api4\Generic\AbstractAction;
 use Civi\Api4\Generic\Result;
