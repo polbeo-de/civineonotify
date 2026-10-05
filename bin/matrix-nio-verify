@@ -68,7 +68,8 @@ async def main() -> int:
     status(a.status_file, {'state':'timed_out'}); return 1
   except Exception as error:
     status(a.status_file, {'state':'failed'})
-    print(f'Matrix SAS verification failed: {type(error).__name__}', file=sys.stderr)
+    detail = str(error).replace('\n', ' ')[:160]
+    print(f'Matrix SAS verification failed: {type(error).__name__}: {detail}', file=sys.stderr)
     return 1
   finally: await c.close()
 
