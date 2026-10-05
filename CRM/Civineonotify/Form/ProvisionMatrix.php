@@ -73,7 +73,11 @@ final class CRM_Civineonotify_Form_ProvisionMatrix extends CRM_Core_Form {
       $config['provisioned_user_login'] = $userLogin;
       $config['provision_status_file'] = $statusFile;
       \Civi\Api4\CiviNeoNotifyTransport::update(FALSE)->setWhere([['id', '=', $this->id]])->setValues(['config_json' => $config])->execute();
-      $process = new Process(['/usr/bin/systemd-run', '--user', '--no-block', '--collect', '--unit', 'civineonotify-provision-' . $this->id . '-' . $job, '--property=TimeoutStartSec=5min', '--property=MemoryHigh=900M', '--', $helper, '--matrix-client', (string) ($config['binary_path'] ?? ''), '--homeserver', $homeserver, '--user-login', $userLogin, '--room-id', $roomId, '--password-file', $passwordFile, '--remove-password-file', '--status-file', $statusFile, '--credentials-file', $credentials, '--store-path', $store, '--timeout', (string) ($config['timeout_seconds'] ?? 30), '--device-name', 'CiviNeo Notify phprime8'], NULL, ['PATH' => '/usr/bin:/bin'], NULL, 10);
+      $uid = function_exists('posix_geteuid') ? posix_geteuid() : NULL;
+      if (!is_int($uid) || $uid < 1) throw new RuntimeException('User systemd runtime cannot be determined.');
+      $runtime = '/run/user/' . $uid;
+      $environment = ['PATH' => '/usr/bin:/bin', 'XDG_RUNTIME_DIR' => $runtime, 'DBUS_SESSION_BUS_ADDRESS' => 'unix:path=' . $runtime . '/bus'];
+      $process = new Process(['/usr/bin/systemd-run', '--user', '--no-block', '--collect', '--unit', 'civineonotify-provision-' . $this->id . '-' . $job, '--property=TimeoutStartSec=5min', '--property=MemoryHigh=900M', '--', $helper, '--matrix-client', (string) ($config['binary_path'] ?? ''), '--homeserver', $homeserver, '--user-login', $userLogin, '--room-id', $roomId, '--password-file', $passwordFile, '--remove-password-file', '--status-file', $statusFile, '--credentials-file', $credentials, '--store-path', $store, '--timeout', (string) ($config['timeout_seconds'] ?? 30), '--device-name', 'CiviNeo Notify phprime8'], NULL, $environment, NULL, 10);
       $process->run();
       if (!$process->isSuccessful()) throw new RuntimeException('Matrix provisioning job cannot be started.');
       $passwordFile = '';
