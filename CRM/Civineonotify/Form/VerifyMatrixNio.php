@@ -15,6 +15,7 @@ final class CRM_Civineonotify_Form_VerifyMatrixNio extends CRM_Core_Form {
   public function buildQuickForm(): void {
     CRM_Utils_System::setTitle(E::ts('Verify Matrix Nio device'));
     $this->assign('verification', $this->readStatus());
+    $this->add('select', 'verification_device_id', E::ts('Element device'), $this->deviceOptions());
     $this->addButtons([['type'=>'submit','name'=>E::ts('Start verification'),'subName'=>'start'],['type'=>'submit','name'=>E::ts('Confirm matching SAS'),'subName'=>'confirm'],['type'=>'submit','name'=>E::ts('Cancel verification'),'subName'=>'cancel'],['type'=>'cancel','name'=>E::ts('Close')]]);
   }
   public function postProcess(): void {
@@ -22,12 +23,31 @@ final class CRM_Civineonotify_Form_VerifyMatrixNio extends CRM_Core_Form {
     $status = $root . '/.civineonotify-nio-verify.status'; $confirm = $root . '/.civineonotify-nio-verify.confirm'; $cancel = $root . '/.civineonotify-nio-verify.cancel';
     if (str_ends_with($action, 'confirm') || str_ends_with($action, 'cancel')) { file_put_contents(str_ends_with($action, 'confirm') ? $confirm : $cancel, '1', LOCK_EX); chmod(str_ends_with($action, 'confirm') ? $confirm : $cancel, 0600); }
     elseif (str_ends_with($action, 'start')) {
-      $uid = posix_geteuid(); $runtime = '/run/user/' . $uid; $agent = dirname(__DIR__, 3) . '/bin/matrix-nio-verify';
-      $args = ['/usr/bin/systemd-run','--user','--no-block','--collect','--unit','civineonotify-verify-' . $this->id,'--property=RuntimeMaxSec=5min','--property=MemoryMax=350M','--',(string) $this->config['python_path'],$agent,'--homeserver',(string) $this->config['homeserver'],'--session-file',(string) $this->config['session_path'],'--store-path',(string) $this->config['store_path'],'--status-file',$status,'--confirm-file',$confirm,'--cancel-file',$cancel];
+      $device = (string) $this->exportValue('verification_device_id');
+      $options = $this->deviceOptions();
+      if (!isset($options[$device])) { $this->setElementError('verification_device_id', E::ts('Choose an Element device.')); return; }
+      $uid = posix_geteuid(); $runtime = '/run/user/' . $uid;
+      (new Process(['/usr/bin/systemctl','--user','stop','civineonotify-verify-' . $this->id], NULL, ['PATH'=>'/usr/bin:/bin','XDG_RUNTIME_DIR'=>$runtime,'DBUS_SESSION_BUS_ADDRESS'=>'unix:path=' . $runtime . '/bus'], NULL, 10))->run();
+      foreach ([$status, $confirm, $cancel] as $file) if (is_file($file) && !unlink($file)) throw new CRM_Core_Exception(E::ts('Could not reset the previous verification.'));
+      $agent = dirname(__DIR__, 3) . '/bin/matrix-nio-verify';
+      $args = ['/usr/bin/systemd-run','--user','--no-block','--collect','--unit','civineonotify-verify-' . $this->id,'--property=RuntimeMaxSec=5min','--property=MemoryMax=350M','--',(string) $this->config['python_path'],$agent,'--homeserver',(string) $this->config['homeserver'],'--session-file',(string) $this->config['session_path'],'--store-path',(string) $this->config['store_path'],'--target-device-id',$device,'--status-file',$status,'--confirm-file',$confirm,'--cancel-file',$cancel];
       (new Process($args, NULL, ['PATH'=>'/usr/bin:/bin','XDG_RUNTIME_DIR'=>$runtime,'DBUS_SESSION_BUS_ADDRESS'=>'unix:path=' . $runtime . '/bus'], NULL, 10))->run();
+      $this->config['verification_device_id'] = $device; $this->config['verification_device_name'] = $options[$device];
     }
     $this->config['verification_status_file'] = $status; \Civi\Api4\CiviNeoNotifyTransport::update(FALSE)->setWhere([['id','=',$this->id]])->setValues(['config_json'=>$this->config])->execute();
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/admin/civineonotify/verify-matrix-nio',['reset'=>1,'id'=>$this->id]));
+  }
+  private function deviceOptions(): array {
+    $verification = $this->readStatus(); $active = in_array($verification['state'] ?? NULL, ['waiting', 'compare', 'confirming'], TRUE);
+    if ($active && is_string($this->config['verification_device_id'] ?? NULL)) return [$this->config['verification_device_id'] => (string) ($this->config['verification_device_name'] ?? $this->config['verification_device_id'])];
+    $agent = dirname(__DIR__, 3) . '/bin/matrix-nio-devices';
+    if (!is_file($agent) || !is_readable($agent)) return ['' => E::ts('No Element devices are available.')];
+    $args = [(string) ($this->config['python_path'] ?? ''), $agent, '--homeserver', (string) ($this->config['homeserver'] ?? ''), '--session-file', (string) ($this->config['session_path'] ?? ''), '--store-path', (string) ($this->config['store_path'] ?? '')];
+    $process = new Process($args, NULL, ['PATH'=>'/usr/bin:/bin'], NULL, 30); $process->run();
+    $payload = json_decode($process->getOutput(), TRUE);
+    $options = ['' => E::ts('- choose an Element device -')];
+    foreach (is_array($payload['devices'] ?? NULL) ? $payload['devices'] : [] as $device) if (is_array($device) && is_string($device['id'] ?? NULL)) $options[$device['id']] = (string) ($device['name'] ?? $device['id']);
+    return $options;
   }
   private function readStatus(): array { $f=(string)($this->config['verification_status_file']??''); if (!$f || !is_readable($f)) return []; $v=json_decode((string)file_get_contents($f),TRUE); return is_array($v)?$v:[]; }
 }

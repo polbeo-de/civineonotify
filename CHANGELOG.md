@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Let CiviNeo Notify initiate Matrix-Nio SAS verification against an explicitly
+  selected Element device, reset stale verification controls before retrying,
+  and display the available peer devices in the verification form.
+
 - Add a non-sending Matrix-Nio E2EE probe to evaluate an additional Matrix
   client implementation while retaining matrix-commander-rs for deployments
   with sufficient memory. The probe requires an explicit opt-in before sharing
