@@ -38,7 +38,7 @@ bin/build-extension-archive --ref "$version" --version "$version" --require-anno
 
 extension_dir='de.polbeo.civicrm.civineonotify'
 remote_archive="/tmp/${extension_dir}-${version}.zip"
-rsync -az --chmod=F600 "$artifact" "${host}:${remote_archive}"
+rsync -az "$artifact" "${host}:${remote_archive}"
 ssh "$host" bash -s -- "$civi_root" "$cv" "$remote_archive" "$extension_dir" "$version" <<'REMOTE'
 set -euo pipefail
 civi_root=$1

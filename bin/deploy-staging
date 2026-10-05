@@ -39,7 +39,7 @@ bin/build-extension-archive --ref "$commit" --output "$archive"
 
 extension_dir='de.polbeo.civicrm.civineonotify'
 remote_archive="/tmp/${extension_dir}-${short_commit}.zip"
-rsync -az --chmod=F600 "$archive" "${host}:${remote_archive}"
+rsync -az "$archive" "${host}:${remote_archive}"
 ssh "$host" bash -s -- "$civi_root" "$cv" "$remote_archive" "$extension_dir" "$short_commit" <<'REMOTE'
 set -euo pipefail
 civi_root=$1
