@@ -56,6 +56,7 @@ use the validated release ZIP, not a source checkout.
 
 - [Architecture](docs/architecture.md)
 - [Configuration](docs/configuration.md)
+- [Initial transport provisioning](docs/provisioning.md)
 - [Security and privacy](docs/security.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [Inbound roadmap](docs/inbound-roadmap.md)

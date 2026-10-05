@@ -23,6 +23,7 @@ final class CRM_Civineonotify_Form_ProvisionMatrix extends CRM_Core_Form {
   public function buildQuickForm(): void {
     CRM_Utils_System::setTitle(E::ts('Provision Matrix transport'));
     $this->assign('transportName', $this->transport['name']);
+    $this->assign('provisioningStatus', $this->provisioningStatus());
     $this->add('text', 'homeserver', E::ts('Matrix homeserver'), ['size' => 70], TRUE);
     $this->add('text', 'user_login', E::ts('Matrix bot user'), ['size' => 70], TRUE);
     $this->add('text', 'room_id', E::ts('Matrix internal room ID'), ['size' => 70], TRUE);
@@ -50,26 +51,33 @@ final class CRM_Civineonotify_Form_ProvisionMatrix extends CRM_Core_Form {
     $password = (string) ($values['bot_password'] ?? '');
     if ($password === '' || strlen($password) > 4096) { $this->setElementError('bot_password', E::ts('Provide the bot password.')); return; }
 
+    $passwordFile = '';
     try {
       if (!is_dir($storageRoot) && !mkdir($storageRoot, 0700, TRUE) && !is_dir($storageRoot)) throw new RuntimeException('Private storage directory cannot be created.');
       $mode = fileperms($storageRoot);
       if ($mode === FALSE || ($mode & 0077) !== 0 || !is_writable($storageRoot)) throw new RuntimeException('Private storage directory is not private and writable.');
+      $job = bin2hex(random_bytes(8));
+      $passwordFile = $storageRoot . '/.civineonotify-password-' . $job;
+      $statusFile = $storageRoot . '/.civineonotify-provision-' . $job . '.status';
+      if (file_put_contents($passwordFile, $password, LOCK_EX) === FALSE || !chmod($passwordFile, 0600)) throw new RuntimeException('Bot password cannot be secured.');
+      $password = '';
       $credentials = $storageRoot . '/credentials.json';
       $store = $storageRoot . '/store';
       $helper = dirname(__DIR__, 3) . '/bin/provision-matrix-credentials';
       $config = is_array($this->transport['config_json'] ?? NULL) ? $this->transport['config_json'] : [];
-      $process = new Process([$helper, '--matrix-client', (string) ($config['binary_path'] ?? ''), '--homeserver', $homeserver, '--user-login', $userLogin, '--room-id', $roomId, '--password-stdin', '--credentials-file', $credentials, '--store-path', $store, '--timeout', (string) ($config['timeout_seconds'] ?? 30), '--device-name', 'CiviNeo Notify phprime8'], NULL, ['PATH' => '/usr/bin:/bin'], $password . "\n", 45);
-      $password = '';
-      $process->run();
-      if (!$process->isSuccessful()) throw new RuntimeException('Matrix provisioning helper failed.');
       $config['credentials_path'] = $credentials;
       $config['store_path'] = $store;
       $config['working_directory'] = $storageRoot;
       $config['homeserver'] = $homeserver;
       $config['provisioned_room_id'] = $roomId;
       $config['provisioned_user_login'] = $userLogin;
+      $config['provision_status_file'] = $statusFile;
       \Civi\Api4\CiviNeoNotifyTransport::update(FALSE)->setWhere([['id', '=', $this->id]])->setValues(['config_json' => $config])->execute();
-      CRM_Core_Session::setStatus(E::ts('Matrix credentials and encryption store were provisioned. Test the transport before sending a destination test.'), E::ts('Provisioned'), 'success');
+      $process = new Process(['/usr/bin/systemd-run', '--user', '--no-block', '--collect', '--unit', 'civineonotify-provision-' . $this->id . '-' . $job, '--property=TimeoutStartSec=5min', '--property=MemoryHigh=900M', '--', $helper, '--matrix-client', (string) ($config['binary_path'] ?? ''), '--homeserver', $homeserver, '--user-login', $userLogin, '--room-id', $roomId, '--password-file', $passwordFile, '--remove-password-file', '--status-file', $statusFile, '--credentials-file', $credentials, '--store-path', $store, '--timeout', (string) ($config['timeout_seconds'] ?? 30), '--device-name', 'CiviNeo Notify phprime8'], NULL, ['PATH' => '/usr/bin:/bin'], NULL, 10);
+      $process->run();
+      if (!$process->isSuccessful()) throw new RuntimeException('Matrix provisioning job cannot be started.');
+      $passwordFile = '';
+      CRM_Core_Session::setStatus(E::ts('Matrix provisioning has started in a protected background job. Reopen this page shortly to view its status before testing the transport.'), E::ts('Provisioning started'), 'success');
       CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/admin/civineonotify/transport', ['reset' => 1, 'id' => $this->id]));
     }
     catch (\Throwable $exception) {
@@ -78,6 +86,15 @@ final class CRM_Civineonotify_Form_ProvisionMatrix extends CRM_Core_Form {
     }
     finally {
       $password = '';
+      if ($passwordFile !== '' && is_file($passwordFile)) unlink($passwordFile);
     }
+  }
+
+  private function provisioningStatus(): string {
+    $config = is_array($this->transport['config_json'] ?? NULL) ? $this->transport['config_json'] : [];
+    $file = (string) ($config['provision_status_file'] ?? '');
+    if ($file === '' || !is_file($file) || !is_readable($file)) return '';
+    $status = trim((string) file_get_contents($file));
+    return in_array($status, ['running', 'succeeded', 'failed'], TRUE) ? $status : '';
   }
 }
