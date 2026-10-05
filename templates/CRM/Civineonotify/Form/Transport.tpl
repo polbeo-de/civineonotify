@@ -1,6 +1,7 @@
 <div class="crm-block crm-form-block crm-civineonotify-transport-form-block">
   <table class="form-layout">
     <tr><td class="label">{$form.name.label}</td><td>{$form.name.html}</td></tr>
+    <tr><td class="label">{$form.transport_type.label}</td><td>{$form.transport_type.html}</td></tr>
     <tr><td class="label">{$form.description.label}</td><td>{$form.description.html}</td></tr>
     <tr><td class="label">{$form.binary_path.label}</td><td>{$form.binary_path.html}</td></tr>
     <tr><td class="label">{$form.credentials_path.label}</td><td>{$form.credentials_path.html}<div class="description">{ts}Path to the protected Matrix Commander credentials JSON file. Do not store a token in CiviCRM. See docs/matrix-provisioning.md for the one-time provisioning procedure.{/ts}</div></td></tr>
