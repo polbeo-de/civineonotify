@@ -73,7 +73,7 @@ final class CRM_Civineonotify_Form_ProvisionMatrix extends CRM_Core_Form {
       CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/admin/civineonotify/transport', ['reset' => 1, 'id' => $this->id]));
     }
     catch (\Throwable $exception) {
-      \Civi::log()->warning('CiviNeo Notify Matrix provisioning failed.', ['transport_id' => $this->id, 'exception' => get_class($exception)]);
+      \Civi::log()->warning('CiviNeo Notify Matrix provisioning failed.', ['transport_id' => $this->id, 'error_class' => get_class($exception)]);
       $this->setElementError('bot_password', E::ts('Provisioning failed. Verify the homeserver, bot password, room ID and private directory.'));
     }
     finally {
