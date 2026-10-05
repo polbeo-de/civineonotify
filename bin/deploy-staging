@@ -62,7 +62,7 @@ rmdir "$stage"
 cd "$civi_root"
 "$cv" flush
 "$cv" ext:enable "$extension_dir"
-"$cv" upgrade:db
+"$cv" ext:upgrade-db
 "$cv" flush
 printf 'Staging deployment complete: %s at %s\n' "$extension_dir" "$short_commit"
 REMOTE

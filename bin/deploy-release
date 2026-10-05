@@ -62,7 +62,7 @@ rmdir "$stage"
 cd "$civi_root"
 "$cv" flush
 "$cv" ext:enable "$extension_dir"
-"$cv" upgrade:db
+"$cv" ext:upgrade-db
 "$cv" flush
 printf 'Production release deployment complete: %s %s\n' "$extension_dir" "$version"
 REMOTE
