@@ -8,6 +8,7 @@
   </item>
   <item><path>civicrm/admin/civineonotify/transports</path><page_callback>CRM_Civineonotify_Form_Admin</page_callback><title>CiviNeo Notify: Transports</title><access_arguments>administer civineo notify</access_arguments></item>
   <item><path>civicrm/admin/civineonotify/transport</path><page_callback>CRM_Civineonotify_Form_Transport</page_callback><title>CiviNeo Notify: Transport</title><access_arguments>administer civineo notify</access_arguments></item>
+  <item><path>civicrm/admin/civineonotify/provision-matrix</path><page_callback>CRM_Civineonotify_Form_ProvisionMatrix</page_callback><title>CiviNeo Notify: Provision Matrix transport</title><access_arguments>administer civineo notify</access_arguments></item>
   <item><path>civicrm/admin/civineonotify/destinations</path><page_callback>CRM_Civineonotify_Form_Admin</page_callback><title>CiviNeo Notify: Destinations</title><access_arguments>administer civineo notify</access_arguments></item>
   <item><path>civicrm/admin/civineonotify/destination</path><page_callback>CRM_Civineonotify_Form_Destination</page_callback><title>CiviNeo Notify: Destination</title><access_arguments>administer civineo notify</access_arguments></item>
   <item><path>civicrm/admin/civineonotify/rules</path><page_callback>CRM_Civineonotify_Form_Admin</page_callback><title>CiviNeo Notify: Rules</title><access_arguments>administer civineo notify</access_arguments></item>

@@ -16,6 +16,7 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $this->add('textarea', 'description', E::ts('Description'), ['rows' => 3, 'cols' => 70]);
     $this->add('checkbox', 'is_active', E::ts('Active'));
     $this->addButtons([['type' => 'submit', 'name' => E::ts('Save transport'), 'isDefault' => TRUE], ['type' => 'cancel', 'name' => E::ts('Cancel')]]);
+    if ($this->id) $this->assign('provisionUrl', CRM_Utils_System::url('civicrm/admin/civineonotify/provision-matrix', ['reset' => 1, 'id' => $this->id]));
   }
   public function setDefaultValues(): array {
     if (!$this->id) return ['is_active' => 1, 'transport_type' => 'matrix_commander_rs', 'timeout_seconds' => 30, 'working_directory' => '/tmp'];

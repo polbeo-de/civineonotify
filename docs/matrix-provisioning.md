@@ -18,9 +18,11 @@ The administrator needs four ordinary, non-secret facts: the HTTPS homeserver UR
 
 ## Create the credential bundle
 
-The extension ships `bin/provision-matrix-credentials`. It reads the token from a file, calls Matrix `/_matrix/client/v3/account/whoami`, and writes the credentials JSON only after it has obtained the canonical user ID and device ID. The token is deliberately not an argument to `curl`, `matrix-commander-rs`, or any CiviCRM API.
+The protected **Provision Matrix credentials** action on an existing Matrix transport uploads a one-time token file, calls Matrix `/_matrix/client/v3/account/whoami`, and writes the credentials JSON only after it has obtained the canonical user ID and device ID. The upload is deleted immediately. The token is deliberately not an argument to `curl`, `matrix-commander-rs`, or any CiviCRM API, and is never stored in the CiviCRM database.
 
-Run it as the same operating-system account that executes the CiviCRM worker. Adapt all paths to the host; these are illustrative only:
+The browser action runs as the PHP service account, which must be the same operating-system account that executes the CiviCRM worker. On the phprime8 reference host both are `phprime8`. Enter `/home/phprime8/tmp/civineonotify` as the private storage directory: the action creates this child directory as `0700`; do not use the world-readable `~/tmp` parent itself.
+
+For controlled operational use, the extension also ships the equivalent `bin/provision-matrix-credentials` helper. Run it as that same account. Adapt all paths to the host; these are illustrative only:
 
 ```bash
 umask 077
@@ -50,6 +52,6 @@ Save it, then use **Test transport**. That test uses `--whoami`; a successful re
 
 Back up the credentials file and E2EE store together in protected storage, with their ownership and restrictive modes preserved. Restoring only one of them can create a new Matrix device or make previously encrypted history unavailable. If compromise is suspected, revoke the Matrix token at the homeserver, provision a new bot device and store, and update the transport; do not attempt to edit the credential JSON by hand.
 
-## Planned protected UI
+## Browser provisioning
 
-The current alpha deliberately keeps the one-time secret outside the web request path and uses the audited server-side helper above. The intended next UI step is a protected provisioning page that accepts a one-time token upload, performs this exact procedure server-side, deletes the upload immediately, and never persists the token in CiviCRM. It will not replace the documented manual procedure until its filesystem ownership and upload lifecycle have been tested on the supported hosts.
+The provisioning page is restricted to **administer CiviNeo Notify**. It accepts only a small plain-text token file, moves it to a randomly named `0600` file inside the selected private directory, invokes the same audited helper, and removes that temporary file in all success and failure paths. It deliberately exposes neither the token nor the helper output to the browser or CiviCRM logs.

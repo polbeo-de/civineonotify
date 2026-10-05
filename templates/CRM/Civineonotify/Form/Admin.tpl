@@ -1,7 +1,7 @@
 {if $civineonotifyView eq 'transports'}
   <p><a class="button" href="{crmURL p='civicrm/admin/civineonotify/transport' q='reset=1'}">{ts}Add transport{/ts}</a></p>
   <table class="crm-info-panel"><thead><tr><th>{ts}Name{/ts}</th><th>{ts}Default{/ts}</th><th>{ts}Actions{/ts}</th></tr></thead><tbody>
-  {foreach from=$civineonotifyRows item=row}<tr><td>{$row.name|escape}</td><td>{if $row.default_destination_id}{ts}Yes{/ts}{/if}</td><td><a href="{crmURL p='civicrm/admin/civineonotify/transport' q="reset=1&id=`$row.id`"}">{ts}Edit{/ts}</a> · <a href="{crmURL p='civicrm/admin/civineonotify/transports' q="reset=1&action=test&id=`$row.id`"}">{ts}Test{/ts}</a></td></tr>{/foreach}
+  {foreach from=$civineonotifyRows item=row}<tr><td>{$row.name|escape}</td><td>{if $row.default_destination_id}{ts}Yes{/ts}{/if}</td><td><a href="{crmURL p='civicrm/admin/civineonotify/transport' q="reset=1&id=`$row.id`"}">{ts}Edit{/ts}</a> · <a href="{crmURL p='civicrm/admin/civineonotify/provision-matrix' q="reset=1&id=`$row.id`"}">{ts}Provision{/ts}</a> · <a href="{crmURL p='civicrm/admin/civineonotify/transports' q="reset=1&action=test&id=`$row.id`"}">{ts}Test{/ts}</a></td></tr>{/foreach}
   </tbody></table>
 {elseif $civineonotifyView eq 'destinations'}
   <p><a class="button" href="{crmURL p='civicrm/admin/civineonotify/destination' q='reset=1'}">{ts}Add destination{/ts}</a></p>

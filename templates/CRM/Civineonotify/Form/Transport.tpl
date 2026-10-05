@@ -9,6 +9,6 @@
     <tr><td class="label">{$form.timeout_seconds.label}</td><td>{$form.timeout_seconds.html}</td></tr>
     <tr><td class="label">{$form.is_active.label}</td><td>{$form.is_active.html}</td></tr>
     <tr><td class="label">{$form.default_destination_id.label}</td><td>{$form.default_destination_id.html}</td></tr>
-    <tr><td></td><td>{$form.buttons.html}</td></tr>
+    <tr><td></td><td>{$form.buttons.html}{if $provisionUrl}<a class="button" href="{$provisionUrl}">{ts}Provision Matrix credentials{/ts}</a>{/if}</td></tr>
   </table>
 </div>
