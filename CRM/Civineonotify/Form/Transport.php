@@ -26,6 +26,7 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
   public function postProcess(): void {
     $v = $this->exportValues();
     foreach (['binary_path', 'working_directory'] as $path) if (empty($v[$path]) || !str_starts_with((string) $v[$path], '/')) { $this->setElementError($path, E::ts('Use an absolute path.')); return; }
+    if (!is_file((string) $v['binary_path']) || !is_executable((string) $v['binary_path'])) { $this->setElementError('binary_path', E::ts('The Matrix Commander binary does not exist or is not executable.')); return; }
     foreach (['credentials_path', 'store_path'] as $path) if (!empty($v[$path]) && !str_starts_with((string) $v[$path], '/')) { $this->setElementError($path, E::ts('Use an absolute path.')); return; }
     $config = array_filter(array_intersect_key($v, array_flip(['binary_path', 'credentials_path', 'store_path', 'working_directory', 'timeout_seconds'])), static fn($value) => $value !== '' && $value !== NULL);
     $record = ['name' => trim((string) $v['name']), 'description' => trim((string) ($v['description'] ?? '')), 'transport_type' => (string) $v['transport_type'], 'config_json' => $config, 'default_destination_id' => (int) ($v['default_destination_id'] ?? 0) ?: NULL, 'is_active' => !empty($v['is_active'])];
