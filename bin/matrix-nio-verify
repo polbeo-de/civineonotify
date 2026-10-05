@@ -42,8 +42,9 @@ async def main() -> int:
       reply = await c.sync(timeout=1000, full_state=False)
       if not isinstance(reply, SyncResponse): status(a.status_file, {'state':'failed'}); return 1
       for event in reply.to_device_events:
-        content = getattr(event, 'source', {}).get('content', {})
-        if getattr(event, 'type', '') == 'm.key.verification.ready' and getattr(event, 'sender', '') == data['user_id'] and content.get('from_device') == a.target_device_id and content.get('transaction_id') == transaction: ready = True
+        source = getattr(event, 'source', {})
+        content = source.get('content', {})
+        if source.get('type') == 'm.key.verification.ready' and source.get('sender') == data['user_id'] and content.get('from_device') == a.target_device_id and content.get('transaction_id') == transaction: ready = True
       if ready and not started:
         sas = Sas(data['user_id'], data['device_id'], c.olm.account.identity_keys['ed25519'], peer, transaction_id=transaction)
         c.key_verifications[transaction] = sas
