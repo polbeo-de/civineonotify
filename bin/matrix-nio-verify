@@ -65,8 +65,11 @@ async def main() -> int:
         if not isinstance(reply, ToDeviceResponse): status(a.status_file, {'state':'failed'}); return 1
         accepted = True
       try: emoji = sas.get_emoji(); decimals = sas.get_decimals()
-      except (LocalProtocolError, ValueError):
-        status(a.status_file, {'state':'waiting', 'phase':f'sas_{sas.state.name}', 'events':observed, 'outbound_sent':len(outbound)})
+      except (AssertionError, LocalProtocolError, ValueError):
+        # Matrix-Nio has received enough events to create the SAS object, but
+        # may not yet have derived the short-authentication string.  This is
+        # an ordinary protocol transition, not a failed verification.
+        status(a.status_file, {'state':'waiting', 'phase':f'sas_{sas.state.name}', 'events':observed, 'outbound_sent':len(outbound), 'sas_established':bool(getattr(sas, 'established_sas', False))})
         continue
       status(a.status_file, {'state':'compare', 'transaction_id':transaction, 'emoji':emoji, 'decimals':decimals, 'events':observed})
       if a.confirm_file.exists(): a.confirm_file.unlink(); await c.confirm_short_auth_string(transaction); status(a.status_file, {'state':'confirming'})
