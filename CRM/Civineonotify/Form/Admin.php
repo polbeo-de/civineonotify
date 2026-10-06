@@ -40,7 +40,15 @@ final class CRM_Civineonotify_Form_Admin extends CRM_Core_Form {
     if (!$id || !$action) return;
     if ($this->entity === 'CiviNeoNotifyTransport' && $action === 'test' && CRM_Core_Permission::check('send civineo notify test messages')) {
       $test = \Civi\Api4\CiviNeoNotifyTransport::testTransport(FALSE)->setId($id)->execute()->first();
-      CRM_Core_Session::setStatus(($test['success'] ?? FALSE) ? E::ts('Transport test succeeded.') : E::ts('Transport test failed: %1', [1 => $test['category'] ?? 'unknown']));
+      if (($test['success'] ?? FALSE)) {
+        CRM_Core_Session::setStatus(E::ts('Transport test message sent to its default destination.'), E::ts('Test sent'), 'success');
+      }
+      elseif (($test['category'] ?? '') === 'default_destination_missing') {
+        CRM_Core_Session::setStatus(E::ts('Set an active default destination for this transport before sending a test.'), E::ts('No default destination'), 'error');
+      }
+      else {
+        CRM_Core_Session::setStatus(E::ts('Transport test failed: %1', [1 => $test['category'] ?? 'unknown']), E::ts('Test failed'), 'error');
+      }
     }
     if ($this->entity === 'CiviNeoNotifyDestination' && $action === 'test' && CRM_Core_Permission::check('send civineo notify test messages')) {
       $test = \Civi\Api4\CiviNeoNotifyDestination::testDestination(FALSE)->setId($id)->execute()->first();
