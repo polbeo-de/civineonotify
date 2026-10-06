@@ -5,7 +5,6 @@ import argparse, asyncio, json, stat, sys, time
 from pathlib import Path
 from uuid import uuid4
 from nio import AsyncClient, AsyncClientConfig, KeysQueryResponse, SyncResponse, ToDeviceMessage, ToDeviceResponse
-from nio.crypto.sas import Sas
 
 def private(path: Path, directory: bool = False) -> None:
   if (not path.is_dir() if directory else not path.is_file()) or stat.S_IMODE(path.stat().st_mode) & 0o077:
@@ -49,9 +48,7 @@ async def main() -> int:
         if event_type == 'm.key.verification.ready' and source.get('sender') == data['user_id'] and content.get('from_device') == a.target_device_id and content.get('transaction_id') == transaction: ready = True
       if ready and not started:
         status(a.status_file, {'state':'waiting', 'phase':'ready_received', 'events':observed})
-        sas = Sas(data['user_id'], data['device_id'], c.olm.account.identity_keys['ed25519'], peer, transaction_id=transaction)
-        c.key_verifications[transaction] = sas
-        reply = await c.to_device(sas.start_verification())
+        reply = await c.start_key_verification(peer, transaction_id=transaction)
         if not isinstance(reply, ToDeviceResponse): status(a.status_file, {'state':'failed'}); return 1
         started = True; status(a.status_file, {'state':'waiting', 'phase':'sas_start_sent', 'events':observed})
       sas = c.key_verifications.get(transaction)
