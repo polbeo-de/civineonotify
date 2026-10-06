@@ -58,7 +58,7 @@ async def main() -> int:
       if sas is None:
         status(a.status_file, {'state':'waiting', 'phase':'awaiting_sas', 'events':observed, 'outbound_sent':len(outbound)})
         continue
-      if sas.canceled: status(a.status_file, {'state':'cancelled'}); return 1
+      if sas.canceled: status(a.status_file, {'state':'cancelled', 'phase':getattr(sas, 'cancel_detail', '')}); return 1
       if sas.verified: status(a.status_file, {'state':'verified'}); return 0
       if not sas.we_started_it and sas.state.name == 'started' and not accepted:
         reply = await c.accept_key_verification(transaction)
