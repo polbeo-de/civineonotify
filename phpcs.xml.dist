@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<ruleset name="CiviNeoNotify">
+  <file>Civi</file><file>CRM</file><file>schema</file><file>settings</file><file>managed</file><file>tests</file><file>civineonotify.php</file>
+  <exclude-pattern>vendor/*</exclude-pattern><arg name="extensions" value="php"/><arg name="colors"/>
+  <rule ref="Generic.PHP.Syntax"/><rule ref="Generic.PHP.RequireStrictTypes"/>
+</ruleset>

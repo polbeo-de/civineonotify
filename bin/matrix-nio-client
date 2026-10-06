@@ -1,0 +1,106 @@
+#!/usr/bin/env python3
+"""Run one bounded Matrix-Nio operation with an existing protected session.
+
+The script emits a small JSON result and never prints Matrix responses,
+credentials, rooms, or message content. ``send`` reads the message body only
+from standard input so no notification content reaches a process listing.
+"""
+
+from __future__ import annotations
+
+import argparse
+import asyncio
+import json
+import stat
+import sys
+from pathlib import Path
+from typing import Any
+
+from nio import AsyncClient, AsyncClientConfig, RoomSendResponse, SyncResponse
+from nio.exceptions import OlmUnverifiedDeviceError, SendRetryError
+
+
+def arguments() -> argparse.Namespace:
+  parser = argparse.ArgumentParser(description=__doc__)
+  parser.add_argument('action', choices=('test', 'send'))
+  parser.add_argument('--homeserver', required=True)
+  parser.add_argument('--session-file', type=Path, required=True)
+  parser.add_argument('--store-path', type=Path, required=True)
+  parser.add_argument('--room-id')
+  parser.add_argument('--timeout', type=int, default=30)
+  parser.add_argument('--allow-unverified-devices', action='store_true')
+  parsed = parser.parse_args()
+  if parsed.action == 'send' and not parsed.room_id:
+    parser.error('--room-id is required for send')
+  if parsed.timeout < 1 or parsed.timeout > 300:
+    parser.error('--timeout must be between 1 and 300')
+  return parsed
+
+
+def private_file(path: Path) -> None:
+  if not path.is_file() or stat.S_IMODE(path.stat().st_mode) & 0o077:
+    raise ValueError('Protected Matrix session is not usable.')
+
+
+def private_directory(path: Path) -> None:
+  if not path.is_dir() or stat.S_IMODE(path.stat().st_mode) & 0o077:
+    raise ValueError('Protected Matrix store is not usable.')
+
+
+def result(success: bool, category: str, event_id: str | None = None) -> int:
+  payload: dict[str, Any] = {'success': success, 'category': category}
+  if event_id:
+    payload['event_id'] = event_id
+  print(json.dumps(payload, separators=(',', ':')))
+  return 0 if success else 1
+
+
+async def run(parsed: argparse.Namespace) -> tuple[bool, str, str | None]:
+  private_file(parsed.session_file)
+  private_directory(parsed.store_path)
+  session = json.loads(parsed.session_file.read_text(encoding='utf-8'))
+  user_id = str(session['user_id'])
+  device_id = str(session['device_id'])
+  access_token = str(session['access_token'])
+  config = AsyncClientConfig(encryption_enabled=True, store_sync_tokens=True, request_timeout=parsed.timeout, max_timeouts=0)
+  client = AsyncClient(parsed.homeserver, user_id, device_id=device_id, store_path=str(parsed.store_path), config=config)
+  try:
+    client.restore_login(user_id, device_id, access_token)
+    synced = await client.sync(timeout=0, full_state=True)
+    if not isinstance(synced, SyncResponse):
+      return False, 'connection_error', None
+    if parsed.action == 'test':
+      return True, 'success', None
+    body = sys.stdin.read()
+    if not body:
+      return False, 'configuration_error', None
+    try:
+      sent = await client.room_send(
+        parsed.room_id,
+        'm.room.message',
+        {'msgtype': 'm.notice', 'body': body},
+        ignore_unverified_devices=parsed.allow_unverified_devices,
+      )
+    except OlmUnverifiedDeviceError:
+      return False, 'unverified_recipient_device', None
+    except SendRetryError:
+      return False, 'unknown_delivery_state', None
+    if not isinstance(sent, RoomSendResponse):
+      return False, 'send_rejected', None
+    return True, 'success', sent.event_id
+  finally:
+    await client.close()
+
+
+def main() -> int:
+  parsed = arguments()
+  try:
+    return result(*asyncio.run(run(parsed)))
+  except (KeyError, OSError, ValueError, json.JSONDecodeError):
+    return result(False, 'configuration_error')
+  except Exception:
+    return result(False, 'connection_error')
+
+
+if __name__ == '__main__':
+  raise SystemExit(main())

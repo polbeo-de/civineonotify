@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/admin/setting/civineonotify</path>
+    <page_callback>CRM_Admin_Form_Generic</page_callback>
+    <title>CiviNeo Notify: Settings</title>
+    <access_arguments>administer civineo notify</access_arguments>
+  </item>
+  <item><path>civicrm/admin/civineonotify/transports</path><page_callback>CRM_Civineonotify_Form_Admin</page_callback><title>CiviNeo Notify: Transports</title><access_arguments>administer civineo notify</access_arguments></item>
+  <item><path>civicrm/admin/civineonotify/transport</path><page_callback>CRM_Civineonotify_Form_Transport</page_callback><title>CiviNeo Notify: Transport</title><access_arguments>administer civineo notify</access_arguments></item>
+  <item><path>civicrm/admin/civineonotify/provision-matrix</path><page_callback>CRM_Civineonotify_Form_ProvisionMatrix</page_callback><title>CiviNeo Notify: Provision Matrix transport</title><access_arguments>administer civineo notify</access_arguments></item>
+  <item><path>civicrm/admin/civineonotify/delete-transport</path><page_callback>CRM_Civineonotify_Form_DeleteTransport</page_callback><title>CiviNeo Notify: Delete transport</title><access_arguments>administer civineo notify</access_arguments></item>
+  <item><path>civicrm/admin/civineonotify/verify-matrix-nio</path><page_callback>CRM_Civineonotify_Form_VerifyMatrixNio</page_callback><title>CiviNeo Notify: Verify Matrix Nio device</title><access_arguments>administer civineo notify</access_arguments></item>
+  <item><path>civicrm/admin/civineonotify/destinations</path><page_callback>CRM_Civineonotify_Form_Admin</page_callback><title>CiviNeo Notify: Destinations</title><access_arguments>administer civineo notify</access_arguments></item>
+  <item><path>civicrm/admin/civineonotify/destination</path><page_callback>CRM_Civineonotify_Form_Destination</page_callback><title>CiviNeo Notify: Destination</title><access_arguments>administer civineo notify</access_arguments></item>
+  <item><path>civicrm/admin/civineonotify/rules</path><page_callback>CRM_Civineonotify_Form_Admin</page_callback><title>CiviNeo Notify: Rules</title><access_arguments>administer civineo notify</access_arguments></item>
+  <item><path>civicrm/admin/civineonotify/rule</path><page_callback>CRM_Civineonotify_Form_Rule</page_callback><title>CiviNeo Notify: Rule</title><access_arguments>administer civineo notify</access_arguments></item>
+  <item><path>civicrm/admin/civineonotify/log</path><page_callback>CRM_Civineonotify_Form_Admin</page_callback><title>CiviNeo Notify: Delivery log</title><access_arguments>view civineo notify delivery log</access_arguments></item>
+</menu>

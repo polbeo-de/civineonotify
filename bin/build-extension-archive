@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# Build a CiviCRM-installable archive from one immutable Git commit.
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+Usage: bin/build-extension-archive --ref REF --output FILE.zip [--version VERSION] [--require-annotated-tag]
+
+Builds a ZIP whose single top-level directory is
+de.polbeo.civicrm.civineonotify/. With --require-annotated-tag, REF must resolve
+to the annotated tag named by --version and info.xml must declare that version.
+USAGE
+}
+
+ref=''
+output=''
+version=''
+require_annotated_tag=false
+while (($#)); do
+  case "$1" in
+    --ref) ref=${2:?missing value}; shift 2 ;;
+    --output) output=${2:?missing value}; shift 2 ;;
+    --version) version=${2:?missing value}; shift 2 ;;
+    --require-annotated-tag) require_annotated_tag=true; shift ;;
+    -h|--help) usage; exit 0 ;;
+    *) printf 'Unknown argument: %s\n' "$1" >&2; usage >&2; exit 2 ;;
+  esac
+done
+[[ -n "$ref" && -n "$output" ]] || { usage >&2; exit 2; }
+
+repo_root=$(git rev-parse --show-toplevel)
+cd "$repo_root"
+commit=$(git rev-parse --verify "${ref}^{commit}")
+extension_dir='de.polbeo.civicrm.civineonotify'
+info_xml=$(git show "${commit}:info.xml")
+declared_version=$(printf '%s\n' "$info_xml" | sed -n 's:.*<version>\([^<]*\)</version>.*:\1:p')
+[[ -n "$declared_version" ]] || { printf 'info.xml has no version in %s\n' "$commit" >&2; exit 1; }
+
+if [[ -n "$version" && "$declared_version" != "$version" ]]; then
+  printf 'Version mismatch: info.xml=%s, requested=%s\n' "$declared_version" "$version" >&2
+  exit 1
+fi
+if $require_annotated_tag; then
+  [[ -n "$version" ]] || { printf '%s\n' '--require-annotated-tag requires --version' >&2; exit 2; }
+  [[ $(git cat-file -t "$version" 2>/dev/null || true) == tag ]] || { printf 'Release tag %s must be annotated.\n' "$version" >&2; exit 1; }
+  [[ $(git rev-parse "${version}^{commit}") == "$commit" ]] || { printf 'Release tag %s does not point at %s.\n' "$version" "$commit" >&2; exit 1; }
+fi
+
+mkdir -p "$(dirname "$output")"
+output=$(cd "$(dirname "$output")" && pwd)/$(basename "$output")
+tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/civineonotify-archive.XXXXXX")
+trap 'rm -rf "$tmpdir"' EXIT
+mkdir -p "$tmpdir/$extension_dir"
+git archive --format=tar "$commit" | tar -xf - -C "$tmpdir/$extension_dir"
+
+[[ -f "$tmpdir/$extension_dir/info.xml" ]] || { printf '%s\n' 'Archive is missing info.xml.' >&2; exit 1; }
+[[ $(sed -n 's:.*<version>\([^<]*\)</version>.*:\1:p' "$tmpdir/$extension_dir/info.xml") == "$declared_version" ]] || { printf '%s\n' 'Archive info.xml version differs from source.' >&2; exit 1; }
+
+rm -f "$output"
+(
+  cd "$tmpdir"
+  find "$extension_dir" -print | LC_ALL=C sort | zip -X -q "$output" -@
+)
+entries=$(unzip -Z1 "$output")
+printf '%s\n' "$entries" | grep -qx "$extension_dir/info.xml" || { printf '%s\n' 'ZIP validation failed: info.xml missing.' >&2; exit 1; }
+if printf '%s\n' "$entries" | grep -qv "^${extension_dir}/"; then
+  printf '%s\n' 'ZIP validation failed: unexpected top-level content.' >&2
+  exit 1
+fi
+printf 'archive=%s\ncommit=%s\nversion=%s\n' "$output" "$commit" "$declared_version"
+shasum -a 256 "$output"
