@@ -5,6 +5,7 @@ import argparse, asyncio, json, stat, sys, time
 from pathlib import Path
 from uuid import uuid4
 from nio import AsyncClient, AsyncClientConfig, KeysQueryResponse, SyncResponse, ToDeviceMessage, ToDeviceResponse
+from nio.exceptions import LocalProtocolError
 
 def private(path: Path, directory: bool = False) -> None:
   if (not path.is_dir() if directory else not path.is_file()) or stat.S_IMODE(path.stat().st_mode) & 0o077:
@@ -51,8 +52,12 @@ async def main() -> int:
         reply = await c.start_key_verification(peer, transaction_id=transaction)
         if not isinstance(reply, ToDeviceResponse): status(a.status_file, {'state':'failed'}); return 1
         started = True; status(a.status_file, {'state':'waiting', 'phase':'sas_start_sent', 'events':observed})
+      outbound = await c.send_to_device_messages()
+      if not all(isinstance(result, ToDeviceResponse) for result in outbound): status(a.status_file, {'state':'failed'}); return 1
       sas = c.key_verifications.get(transaction)
-      if sas is None: continue
+      if sas is None:
+        status(a.status_file, {'state':'waiting', 'phase':'awaiting_sas', 'events':observed, 'outbound_sent':len(outbound)})
+        continue
       if sas.canceled: status(a.status_file, {'state':'cancelled'}); return 1
       if sas.verified: status(a.status_file, {'state':'verified'}); return 0
       if not sas.we_started_it and sas.state.name == 'started' and not accepted:
@@ -60,7 +65,9 @@ async def main() -> int:
         if not isinstance(reply, ToDeviceResponse): status(a.status_file, {'state':'failed'}); return 1
         accepted = True
       try: emoji = sas.get_emoji(); decimals = sas.get_decimals()
-      except Exception: continue
+      except (LocalProtocolError, ValueError):
+        status(a.status_file, {'state':'waiting', 'phase':f'sas_{sas.state.name}', 'events':observed, 'outbound_sent':len(outbound)})
+        continue
       status(a.status_file, {'state':'compare', 'transaction_id':transaction, 'emoji':emoji, 'decimals':decimals, 'events':observed})
       if a.confirm_file.exists(): a.confirm_file.unlink(); await c.confirm_short_auth_string(transaction); status(a.status_file, {'state':'confirming'})
     status(a.status_file, {'state':'timed_out'}); return 1
