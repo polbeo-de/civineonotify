@@ -59,7 +59,20 @@ async def main() -> int:
         status(a.status_file, {'state':'waiting', 'phase':'awaiting_sas', 'events':observed, 'outbound_sent':len(outbound)})
         continue
       if sas.canceled: status(a.status_file, {'state':'cancelled', 'phase':getattr(sas, 'cancel_detail', '')}); return 1
-      if sas.verified: status(a.status_file, {'state':'verified'}); return 0
+      if sas.verified:
+        # Matrix-Nio marks the peer locally as verified but does not queue the
+        # terminal event. Element keeps its comparison dialog open until it
+        # receives this protocol-level acknowledgement.
+        done = ToDeviceMessage(
+          'm.key.verification.done',
+          data['user_id'],
+          a.target_device_id,
+          {'transaction_id': transaction},
+        )
+        reply = await c.to_device(done)
+        if not isinstance(reply, ToDeviceResponse):
+          status(a.status_file, {'state':'failed'}); return 1
+        status(a.status_file, {'state':'verified'}); return 0
       if not sas.we_started_it and sas.state.name == 'started' and not accepted:
         reply = await c.accept_key_verification(transaction)
         if not isinstance(reply, ToDeviceResponse): status(a.status_file, {'state':'failed'}); return 1
