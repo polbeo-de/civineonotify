@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+"""Provision a Matrix-Nio device for a bounded, non-sending integration probe.
+
+This is deliberately a proof tool, not yet a CiviNeo Notify transport runner.
+It has no message-sending code. Its only network actions are Matrix login and,
+when explicitly requested, one initial sync to initialise the E2EE store.
+"""
+
+from __future__ import annotations
+
+import argparse
+import asyncio
+import json
+import os
+import stat
+import sys
+from pathlib import Path
+
+from nio import AsyncClient, AsyncClientConfig, KeysUploadResponse, LoginResponse, RoomSendResponse, SyncResponse
+
+
+def private_directory(path: Path) -> None:
+  path.mkdir(mode=0o700, parents=True, exist_ok=True)
+  if stat.S_IMODE(path.stat().st_mode) & 0o077:
+    raise ValueError(f"Private directory is not private: {path}")
+
+
+def write_status(path: Path, value: str) -> None:
+  private_directory(path.parent)
+  temporary = path.with_suffix(path.suffix + '.tmp')
+  temporary.write_text(value + '\n', encoding='utf-8')
+  temporary.chmod(0o600)
+  temporary.replace(path)
+
+
+def read_one_time_password(path: Path) -> str:
+  mode = stat.S_IMODE(path.stat().st_mode)
+  if mode & 0o077:
+    raise ValueError('Password file must not be readable by group or others.')
+  password = path.read_text(encoding='utf-8').strip()
+  # Remove the only plaintext copy before opening a network connection. The
+  # process may still be OOM-killed, so no later cleanup can be relied upon.
+  path.unlink()
+  if not password:
+    raise ValueError('Password file is empty.')
+  return password
+
+
+def parse_arguments() -> argparse.Namespace:
+  parser = argparse.ArgumentParser(description=__doc__)
+  parser.add_argument('--homeserver', required=True)
+  parser.add_argument('--user-login', required=True)
+  parser.add_argument('--password-file', type=Path)
+  parser.add_argument('--store-path', type=Path, required=True)
+  parser.add_argument('--session-file', type=Path, required=True)
+  parser.add_argument('--status-file', type=Path, required=True)
+  parser.add_argument('--device-name', default='CiviNeo Notify Matrix-Nio probe')
+  parser.add_argument('--resume', action='store_true', help='Restore the protected session instead of creating a device.')
+  parser.add_argument('--initial-sync', action='store_true', help='Run one E2EE initial sync; never sends a message.')
+  parser.add_argument('--send-room', help='Internal Matrix room ID; enables one explicit test message.')
+  parser.add_argument('--message', help='Body for the explicit test message.')
+  parser.add_argument('--allow-unverified-devices', action='store_true', help='Explicitly share the message session with unverified recipient devices.')
+  return parser.parse_args()
+
+
+async def provision(arguments: argparse.Namespace) -> None:
+  if bool(arguments.send_room) != bool(arguments.message):
+    raise ValueError('Room and message must be supplied together.')
+  if arguments.send_room and not arguments.initial_sync:
+    raise ValueError('An explicit send requires an initial sync.')
+  private_directory(arguments.store_path)
+  password = ''
+  config = AsyncClientConfig(
+    encryption_enabled=True,
+    store_sync_tokens=True,
+    request_timeout=20,
+    max_timeouts=0,
+  )
+  if arguments.resume:
+    session = json.loads(arguments.session_file.read_text(encoding='utf-8'))
+    client = AsyncClient(arguments.homeserver, str(session['user_id']), device_id=str(session['device_id']), store_path=str(arguments.store_path), config=config)
+    client.restore_login(str(session['user_id']), str(session['device_id']), str(session['access_token']))
+  else:
+    if arguments.password_file is None:
+      raise ValueError('Password file is required when creating a device.')
+    write_status(arguments.status_file, 'running:login')
+    password = read_one_time_password(arguments.password_file)
+    client = AsyncClient(arguments.homeserver, arguments.user_login, store_path=str(arguments.store_path), config=config)
+  try:
+    if not arguments.resume:
+      response = await client.login(password=password, device_name=arguments.device_name)
+      password = ''
+      if not isinstance(response, LoginResponse):
+        raise RuntimeError('Matrix login was rejected.')
+
+      private_directory(arguments.session_file.parent)
+      temporary = arguments.session_file.with_suffix(arguments.session_file.suffix + '.tmp')
+      temporary.write_text(json.dumps({
+        'user_id': client.user_id,
+        'device_id': client.device_id,
+        'access_token': client.access_token,
+      }) + '\n', encoding='utf-8')
+      temporary.chmod(0o600)
+      temporary.replace(arguments.session_file)
+
+      if client.should_upload_keys:
+        response = await client.keys_upload()
+        if not isinstance(response, KeysUploadResponse):
+          raise RuntimeError('Matrix encryption keys could not be uploaded.')
+
+    if arguments.initial_sync:
+      write_status(arguments.status_file, 'running:initial-sync')
+      response = await client.sync(timeout=0, full_state=True)
+      if not isinstance(response, SyncResponse):
+        raise RuntimeError('Matrix initial sync failed.')
+    if arguments.send_room:
+      write_status(arguments.status_file, 'running:send')
+      response = await client.room_send(
+        arguments.send_room,
+        'm.room.message',
+        {'msgtype': 'm.notice', 'body': arguments.message},
+        ignore_unverified_devices=arguments.allow_unverified_devices,
+      )
+      if not isinstance(response, RoomSendResponse):
+        raise RuntimeError('Matrix test message was rejected.')
+    write_status(arguments.status_file, 'succeeded')
+  finally:
+    password = ''
+    await client.close()
+
+
+def main() -> int:
+  arguments = parse_arguments()
+  try:
+    asyncio.run(provision(arguments))
+  except Exception:  # The private status must never expose Matrix or crypto details.
+    try:
+      write_status(arguments.status_file, 'failed')
+    except OSError:
+      pass
+    print('Provisioning failed.', file=sys.stderr)
+    return 1
+  return 0
+
+
+if __name__ == '__main__':
+  raise SystemExit(main())

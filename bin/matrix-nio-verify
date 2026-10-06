@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+"""Short-lived, file-controlled SAS verifier for a protected Matrix-Nio device."""
+from __future__ import annotations
+import argparse, asyncio, json, stat, sys, time
+from pathlib import Path
+from uuid import uuid4
+from nio import AsyncClient, AsyncClientConfig, KeysQueryResponse, SyncResponse, ToDeviceMessage, ToDeviceResponse
+from nio.exceptions import LocalProtocolError
+
+def private(path: Path, directory: bool = False) -> None:
+  if (not path.is_dir() if directory else not path.is_file()) or stat.S_IMODE(path.stat().st_mode) & 0o077:
+    raise ValueError('Protected verification path is not usable.')
+
+def status(path: Path, payload: dict) -> None:
+  tmp = path.with_suffix('.tmp')
+  tmp.write_text(json.dumps(payload, separators=(',', ':')) + '\n')
+  tmp.chmod(0o600); tmp.replace(path)
+
+async def main() -> int:
+  p = argparse.ArgumentParser(description=__doc__)
+  p.add_argument('--homeserver', required=True); p.add_argument('--session-file', type=Path, required=True)
+  p.add_argument('--store-path', type=Path, required=True); p.add_argument('--status-file', type=Path, required=True)
+  p.add_argument('--target-device-id', required=True)
+  p.add_argument('--confirm-file', type=Path, required=True); p.add_argument('--cancel-file', type=Path, required=True)
+  p.add_argument('--max-seconds', type=int, default=300)
+  a = p.parse_args(); private(a.session_file); private(a.store_path, True)
+  data = json.loads(a.session_file.read_text()); c = AsyncClient(a.homeserver, data['user_id'], device_id=data['device_id'], store_path=str(a.store_path), config=AsyncClientConfig(encryption_enabled=True, store_sync_tokens=True, request_timeout=20, max_timeouts=0)); c.restore_login(data['user_id'], data['device_id'], data['access_token'])
+  deadline = time.monotonic() + a.max_seconds; transaction = str(uuid4()); ready = False; started = False; accepted = False; observed = []
+  try:
+    reply = await c.sync(timeout=0, full_state=True)
+    if not isinstance(reply, SyncResponse): status(a.status_file, {'state':'failed'}); return 1
+    reply = await c.keys_query()
+    if not isinstance(reply, KeysQueryResponse): status(a.status_file, {'state':'failed'}); return 1
+    peer = c.device_store[data['user_id']].get(a.target_device_id)
+    if peer is None: status(a.status_file, {'state':'failed'}); return 1
+    request = ToDeviceMessage('m.key.verification.request', data['user_id'], a.target_device_id, {'from_device': data['device_id'], 'methods': ['m.sas.v1'], 'timestamp': int(time.time() * 1000), 'transaction_id': transaction})
+    reply = await c.to_device(request)
+    if not isinstance(reply, ToDeviceResponse): status(a.status_file, {'state':'failed'}); return 1
+    status(a.status_file, {'state':'waiting', 'phase':'request_sent'})
+    while time.monotonic() < deadline:
+      if a.cancel_file.exists(): status(a.status_file, {'state':'cancelled'}); return 1
+      reply = await c.sync(timeout=5000, full_state=False)
+      if not isinstance(reply, SyncResponse): status(a.status_file, {'state':'failed'}); return 1
+      for event in reply.to_device_events:
+        source = getattr(event, 'source', {})
+        content = source.get('content', {})
+        event_type = source.get('type')
+        if isinstance(event_type, str) and event_type not in observed and len(observed) < 8: observed.append(event_type)
+        if event_type == 'm.key.verification.ready' and source.get('sender') == data['user_id'] and content.get('from_device') == a.target_device_id and content.get('transaction_id') == transaction: ready = True
+      if ready and not started:
+        status(a.status_file, {'state':'waiting', 'phase':'ready_received', 'events':observed})
+        reply = await c.start_key_verification(peer, transaction_id=transaction)
+        if not isinstance(reply, ToDeviceResponse): status(a.status_file, {'state':'failed'}); return 1
+        started = True; status(a.status_file, {'state':'waiting', 'phase':'sas_start_sent', 'events':observed})
+      outbound = await c.send_to_device_messages()
+      if not all(isinstance(result, ToDeviceResponse) for result in outbound): status(a.status_file, {'state':'failed'}); return 1
+      sas = c.key_verifications.get(transaction)
+      if sas is None:
+        status(a.status_file, {'state':'waiting', 'phase':'awaiting_sas', 'events':observed, 'outbound_sent':len(outbound)})
+        continue
+      if sas.canceled: status(a.status_file, {'state':'cancelled', 'phase':getattr(sas, 'cancel_detail', '')}); return 1
+      if sas.verified:
+        # The peer MAC can arrive after our own confirmation.  In that path
+        # Matrix-Nio marks the SAS object as verified while no caller has
+        # invoked ``verify_device`` yet.  Persist the resulting trust before
+        # declaring success; otherwise later room sends still reject this
+        # device as unverified.
+        c.verify_device(sas.other_olm_device)
+        # Matrix-Nio marks the peer locally as verified but does not queue the
+        # terminal event. Element keeps its comparison dialog open until it
+        # receives this protocol-level acknowledgement.
+        done = ToDeviceMessage(
+          'm.key.verification.done',
+          data['user_id'],
+          a.target_device_id,
+          {'transaction_id': transaction},
+        )
+        reply = await c.to_device(done)
+        if not isinstance(reply, ToDeviceResponse):
+          status(a.status_file, {'state':'failed'}); return 1
+        status(a.status_file, {'state':'verified'}); return 0
+      if not sas.we_started_it and sas.state.name == 'started' and not accepted:
+        reply = await c.accept_key_verification(transaction)
+        if not isinstance(reply, ToDeviceResponse): status(a.status_file, {'state':'failed'}); return 1
+        accepted = True
+      try: emoji = sas.get_emoji(); decimals = sas.get_decimals()
+      except (AssertionError, LocalProtocolError, ValueError):
+        # Matrix-Nio has received enough events to create the SAS object, but
+        # may not yet have derived the short-authentication string.  This is
+        # an ordinary protocol transition, not a failed verification.
+        status(a.status_file, {'state':'waiting', 'phase':f'sas_{sas.state.name}', 'events':observed, 'outbound_sent':len(outbound), 'sas_established':bool(getattr(sas, 'established_sas', False))})
+        continue
+      status(a.status_file, {'state':'compare', 'transaction_id':transaction, 'emoji':emoji, 'decimals':decimals, 'events':observed})
+      if a.confirm_file.exists(): a.confirm_file.unlink(); await c.confirm_short_auth_string(transaction); status(a.status_file, {'state':'confirming'})
+    status(a.status_file, {'state':'timed_out'}); return 1
+  except Exception as error:
+    status(a.status_file, {'state':'failed'})
+    detail = str(error).replace('\n', ' ')[:160]
+    print(f'Matrix SAS verification failed: {type(error).__name__}: {detail}', file=sys.stderr)
+    return 1
+  finally: await c.close()
+
+if __name__ == '__main__':
+  raise SystemExit(asyncio.run(main()))
