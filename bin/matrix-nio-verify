@@ -38,7 +38,7 @@ async def main() -> int:
     status(a.status_file, {'state':'waiting', 'phase':'request_sent'})
     while time.monotonic() < deadline:
       if a.cancel_file.exists(): status(a.status_file, {'state':'cancelled'}); return 1
-      reply = await c.sync(timeout=1000, full_state=False)
+      reply = await c.sync(timeout=5000, full_state=False)
       if not isinstance(reply, SyncResponse): status(a.status_file, {'state':'failed'}); return 1
       for event in reply.to_device_events:
         source = getattr(event, 'source', {})
@@ -50,6 +50,10 @@ async def main() -> int:
         status(a.status_file, {'state':'waiting', 'phase':'ready_received', 'events':observed})
         reply = await c.start_key_verification(peer, transaction_id=transaction)
         if not isinstance(reply, ToDeviceResponse): status(a.status_file, {'state':'failed'}); return 1
+        # A request/ready exchange may have advanced a restored cursor before
+        # Element sends its accept. Start the post-start long poll from a
+        # fresh sync token so that the short-lived to-device reply is not lost.
+        c.next_batch = ''; c.loaded_sync_token = ''
         started = True; status(a.status_file, {'state':'waiting', 'phase':'sas_start_sent', 'events':observed})
       sas = c.key_verifications.get(transaction)
       if sas is None: continue
