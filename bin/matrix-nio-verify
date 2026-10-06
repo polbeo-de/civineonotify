@@ -60,6 +60,12 @@ async def main() -> int:
         continue
       if sas.canceled: status(a.status_file, {'state':'cancelled', 'phase':getattr(sas, 'cancel_detail', '')}); return 1
       if sas.verified:
+        # The peer MAC can arrive after our own confirmation.  In that path
+        # Matrix-Nio marks the SAS object as verified while no caller has
+        # invoked ``verify_device`` yet.  Persist the resulting trust before
+        # declaring success; otherwise later room sends still reject this
+        # device as unverified.
+        c.verify_device(sas.other_olm_device)
         # Matrix-Nio marks the peer locally as verified but does not queue the
         # terminal event. Element keeps its comparison dialog open until it
         # receives this protocol-level acknowledgement.
