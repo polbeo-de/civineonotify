@@ -50,10 +50,6 @@ async def main() -> int:
         status(a.status_file, {'state':'waiting', 'phase':'ready_received', 'events':observed})
         reply = await c.start_key_verification(peer, transaction_id=transaction)
         if not isinstance(reply, ToDeviceResponse): status(a.status_file, {'state':'failed'}); return 1
-        # A request/ready exchange may have advanced a restored cursor before
-        # Element sends its accept. Start the post-start long poll from a
-        # fresh sync token so that the short-lived to-device reply is not lost.
-        c.next_batch = ''; c.loaded_sync_token = ''
         started = True; status(a.status_file, {'state':'waiting', 'phase':'sas_start_sent', 'events':observed})
       sas = c.key_verifications.get(transaction)
       if sas is None: continue
