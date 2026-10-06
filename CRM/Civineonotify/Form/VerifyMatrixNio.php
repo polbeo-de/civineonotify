@@ -32,7 +32,13 @@ final class CRM_Civineonotify_Form_VerifyMatrixNio extends CRM_Core_Form {
   public function postProcess(): void {
     $action = (string) ($this->controller->getButtonName() ?? ''); $root = dirname((string) ($this->config['session_path'] ?? ''));
     $status = $root . '/.civineonotify-nio-verify.status'; $confirm = $root . '/.civineonotify-nio-verify.confirm'; $cancel = $root . '/.civineonotify-nio-verify.cancel';
-    if (str_ends_with($action, 'confirm') || str_ends_with($action, 'cancel')) { file_put_contents(str_ends_with($action, 'confirm') ? $confirm : $cancel, '1', LOCK_EX); chmod(str_ends_with($action, 'confirm') ? $confirm : $cancel, 0600); }
+    if (str_ends_with($action, 'confirm')) { file_put_contents($confirm, '1', LOCK_EX); chmod($confirm, 0600); }
+    elseif (str_ends_with($action, 'cancel')) {
+      file_put_contents($cancel, '1', LOCK_EX); chmod($cancel, 0600);
+      $uid = posix_geteuid(); $runtime = '/run/user/' . $uid;
+      (new Process(['/usr/bin/systemctl','--user','stop','civineonotify-verify-' . $this->id], NULL, ['PATH'=>'/usr/bin:/bin','XDG_RUNTIME_DIR'=>$runtime,'DBUS_SESSION_BUS_ADDRESS'=>'unix:path=' . $runtime . '/bus'], NULL, 10))->run();
+      file_put_contents($status, json_encode(['state' => 'cancelled'], JSON_THROW_ON_ERROR) . "\n", LOCK_EX); chmod($status, 0600);
+    }
     elseif (str_ends_with($action, 'start')) {
       $device = (string) $this->exportValue('verification_device_id');
       $options = $this->deviceOptions();
