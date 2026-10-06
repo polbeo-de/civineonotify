@@ -108,9 +108,11 @@ function civineonotify_transportOptions(bool $optional = FALSE): array {
   return $options;
 }
 
-function civineonotify_destinationOptions(bool $optional = FALSE): array {
-  $options = $optional ? ['' => CRM_Civineonotify_ExtensionUtil::ts('- Use transport default destination -')] : ['' => CRM_Civineonotify_ExtensionUtil::ts('- Select destination -')];
-  foreach (\Civi\Api4\CiviNeoNotifyDestination::get(FALSE)->addWhere('is_active', '=', TRUE)->addOrderBy('name', 'ASC')->execute() as $destination) $options[(string) $destination['id']] = $destination['name'];
+function civineonotify_destinationOptions(bool $optional = FALSE, ?int $transportId = NULL, ?string $emptyLabel = NULL): array {
+  $options = ['' => $emptyLabel ?? CRM_Civineonotify_ExtensionUtil::ts($optional ? '- Use transport default destination -' : '- Select destination -')];
+  $query = \Civi\Api4\CiviNeoNotifyDestination::get(FALSE)->addWhere('is_active', '=', TRUE)->addOrderBy('name', 'ASC');
+  if ($transportId) $query->addWhere('transport_id', '=', $transportId);
+  foreach ($query->execute() as $destination) $options[(string) $destination['id']] = $destination['name'];
   return $options;
 }
 

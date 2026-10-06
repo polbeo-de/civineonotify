@@ -13,7 +13,13 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $this->add('select', 'transport_type', E::ts('Transport type'), ['matrix_commander_rs' => E::ts('Matrix Commander'), 'matrix_nio' => E::ts('Matrix Nio')], TRUE);
     foreach (['binary_path' => 'Matrix Commander binary', 'credentials_path' => 'Credentials file', 'store_path' => 'Encryption store', 'working_directory' => 'Working directory', 'timeout_seconds' => 'Timeout (seconds)', 'homeserver' => 'Matrix homeserver', 'python_path' => 'Python executable', 'nio_client_path' => 'Matrix Nio client', 'session_path' => 'Protected Matrix Nio session'] as $field => $label) $this->add('text', $field, E::ts($label), ['size' => 70]);
     $this->add('checkbox', 'allow_unverified_recipient_devices', E::ts('Allow unverified recipient devices'));
-    $this->add('select', 'default_destination_id', E::ts('Default destination'), civineonotify_destinationOptions(TRUE));
+    $destinationOptions = $this->id
+      ? civineonotify_destinationOptions(TRUE, $this->id, E::ts('- No default destination -'))
+      : ['' => E::ts('- Save this transport, then add a destination -')];
+    $this->add('select', 'default_destination_id', E::ts('Default destination'), $destinationOptions);
+    if ($this->id && count($destinationOptions) === 1) {
+      $this->assign('defaultDestinationNotice', E::ts('Create a destination (for example, a Matrix room) before selecting a default.'));
+    }
     $this->add('textarea', 'description', E::ts('Description'), ['rows' => 3, 'cols' => 70]);
     $this->add('checkbox', 'is_active', E::ts('Active'));
     $this->addButtons([['type' => 'submit', 'name' => E::ts('Save transport'), 'isDefault' => TRUE], ['type' => 'cancel', 'name' => E::ts('Cancel')]]);
