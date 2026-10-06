@@ -46,9 +46,11 @@ final class CRM_Civineonotify_Form_VerifyMatrixNio extends CRM_Core_Form {
       $uid = posix_geteuid(); $runtime = '/run/user/' . $uid;
       (new Process(['/usr/bin/systemctl','--user','stop','civineonotify-verify-' . $this->id], NULL, ['PATH'=>'/usr/bin:/bin','XDG_RUNTIME_DIR'=>$runtime,'DBUS_SESSION_BUS_ADDRESS'=>'unix:path=' . $runtime . '/bus'], NULL, 10))->run();
       foreach ([$status, $confirm, $cancel] as $file) if (is_file($file) && !unlink($file)) throw new CRM_Core_Exception(E::ts('Could not reset the previous verification.'));
+      file_put_contents($status, json_encode(['state' => 'waiting', 'phase' => 'starting'], JSON_THROW_ON_ERROR) . "\n", LOCK_EX); chmod($status, 0600);
       $agent = dirname(__DIR__, 3) . '/bin/matrix-nio-verify';
       $args = ['/usr/bin/systemd-run','--user','--no-block','--collect','--unit','civineonotify-verify-' . $this->id,'--property=RuntimeMaxSec=5min','--property=MemoryMax=350M','--',(string) $this->config['python_path'],$agent,'--homeserver',(string) $this->config['homeserver'],'--session-file',(string) $this->config['session_path'],'--store-path',(string) $this->config['store_path'],'--target-device-id',$device,'--status-file',$status,'--confirm-file',$confirm,'--cancel-file',$cancel];
-      (new Process($args, NULL, ['PATH'=>'/usr/bin:/bin','XDG_RUNTIME_DIR'=>$runtime,'DBUS_SESSION_BUS_ADDRESS'=>'unix:path=' . $runtime . '/bus'], NULL, 10))->run();
+      $launch = new Process($args, NULL, ['PATH'=>'/usr/bin:/bin','XDG_RUNTIME_DIR'=>$runtime,'DBUS_SESSION_BUS_ADDRESS'=>'unix:path=' . $runtime . '/bus'], NULL, 10); $launch->run();
+      if (!$launch->isSuccessful()) { file_put_contents($status, json_encode(['state' => 'failed'], JSON_THROW_ON_ERROR) . "\n", LOCK_EX); chmod($status, 0600); }
       $this->config['verification_device_id'] = $device; $this->config['verification_device_name'] = $options[$device];
     }
     $this->config['verification_status_file'] = $status; \Civi\Api4\CiviNeoNotifyTransport::update(FALSE)->setWhere([['id','=',$this->id]])->setValues(['config_json'=>$this->config])->execute();
