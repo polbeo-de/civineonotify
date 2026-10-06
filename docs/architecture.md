@@ -13,18 +13,19 @@ The resolver boundary is `rule → event default (reserved) → entity default (
 `matrix-commander-rs` remains a supported Matrix transport implementation for
 installations with sufficient memory for its initial E2EE device synchronisation.
 It is not the only intended implementation. On the phprime8 reference host,
-an isolated `matrix-nio` E2EE proof successfully created a device, persisted a
-store, synchronised, and delivered a test notification within a 350 MiB service
-limit, where matrix-commander-rs was OOM-killed. The Matrix-Nio helper remains
-deliberately non-production code pending a complete verification flow and a
-validated deployment dependency.
+an isolated `matrix-nio` E2EE integration successfully created a device,
+persisted a store, completed Element SAS verification, and delivered an
+encrypted test notification within a 350 MiB service limit, where
+matrix-commander-rs was OOM-killed. Matrix-Nio remains an alpha transport until
+its pinned runtime and interoperability patches are independently reproducible
+as a releaseable external deployment artifact.
 
-The prototype can also send the first targeted verification request to Element,
-but it cannot yet complete an Element SAS comparison. Its raw request/ready
-compatibility workaround, the observed Matrix-Nio limitations and production
-exit criteria are documented in [matrix-nio-limitations.md](matrix-nio-limitations.md).
-It must not be represented as a trusted-device implementation before those
-criteria are met.
+The integration sends a targeted verification request to Element, waits for
+the matching ready event, compares the same SAS on both sides, persists local
+trust for the verified Element device, and sends the terminal verification
+event. Its raw request/ready compatibility workaround, remaining upstream work,
+and release criteria are documented in
+[matrix-nio-limitations.md](matrix-nio-limitations.md).
 
 Matrix-Nio refuses by default to share message keys with unverified recipient
 devices. A future transport must retain that safe default and expose any

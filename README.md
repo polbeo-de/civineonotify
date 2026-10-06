@@ -48,11 +48,13 @@ For encrypted Matrix transports, follow the dedicated
 [provisioning guide](docs/matrix-provisioning.md). It documents the bot account,
 one-time token, credentials bundle, persistent E2EE store, and safe test order.
 
-The optional Matrix-Nio E2EE/SAS path is currently a staging prototype. It can
-provision a device and send encrypted probes, but device verification with
-Element is not yet complete. Read the [Matrix-Nio limitations and design
-rationale](docs/matrix-nio-limitations.md) before selecting it for an
-installation that requires verified-device trust.
+The optional Matrix-Nio E2EE/SAS path has completed an end-to-end staging
+verification with Element: it provisions a dedicated device, compares the same
+SAS on both sides, persists device trust, and sends an encrypted test message.
+It remains an **alpha integration**: its pinned Python runtime and narrowly
+scoped interoperability patches are an external deployment prerequisite, not
+bundled with this extension archive. Read the [Matrix-Nio status and design
+rationale](docs/matrix-nio-limitations.md) before selecting it.
 
 Deployment responsibilities and the staging/release-artifact workflow are
 documented in [deployment](docs/deployment.md). Production installations must

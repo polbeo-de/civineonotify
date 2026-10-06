@@ -2,11 +2,17 @@
 
 ## Unreleased
 
+- Complete the Matrix-Nio/Element SAS verification flow on staging: compare
+  matching emoji, persist the selected Element device as trusted, send the
+  terminal Matrix verification event, and confirm encrypted delivery without
+  opting in to unverified recipient devices.
+- Make the Matrix-Nio transport test send the configured default destination,
+  retain provisioning and verification status references when a transport is
+  edited, and provide an actionable missing-default-destination state.
+
 - Add an experimental Matrix-Nio SAS verification diagnostic that can initiate
   a request against an explicitly selected Element device, reset stale controls
-  before retrying, and display available peer devices. Document that Element
-  SAS completion remains unproven and that this path is not trusted-device
-  production functionality yet.
+  before retrying, and display available peer devices.
 
 - Add a non-sending Matrix-Nio E2EE probe to evaluate an additional Matrix
   client implementation while retaining matrix-commander-rs for deployments

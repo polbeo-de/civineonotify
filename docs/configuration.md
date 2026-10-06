@@ -1,25 +1,30 @@
 # Configuration
 
-Create a Matrix transport, then named destinations, and finally rules. Configure an absolute executable path, credentials path, E2EE store path, working directory and timeout. Only `matrix_commander_rs` is intended for production in this alpha. The Destination list provides a **Test** action which immediately sends the configured default message template to that destination and records the outcome in the delivery log.
+Create a Matrix transport, then named destinations, and finally rules. Configure an absolute executable path, credentials path, E2EE store path, working directory and timeout. The Destination list provides a **Test** action which immediately sends the configured default message template to that destination and records the outcome in the delivery log.
 
 The verified `phprime8` binary is `/home/phprime8/bin/matrix-commander-rs` version 0.11.0. It supports `--credentials`, `--store`, `--timeout`, `--message -` for stdin, `--room`, and `--output json`. Do not enable arbitrary extra options. Credential files should be owned by the service account and readable only by it (normally mode 0600). No explicit transaction-ID option was found, so delivery idempotency cannot be guaranteed after an ambiguous timeout.
 
 Follow the complete [encrypted Matrix provisioning procedure](matrix-provisioning.md) before creating the transport. It explains how the Matrix administrator creates the bot account and how the supplied helper creates its dedicated device, credentials file and persistent E2EE store without putting the bot password or generated token in a process argument, log, or database field.
 
-## Matrix-Nio prototype
+## Matrix-Nio alpha integration
 
-Matrix-Nio is evaluated as a lower-memory E2EE client where
-matrix-commander-rs cannot be provisioned within the host's memory limit. It
-has successfully provisioned a device and delivered encrypted probes, but its
-Element SAS device-verification flow is incomplete. It is not a production
-alternative where verified-device trust is required. The precise observed
-behaviour, workaround and criteria for lifting that restriction are documented
-in [Matrix-Nio E2EE and device-verification status](matrix-nio-limitations.md).
+Matrix-Nio is the lower-memory E2EE option where `matrix-commander-rs` cannot
+be provisioned within the host's memory limit. On the staging reference system
+it has provisioned a device, completed Element SAS verification, persisted the
+selected Element device as trusted, and sent an encrypted test message without
+allowing unverified recipient devices.
+
+This is nevertheless an alpha integration. The verified runtime contains a
+pinned Matrix-Nio version plus narrowly scoped interoperability patches; it is
+an external deployment prerequisite and is not included in the CiviNeo Notify
+ZIP. Operators must use the documented runtime bundle for the release they
+install. The rationale, upstreaming plan, and remaining release criteria are
+documented in [Matrix-Nio E2EE and device-verification status](matrix-nio-limitations.md).
 
 In particular, **allow unverified recipient devices** is a separate, explicit
 risk decision. It permits message-key sharing with unverified recipient
 devices; it does not verify the bot device and must not be used to mask a
-failed Matrix-Nio SAS verification.
+failed or incomplete Matrix-Nio verification.
 
 Set global defaults, create inactive example rules, then enable both a specific rule and the extension. Configure the `CiviNeoNotifyDelivery.runoutbox` scheduled job to run serially. This is a CiviCRM API v3 bridge to the extension worker; scheduled jobs do not invoke custom API v4 actions directly. Back up credentials and the Matrix store together, separately from the database, using protected backup storage.
 

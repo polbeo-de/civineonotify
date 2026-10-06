@@ -1,129 +1,90 @@
 # Matrix-Nio E2EE and device-verification status
 
-## Scope and current status
+## Verified alpha scope
 
-This note records results from the CiviNeo Notify staging evaluation of
-`matrix-nio` 0.26.0 on 2026-10-05. It is both an operator-facing explanation
-and a reproducible basis for upstream reports or a narrowly scoped local
-patch. It contains no account names, access tokens, room IDs, device keys, or
-event payloads.
+This note records the Matrix-Nio staging evaluation on 2026-10-05 and
+2026-10-06. It is both an operator-facing explanation and the basis for
+upstream reports or narrowly scoped patches. It contains no account names,
+access tokens, room IDs, device keys, or event payloads.
 
-The Matrix-Nio prototype has demonstrated that it can create and persist a
-dedicated Matrix device and E2EE store, publish that device, send an encrypted
-test message after an explicit opt-in for unverified recipients, query other
-devices of the bot account, and deliver a manually sent
-`m.key.verification.request` to Element.
+On the CiviNeo Notify staging system, the Matrix-Nio path has demonstrated all
+of the following with Element and an encrypted Matrix room:
 
-It has **not** demonstrated a completed SAS verification with Element. Element
-accepts the request but remains on the “compare emoji” spinner and CiviNeo
-Notify receives no usable SAS comparison. A Matrix-Nio transport must therefore
-not be described as trusted or used where verified-device trust is required.
-Its current purpose is a staging prototype and diagnostic path, not a
-production replacement for the documented Matrix Commander transport.
+1. Create and persist a dedicated Matrix device, protected session, and E2EE
+   store outside the web root.
+2. Send a targeted `m.key.verification.request` to an administrator-selected
+   Element device, receive `ready`, and negotiate SAS.
+3. Display the same seven emoji and decimal SAS values in Element and CiviNeo
+   Notify, then complete the explicit human confirmation.
+4. Persist the verified Element device in the Matrix-Nio trust store and send
+   the required terminal `m.key.verification.done` event.
+5. Send an encrypted Matrix test message without enabling the opt-in for
+   unverified recipient devices.
 
-## Reproduced interoperability gaps
+The Matrix-Nio transport is therefore usable for the documented alpha path.
+It is not yet a generally supported production runtime: the working Python
+environment includes a pinned Matrix-Nio version and local interoperability
+patches that must be packaged reproducibly before a stable CiviNeo release.
 
-### 1. The high-level Nio SAS start is not the current Element handshake
+## Why CiviNeo Notify contains a small verification worker
 
-Calling Matrix-Nio's high-level `start_key_verification()` directly does not
-first send the request/ready exchange expected by current Matrix clients. In
-the staging test, Element rejected or did not continue that direct start with
-an unknown transaction. The Matrix specification's verification framework
-requires a `m.key.verification.request`, a `m.key.verification.ready`, and
-only then the SAS start event. See the [Matrix key-verification
-framework](https://spec.matrix.org/latest/client-server-api/#key-verification-framework).
+Current Element clients expect the verification framework sequence
+`request`, `ready`, `start`, `accept`, `key`, `mac`, `done`. Matrix-Nio does
+not expose a complete high-level initiator for the request/ready part, so the
+short-lived CiviNeo worker sends a targeted raw request, waits for the matching
+ready event, and then uses Matrix-Nio's SAS machinery for the remainder. The
+worker is bounded, targets exactly one administrator-selected device, and does
+not participate in normal message delivery.
 
-### 2. Nio does not provide a complete request/ready event flow
+When the peer MAC arrives after the local confirmation, Matrix-Nio can mark the
+SAS object verified without persisting device trust on its own. CiviNeo Notify
+explicitly persists that verified device before reporting success. It also
+sends the terminal `done` event because Element keeps its comparison dialog
+open without it.
 
-Matrix-Nio 0.26.0 does not expose a complete high-level implementation of the
-modern `m.key.verification.request` / `m.key.verification.ready` exchange.
-This is consistent with the long-standing upstream report [matrix-nio#430](https://github.com/matrix-nio/matrix-nio/issues/430)
-and the broken verification example described in [matrix-nio#512](https://github.com/matrix-nio/matrix-nio/issues/512).
+## Current runtime limitation
 
-CiviNeo Notify therefore has a deliberately small compatibility workaround:
+The required Matrix-Nio interoperability fixes are not yet upstream releases.
+They cover the modern `hkdf-hmac-sha256.v2` MAC negotiation, Vodozemac emoji
+index handling, request/ready event modelling, and safe verification-state
+diagnostics. CiviNeo Notify must not silently rely on an arbitrary system
+`pip install matrix-nio`: an operator needs the documented, pinned runtime
+bundle for the matching CiviNeo release.
 
-1. It sends a targeted raw `m.key.verification.request` to the administrator's
-   selected Element device, with a new transaction ID.
-2. It reads the matching raw `m.key.verification.ready` to-device event.
-3. Only after that event does it create the Nio `Sas` object with the same
-   transaction ID and send the SAS start event.
+The source fixes should be split into small, independently tested upstream pull
+requests. CiviNeo-specific concerns — the bounded worker, protected status
+files, administration UI, and delivery policy — remain in this extension.
 
-The workaround is confined to the prototype verification worker. It does not
-change normal encrypted delivery, does not broadcast a request to all devices,
-and expires after a short-lived worker run. It is present because direct Nio
-initiation was demonstrably incompatible with Element, not because the
-extension redefines the Matrix protocol.
+## Operator guidance
 
-### 3. SAS never reaches a comparable state
+- A successful **Verify Matrix Nio device** result means the selected Element
+  device is trusted by the CiviNeo Matrix-Nio store. It does not automatically
+  trust other newly created Element devices.
+- Do not enable **allow unverified recipient devices** merely to make a warning
+  disappear. It is a separate security decision that allows room-key sharing
+  with unverified recipient devices.
+- If a test reports `unverified_recipient_device`, verify the indicated
+  recipient device or deliberately make that opt-in; do not re-provision the
+  transport solely for that error.
+- Provisioning and verification state is stored outside the extension archive.
+  Editing a transport preserves its references; reinstalling the extension
+  alone neither recreates nor deletes the protected Matrix-Nio store.
 
-With the compatibility request in place, Element shows the incoming request
-and enters its emoji-comparison dialog. It then remains loading; neither side
-has produced a SAS for the administrator to compare. This prevents a claim of
-successful verification even though the preceding request was delivered.
+## Conditions before a stable runtime
 
-Matrix-Nio 0.26.0 also has a separate confirmed SAS-commitment encoding
-regression, [matrix-nio#570](https://github.com/matrix-nio/matrix-nio/issues/570), with a proposed fix in [matrix-nio#572](https://github.com/matrix-nio/matrix-nio/pull/572). A staging trial with that fix still stopped earlier on an
-unknown-transaction event, before a SAS could be compared. The commitment fix
-is therefore relevant but does not by itself fix CiviNeo Notify's current
-request/start interoperability gap.
+Before Matrix-Nio is called a stable CiviNeo transport, we need all of the
+following:
 
-### 4. Own-device discovery requires an explicit key query
+1. A reproducible, versioned runtime artifact with pinned dependencies and a
+   documented upgrade path.
+2. Automated interoperability coverage for Element-compatible SAS verification
+   and encrypted room delivery.
+3. Upstream pull requests or an explicitly maintained, reviewed patch set for
+   the required Matrix-Nio fixes.
+4. A user-oriented verification flow that does not expose protocol vocabulary
+   or unsafe diagnostics to ordinary administrators.
 
-A normal sync did not populate Matrix-Nio's local device store with the bot
-account's other devices in the staging environment. An explicit `keys_query`
-for the bot user did. CiviNeo Notify performs that query before presenting
-devices for verification. This is an interoperability detail, rather than a
-reason to infer that no Element devices exist.
-
-## Consequences for administrators
-
-- Treat **Verify Matrix Nio device** as experimental while this document says
-  SAS completion is incomplete. A failed or waiting verification does not make
-  the transport trusted.
-- Do not enable delivery to unverified recipient devices merely to make the
-  warning disappear. That opt-in is a separate security decision, documented
-  in the transport configuration.
-- If verified-device trust is required today, use the supported Matrix
-  Commander deployment path on a host with sufficient memory, or defer the
-  Matrix-Nio transport until end-to-end SAS verification is proven.
-- A provisioned Matrix-Nio device and a successfully delivered encrypted probe
-  show that credentials, server access and basic E2EE work; they do not prove
-  SAS verification.
-
-## How to make a useful upstream report or patch
-
-First reproduce with the smallest possible Matrix-Nio script: one account,
-two devices for that account, an encrypted-capable homeserver, and a single
-target device. Capture only redacted protocol metadata:
-
-- Matrix-Nio and Python versions;
-- homeserver implementation and version;
-- Element version and platform;
-- event *types* and their order (`request`, `ready`, `start`, `accept`, `key`,
-  `mac`, `done`), plus whether their transaction IDs match;
-- whether the SAS initiator or responder advances state; and
-- the exact exception class/message after redacting identifiers.
-
-Never attach access tokens, passwords, recovery keys, room IDs, complete
-device IDs, Curve25519/Ed25519 keys, session files, or raw logs that might
-contain them. A local patch should first be covered by an automated two-device
-interoperability test against a supported Element-compatible client, then be
-proposed upstream rather than becoming permanent extension protocol code.
-
-## Exit criteria for production use
-
-The Matrix-Nio transport may be considered for normal production use only when
-all of the following are demonstrated on a supported homeserver and Element
-version:
-
-1. Element receives the request and shows a finite SAS comparison.
-2. Both participants produce the same emoji or decimal SAS.
-3. Confirming the match completes the protocol and marks the CiviNeo device
-   verified.
-4. Cancel, timeout and a fresh retry leave no stale worker or verification
-   state.
-5. Logs and the CiviCRM UI disclose no credential, token, key, or sensitive
-   event data.
-
-Until then, the workaround is intentionally documented technical debt with a
-clear removal condition.
+When reporting problems upstream, include only redacted protocol metadata:
+versions, event types and order, and sanitized exception classes. Never attach
+access tokens, passwords, recovery keys, room IDs, device IDs, public keys,
+session files, or raw logs.
