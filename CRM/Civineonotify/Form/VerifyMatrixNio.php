@@ -14,12 +14,20 @@ final class CRM_Civineonotify_Form_VerifyMatrixNio extends CRM_Core_Form {
   }
   public function buildQuickForm(): void {
     CRM_Utils_System::setTitle(E::ts('Verify Matrix Nio device'));
-    $this->assign('verification', $this->readStatus());
+    $verification = $this->readStatus();
+    $this->assign('verification', $verification);
     $devices = $this->deviceOptions();
     $this->add('select', 'verification_device_id', E::ts('Element device'), $devices);
     $deviceIds = array_values(array_filter(array_keys($devices)));
     if (count($deviceIds) === 1) $this->setDefaults(['verification_device_id' => $deviceIds[0]]);
-    $this->addButtons([['type'=>'submit','name'=>E::ts('Start verification'),'subName'=>'start'],['type'=>'submit','name'=>E::ts('Confirm matching SAS'),'subName'=>'confirm'],['type'=>'submit','name'=>E::ts('Cancel verification'),'subName'=>'cancel'],['type'=>'cancel','name'=>E::ts('Close')]]);
+    $state = (string) ($verification['state'] ?? '');
+    $active = in_array($state, ['waiting', 'compare', 'confirming'], TRUE);
+    $buttons = [];
+    if (!$active) $buttons[] = ['type'=>'submit','name'=>E::ts('Start verification'),'subName'=>'start'];
+    if ($state === 'compare') $buttons[] = ['type'=>'submit','name'=>E::ts('Confirm matching SAS'),'subName'=>'confirm'];
+    if ($active) $buttons[] = ['type'=>'submit','name'=>E::ts('Cancel verification'),'subName'=>'cancel'];
+    $buttons[] = ['type'=>'cancel','name'=>E::ts('Close')];
+    $this->addButtons($buttons);
   }
   public function postProcess(): void {
     $action = (string) ($this->controller->getButtonName() ?? ''); $root = dirname((string) ($this->config['session_path'] ?? ''));
