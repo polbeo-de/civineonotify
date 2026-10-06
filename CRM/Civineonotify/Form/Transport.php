@@ -36,6 +36,8 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
   }
   public function postProcess(): void {
     $v = $this->exportValues();
+    $existing = $this->id ? (\Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? []) : [];
+    $existingConfig = is_array($existing['config_json'] ?? NULL) ? $existing['config_json'] : [];
     $type = (string) $v['transport_type'];
     if (!in_array($type, ['matrix_commander_rs', 'matrix_nio'], TRUE)) { $this->setElementError('transport_type', E::ts('Choose a supported transport type.')); return; }
     foreach (['working_directory'] as $path) if (empty($v[$path]) || !str_starts_with((string) $v[$path], '/')) { $this->setElementError($path, E::ts('Use an absolute path.')); return; }
@@ -51,6 +53,11 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
       if (!is_file((string) $v['nio_client_path']) || !is_readable((string) $v['nio_client_path'])) { $this->setElementError('nio_client_path', E::ts('The Matrix Nio client does not exist or is not readable.')); return; }
       $config = array_filter(array_intersect_key($v, array_flip(['homeserver', 'python_path', 'nio_client_path', 'session_path', 'store_path', 'working_directory', 'timeout_seconds', 'allow_unverified_recipient_devices'])), static fn($value) => $value !== '' && $value !== NULL && $value !== FALSE);
     }
+    // These values are managed by provisioning/verification flows, not by the
+    // transport editor. Retain them when an administrator changes a normal
+    // transport setting (for example the default destination).
+    $runtimeKeys = ['provision_status_file', 'verification_status_file', 'verification_device_id', 'verification_device_name', 'provisioned_room_id', 'provisioned_user_login'];
+    foreach ($runtimeKeys as $key) if (array_key_exists($key, $existingConfig)) $config[$key] = $existingConfig[$key];
     $record = ['name' => trim((string) $v['name']), 'description' => trim((string) ($v['description'] ?? '')), 'transport_type' => (string) $v['transport_type'], 'config_json' => $config, 'default_destination_id' => (int) ($v['default_destination_id'] ?? 0) ?: NULL, 'is_active' => !empty($v['is_active'])];
     if ($this->id) \Civi\Api4\CiviNeoNotifyTransport::update(FALSE)->setWhere([['id', '=', $this->id]])->setValues($record)->execute(); else \Civi\Api4\CiviNeoNotifyTransport::create(FALSE)->setValues($record)->execute();
     CRM_Core_Session::setStatus(E::ts('Transport saved.'), E::ts('Saved'), 'success'); CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/admin/civineonotify/transports', ['reset' => 1]));

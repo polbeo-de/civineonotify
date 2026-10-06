@@ -26,7 +26,10 @@ final class MatrixNioTransport implements MatrixTransportInterface {
 
   private function arguments(string $action, ?string $roomId = NULL): array {
     $python = $this->executable($this->connection['python_path'] ?? '');
-    $client = $this->readable($this->connection['client_path'] ?? '');
+    // ``nio_client_path`` is the persisted UI field. Accept the former key as
+    // well so that configurations created by earlier development builds keep
+    // working after upgrade.
+    $client = $this->readable($this->connection['nio_client_path'] ?? $this->connection['client_path'] ?? '');
     $session = $this->readable($this->connection['session_path'] ?? '');
     $store = $this->directory($this->connection['store_path'] ?? '');
     $homeserver = (string) ($this->connection['homeserver'] ?? '');
