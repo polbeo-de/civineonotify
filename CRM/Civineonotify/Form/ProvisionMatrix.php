@@ -82,7 +82,7 @@ final class CRM_Civineonotify_Form_ProvisionMatrix extends CRM_Core_Form {
       $environment = ['PATH' => '/usr/bin:/bin', 'XDG_RUNTIME_DIR' => $runtime, 'DBUS_SESSION_BUS_ADDRESS' => 'unix:path=' . $runtime . '/bus'];
       $command = $isNio
         ? [(string) ($config['python_path'] ?? ''), $helper, '--homeserver', $homeserver, '--user-login', $userLogin, '--password-file', $passwordFile, '--store-path', $store, '--session-file', $credentials, '--status-file', $statusFile, '--device-name', 'CiviNeo Notify', '--initial-sync']
-        : [$helper, '--matrix-client', (string) ($config['binary_path'] ?? ''), '--homeserver', $homeserver, '--user-login', $userLogin, '--room-id', $roomId, '--password-file', $passwordFile, '--remove-password-file', '--status-file', $statusFile, '--credentials-file', $credentials, '--store-path', $store, '--timeout', (string) ($config['timeout_seconds'] ?? 30), '--device-name', 'CiviNeo Notify phprime8'];
+        : [$helper, '--matrix-client', (string) ($config['binary_path'] ?? ''), '--homeserver', $homeserver, '--user-login', $userLogin, '--room-id', $roomId, '--password-file', $passwordFile, '--remove-password-file', '--status-file', $statusFile, '--credentials-file', $credentials, '--store-path', $store, '--timeout', (string) ($config['timeout_seconds'] ?? 30), '--device-name', 'CiviNeo Notify'];
       $limit = $isNio ? '--property=MemoryMax=350M' : '--property=MemoryHigh=900M';
       $process = new Process(array_merge(['/usr/bin/systemd-run', '--user', '--no-block', '--collect', '--unit', 'civineonotify-provision-' . $this->id . '-' . $job, '--property=RuntimeMaxSec=5min', $limit, '--'], $command), NULL, $environment, NULL, 10);
       $process->run();

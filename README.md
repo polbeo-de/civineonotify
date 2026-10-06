@@ -38,10 +38,9 @@ it in CiviCRM, then configure it under **Administer → System Settings → Civi
 Notify**. Keep it disabled until a transport, destination, and explicit rule
 are reviewed.
 
-`matrix-commander-rs` is an external deployment prerequisite and is installed
-on `phprime8` as `/home/phprime8/bin/matrix-commander-rs` (version 0.11.0).
-Its supported credentials/store, stdin-message, room, timeout, and JSON-output
-options have been verified against that binary. See
+`matrix-commander-rs` is an external deployment prerequisite. Its supported
+credentials/store, stdin-message, room, timeout, and JSON-output options have
+been verified against version 0.11.0. See
 [configuration](docs/configuration.md).
 
 For encrypted Matrix transports, follow the dedicated
@@ -71,6 +70,4 @@ use the validated release ZIP, not a source checkout.
 - [Inbound roadmap](docs/inbound-roadmap.md)
 
 Report security vulnerabilities privately to the maintainer; do not include
-credentials or personal data in tickets. This repository adopts the canonical
-polbeo Engineering Standards in `../de.polbeo.engineering` (PES-001–PES-007 and
-PEW-001); the independent PES audit is a separate follow-up task.
+credentials or personal data in tickets.

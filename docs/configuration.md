@@ -2,7 +2,12 @@
 
 Create a Matrix transport, then named destinations, and finally rules. Configure an absolute executable path, credentials path, E2EE store path, working directory and timeout. The Destination list provides a **Test** action which immediately sends the configured default message template to that destination and records the outcome in the delivery log.
 
-The verified `phprime8` binary is `/home/phprime8/bin/matrix-commander-rs` version 0.11.0. It supports `--credentials`, `--store`, `--timeout`, `--message -` for stdin, `--room`, and `--output json`. Do not enable arbitrary extra options. Credential files should be owned by the service account and readable only by it (normally mode 0600). No explicit transaction-ID option was found, so delivery idempotency cannot be guaranteed after an ambiguous timeout.
+The verified `matrix-commander-rs` version is 0.11.0. It supports
+`--credentials`, `--store`, `--timeout`, `--message -` for stdin, `--room`,
+and `--output json`. Do not enable arbitrary extra options. Credential files
+should be owned by the service account and readable only by it (normally mode
+0600). No explicit transaction-ID option was found, so delivery idempotency
+cannot be guaranteed after an ambiguous timeout.
 
 Follow the complete [encrypted Matrix provisioning procedure](matrix-provisioning.md) before creating the transport. It explains how the Matrix administrator creates the bot account and how the supplied helper creates its dedicated device, credentials file and persistent E2EE store without putting the bot password or generated token in a process argument, log, or database field.
 
@@ -34,7 +39,7 @@ Choose an event from the searchable **Event name** list. The list represents the
 
 Conditions are stored as JSON. `all` requires every clause to match; `any` requires one or more clauses to match. Supported operators are `=`, `!=`, `in`, `not_in`, `contains`, `is_empty`, `is_not_empty`, and `changed`. Fields may refer to `event.*`, `entity.*`, `data.*` (the value after a change), or `previous.*` (the value before a change).
 
-Example: notify only when the status of a `polishubinstanz` case changes:
+Example: notify only when a case status changes:
 
 ```json
 {

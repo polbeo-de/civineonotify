@@ -4,6 +4,7 @@
 /.idea/
 /.vscode/
 *.log
+__pycache__/
 matrix-store/
 credentials.json
 /dist/

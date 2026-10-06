@@ -6,7 +6,7 @@
     <tr><td class="label">{$form.homeserver.label}</td><td>{$form.homeserver.html}</td></tr>
     <tr><td class="label">{$form.user_login.label}</td><td>{$form.user_login.html}</td></tr>
     <tr><td class="label">{$form.room_id.label}</td><td>{$form.room_id.html}</td></tr>
-    <tr><td class="label">{$form.storage_root.label}</td><td>{$form.storage_root.html}<div class="description">{ts}On phprime8 use /home/phprime8/tmp/civineonotify, not its world-readable parent directory.{/ts}</div></td></tr>
+    <tr><td class="label">{$form.storage_root.label}</td><td>{$form.storage_root.html}<div class="description">{ts}Use a dedicated directory outside the web root that is readable and writable only by the CiviCRM service account.{/ts}</div></td></tr>
     <tr><td class="label">{$form.bot_password.label}</td><td>{$form.bot_password.html}<div class="description">{ts}Used once to create a dedicated Matrix device. It is passed by standard input and is not stored.{/ts}</div></td></tr>
     <tr><td></td><td>{$form.buttons.html}</td></tr>
   </table>

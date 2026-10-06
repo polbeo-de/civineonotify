@@ -2,14 +2,14 @@
 
 ## Environments and source of truth
 
-| Environment | Host | Accepted source | Purpose |
-| --- | --- | --- | --- |
-| Staging | `phprime8` | Exact commit from Polgito branch `staging` | Integration and release-candidate checks |
-| Production | `mcc8` | Validated installation ZIP built from an annotated release tag | Live operation |
+| Environment | Accepted source | Purpose |
+| --- | --- | --- |
+| Staging | Exact commit from the designated staging branch | Integration and release-candidate checks |
+| Production | Validated installation ZIP built from an annotated release tag | Live operation |
 
 `main` is the integration and release source. `staging` is advanced from an
-approved `main` commit and is the only branch that may be deployed to
-`phprime8`. Production never receives a Git working tree, an `rsync` of a
+approved `main` commit and is the only branch that may be deployed to the
+staging environment. Production never receives a Git working tree, an `rsync` of a
 developer checkout, or an arbitrary branch. It receives the same ZIP that an
 external administrator downloads for installation.
 
@@ -20,11 +20,11 @@ Advance `staging` deliberately, then deploy its current remote commit:
 ```bash
 git switch staging
 git merge --ff-only main
-git push origin staging
+git push <staging-remote> staging
 bin/deploy-staging \
-  --host phprime8 \
-  --civi-root /home/phprime8/www/html/civicrm-standalone \
-  --cv /home/phprime8/bin/cv
+  --host <staging-host> \
+  --civi-root <civicrm-root> \
+  --cv <cv-path>
 ```
 
 The script fetches `origin/staging`, builds a validated ZIP from that exact
@@ -58,14 +58,14 @@ mode:
 bin/deploy-release \
   --artifact "dist/civineonotify-${VERSION}.zip" \
   --version "$VERSION" \
-  --host mcc8 \
-  --civi-root /authoritative/path/to/civicrm-standalone \
-  --cv /authoritative/path/to/cv
+  --host <production-host> \
+  --civi-root <civicrm-root> \
+  --cv <cv-path>
 ```
 
-The CiviCRM and `cv` paths on `mcc8` must be supplied by the maintainer before
-the first production deployment; they are intentionally not guessed or baked
-into the repository.
+The CiviCRM and `cv` paths must be supplied by the maintainer before the first
+production deployment; they are intentionally not guessed or baked into the
+repository.
 
 ## Retention and recovery
 
