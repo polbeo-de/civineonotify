@@ -11,6 +11,11 @@ final class CRM_Civineonotify_Form_Destination extends CRM_Core_Form {
   public function buildQuickForm(): void {
     CRM_Utils_System::setTitle(E::ts($this->id ? 'Edit destination' : 'Add destination'));
     $this->add('select', 'transport_id', E::ts('Transport'), civineonotify_transportOptions(), TRUE, ['class' => 'crm-select2']);
+    $transportDestinationTypes = [];
+    foreach (\Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('is_active', '=', TRUE)->execute() as $transport) {
+      $transportDestinationTypes[(string) $transport['id']] = $transport['transport_type'] === 'mattermost_webhook' ? 'mattermost_channel' : 'matrix_room';
+    }
+    $this->assign('transportDestinationTypesJson', json_encode($transportDestinationTypes, JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
     $this->add('text', 'name', E::ts('Destination name'), ['size' => 70], TRUE);
     $this->add('select', 'destination_type', E::ts('Destination type'), ['matrix_room' => E::ts('Matrix room'), 'mattermost_channel' => E::ts('Mattermost channel')], TRUE);
     $this->add('text', 'room_id', E::ts('Matrix room ID'), ['size' => 70]); $this->add('text', 'room_alias', E::ts('Matrix room alias'), ['size' => 70]);

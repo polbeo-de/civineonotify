@@ -4,6 +4,8 @@
 
 - Fix Mattermost transport edits so selecting a default destination does not
   require the hidden Matrix working-directory field.
+- Limit destination-type choices to the type supported by the selected
+  transport.
 - Add a Mattermost incoming-webhook transport with configurable server URL and
   hooks path, external per-destination token storage, masked token display,
   optional server-permitted channel overrides, and per-transport delivery

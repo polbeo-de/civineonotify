@@ -12,6 +12,9 @@
     <tr><td></td><td>{$form.buttons.html}</td></tr>
   </table>
 </div>
+<script>
+var civineonotifyTransportDestinationTypes = {$transportDestinationTypesJson nofilter};
+</script>
 {literal}
 <script>
 CRM.$(function($) {
@@ -20,7 +23,20 @@ CRM.$(function($) {
     $('.matrix-field').toggle(!mattermost);
     $('.mattermost-field').toggle(mattermost);
   }
+  function chooseTransport() {
+    var supported = civineonotifyTransportDestinationTypes[$('#transport_id').val()];
+    var destinationType = $('#destination_type');
+    destinationType.find('option').each(function() {
+      var permitted = !supported || this.value === supported;
+      $(this).prop('disabled', !permitted).toggle(permitted);
+    });
+    if (supported && destinationType.val() !== supported) {
+      destinationType.val(supported).trigger('change');
+    }
+  }
   $('#destination_type').on('change', chooseDestination);
+  $('#transport_id').on('change', chooseTransport);
+  chooseTransport();
   chooseDestination();
 });
 </script>
