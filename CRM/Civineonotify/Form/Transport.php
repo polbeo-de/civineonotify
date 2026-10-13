@@ -44,6 +44,14 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
         }
         catch (\Throwable) { $this->assign('mastodonTokenSuffix', ''); }
       }
+      if (($row['transport_type'] ?? NULL) === 'mattermost_api') {
+        $config = is_array($row['config_json'] ?? NULL) ? $row['config_json'] : [];
+        try {
+          $suffix = !empty($config['token_store_file']) && !empty($config['api_token_key']) ? (new \Civi\Civineonotify\Transport\MattermostTokenStore((string) $config['token_store_file']))->suffix((string) $config['api_token_key']) : '';
+          $this->assign('mattermostApiTokenSuffix', $suffix);
+        }
+        catch (\Throwable) { $this->assign('mattermostApiTokenSuffix', ''); }
+      }
       if (in_array($row['transport_type'] ?? NULL, ['matrix_commander_rs', 'matrix_nio'], TRUE)) $this->assign('provisionUrl', CRM_Utils_System::url('civicrm/admin/civineonotify/provision-matrix', ['reset' => 1, 'id' => $this->id]));
       if (($row['transport_type'] ?? NULL) === 'matrix_nio') $this->assign('verifyUrl', CRM_Utils_System::url('civicrm/admin/civineonotify/verify-matrix-nio', ['reset' => 1, 'id' => $this->id]));
     }
