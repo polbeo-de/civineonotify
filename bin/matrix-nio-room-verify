@@ -64,7 +64,7 @@ async def main() -> int:
     if not isinstance(response, SyncResponse) or arguments.room_id not in client.rooms: raise RuntimeError('Matrix room sync failed.')
     response = await client.keys_query()
     if response.__class__.__name__ != 'KeysQueryResponse': raise RuntimeError('Matrix device query failed.')
-    request_id = await plain_room_send(client, arguments.room_id, {'msgtype': 'm.key.verification.request', 'from_device': session['device_id'], 'methods': ['m.sas.v1'], 'timestamp': int(time.time() * 1000), 'body': 'SAS verification request'})
+    request_id = await plain_room_send(client, arguments.room_id, {'msgtype': 'm.key.verification.request', 'from_device': session['device_id'], 'to': arguments.target_user_id, 'methods': ['m.sas.v1'], 'timestamp': int(time.time() * 1000), 'body': 'SAS verification request'})
     status(arguments.status_file, {'state': 'waiting', 'phase': 'request_sent'})
     deadline = time.monotonic() + arguments.max_seconds
     while time.monotonic() < deadline:
