@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add a Mattermost incoming-webhook transport with external secret-file storage,
+  default-channel test delivery, and per-transport delivery status handling.
+
 - Complete the Matrix-Nio/Element SAS verification flow on staging: compare
   matching emoji, persist the selected Element device as trusted, send the
   terminal Matrix verification event, and confirm encrypted delivery without

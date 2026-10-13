@@ -1,6 +1,23 @@
 # Configuration
 
-Create a Matrix transport, then named destinations, and finally rules. Configure an absolute executable path, credentials path, E2EE store path, working directory and timeout. The Destination list provides a **Test** action which immediately sends the configured default message template to that destination and records the outcome in the delivery log.
+Create a transport, then named destinations, and finally rules. The Destination list provides a **Test** action which immediately sends the configured default message template to that destination and records the outcome in the delivery log.
+
+## Mattermost incoming webhook
+
+Create a Mattermost incoming-webhook transport and provide an absolute path to a
+protected secret file. The file contains either the complete HTTPS webhook URL
+alone or `MATTERMOST_WEBHOOK_URL=<complete URL>`. It is not stored in CiviCRM,
+included in an extension archive, or written to a delivery log. An incoming
+webhook is bound to its configured Mattermost channel; create a separate
+webhook and secret entry for every independently targeted channel. A Mattermost
+channel override may be configured as a destination only where the Mattermost
+server permits it; leaving it empty uses the webhook's configured channel.
+
+The Mattermost REST API is planned as a future transport type. It is not
+implemented by the incoming-webhook transport and its credentials must likewise
+remain outside CiviCRM.
+
+## Matrix
 
 The verified `matrix-commander-rs` version is 0.11.0. It supports
 `--credentials`, `--store`, `--timeout`, `--message -` for stdin, `--room`,

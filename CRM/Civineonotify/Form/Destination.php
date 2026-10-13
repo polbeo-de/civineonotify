@@ -10,14 +10,22 @@ final class CRM_Civineonotify_Form_Destination extends CRM_Core_Form {
   public function buildQuickForm(): void {
     CRM_Utils_System::setTitle(E::ts($this->id ? 'Edit destination' : 'Add destination'));
     $this->add('select', 'transport_id', E::ts('Transport'), civineonotify_transportOptions(), TRUE, ['class' => 'crm-select2']);
-    $this->add('text', 'name', E::ts('Destination name'), ['size' => 70], TRUE); $this->add('text', 'room_id', E::ts('Matrix room ID'), ['size' => 70]); $this->add('text', 'room_alias', E::ts('Matrix room alias'), ['size' => 70]);
+    $this->add('text', 'name', E::ts('Destination name'), ['size' => 70], TRUE);
+    $this->add('select', 'destination_type', E::ts('Destination type'), ['matrix_room' => E::ts('Matrix room'), 'mattermost_channel' => E::ts('Mattermost channel')], TRUE);
+    $this->add('text', 'room_id', E::ts('Matrix room ID'), ['size' => 70]); $this->add('text', 'room_alias', E::ts('Matrix room alias'), ['size' => 70]);
+    $this->add('text', 'channel', E::ts('Mattermost channel override'), ['size' => 70]);
     $this->add('textarea', 'description', E::ts('Description'), ['rows' => 3, 'cols' => 70]); $this->add('checkbox', 'is_active', E::ts('Active'));
     $this->addButtons([['type' => 'submit', 'name' => E::ts('Save destination'), 'isDefault' => TRUE], ['type' => 'cancel', 'name' => E::ts('Cancel')]]);
   }
-  public function setDefaultValues(): array { if (!$this->id) return ['is_active' => 1]; $row = \Civi\Api4\CiviNeoNotifyDestination::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? []; return array_merge($row, is_array($row['config_json'] ?? NULL) ? $row['config_json'] : []); }
+  public function setDefaultValues(): array { if (!$this->id) return ['is_active' => 1, 'destination_type' => 'matrix_room']; $row = \Civi\Api4\CiviNeoNotifyDestination::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? []; return array_merge($row, is_array($row['config_json'] ?? NULL) ? $row['config_json'] : []); }
   public function postProcess(): void {
-    $v = $this->exportValues(); if (empty($v['room_id']) && empty($v['room_alias'])) { $this->setElementError('room_id', E::ts('Provide a Matrix room ID or alias.')); return; }
-    $record = ['transport_id' => (int) $v['transport_id'], 'name' => trim((string) $v['name']), 'description' => trim((string) ($v['description'] ?? '')), 'destination_type' => 'matrix_room', 'config_json' => ['room_id' => trim((string) ($v['room_id'] ?? '')) ?: NULL, 'room_alias' => trim((string) ($v['room_alias'] ?? '')) ?: NULL], 'is_active' => !empty($v['is_active'])];
+    $v = $this->exportValues();
+    $transport = \Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', (int) $v['transport_id'])->execute()->first();
+    $type = (string) ($v['destination_type'] ?? '');
+    if (!$transport || (($transport['transport_type'] === 'mattermost_webhook') !== ($type === 'mattermost_channel'))) { $this->setElementError('destination_type', E::ts('Choose a destination type supported by the selected transport.')); return; }
+    if ($type === 'matrix_room' && empty($v['room_id']) && empty($v['room_alias'])) { $this->setElementError('room_id', E::ts('Provide a Matrix room ID or alias.')); return; }
+    $config = $type === 'mattermost_channel' ? ['channel' => trim((string) ($v['channel'] ?? '')) ?: NULL] : ['room_id' => trim((string) ($v['room_id'] ?? '')) ?: NULL, 'room_alias' => trim((string) ($v['room_alias'] ?? '')) ?: NULL];
+    $record = ['transport_id' => (int) $v['transport_id'], 'name' => trim((string) $v['name']), 'description' => trim((string) ($v['description'] ?? '')), 'destination_type' => $type, 'config_json' => $config, 'is_active' => !empty($v['is_active'])];
     if ($this->id) \Civi\Api4\CiviNeoNotifyDestination::update(FALSE)->setWhere([['id', '=', $this->id]])->setValues($record)->execute(); else \Civi\Api4\CiviNeoNotifyDestination::create(FALSE)->setValues($record)->execute();
     CRM_Core_Session::setStatus(E::ts('Destination saved.'), E::ts('Saved'), 'success'); CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/admin/civineonotify/destinations', ['reset' => 1]));
   }
