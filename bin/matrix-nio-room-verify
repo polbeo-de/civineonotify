@@ -58,7 +58,7 @@ async def main() -> int:
   session = json.loads(arguments.session_file.read_text())
   client = AsyncClient(arguments.homeserver, session['user_id'], device_id=session['device_id'], store_path=str(arguments.store_path), config=AsyncClientConfig(encryption_enabled=True, store_sync_tokens=True, request_timeout=20, max_timeouts=0))
   client.restore_login(session['user_id'], session['device_id'], session['access_token'])
-  sas = None; request_id = ''; shared_key = False; confirmed = False
+  sas = None; request_id = ''; shared_key = False; confirmed = False; observed: list[str] = []
   try:
     response = await client.sync(timeout=0, full_state=True)
     if not isinstance(response, SyncResponse) or arguments.room_id not in client.rooms: raise RuntimeError('Matrix room sync failed.')
@@ -72,6 +72,12 @@ async def main() -> int:
       response = await client.sync(timeout=5000, full_state=False)
       if not isinstance(response, SyncResponse): raise RuntimeError('Matrix verification sync failed.')
       for event in response.rooms.join.get(arguments.room_id, type('Timeline', (), {'timeline': type('Events', (), {'events': []})()})()).timeline.events:
+        raw = getattr(event, 'source', {}); raw_content = raw.get('content', {}) if isinstance(raw, dict) else {}
+        raw_type = raw_content.get('msgtype') if isinstance(raw_content, dict) else None
+        if isinstance(raw_type, str) and raw_type.startswith('m.key.verification.'):
+          raw_relation = raw_content.get('m.relates_to', {})
+          marker = raw_type + (':target' if raw.get('sender') == arguments.target_user_id else ':other') + (':request' if isinstance(raw_relation, dict) and raw_relation.get('event_id') == request_id else ':unrelated')
+          if marker not in observed and len(observed) < 8: observed.append(marker)
         parsed = verification_event(event, request_id, arguments.target_user_id)
         if parsed is None: continue
         kind, source = parsed; content = source['content']; from_device = content.get('from_device')
@@ -96,7 +102,9 @@ async def main() -> int:
         elif sas is not None and kind == 'm.key.verification.mac':
           sas.receive_mac_event(KeyVerificationMac.from_dict(source))
           if sas.verified: client.verify_device(sas.other_olm_device); await plain_room_send(client, arguments.room_id, related({'msgtype': 'm.key.verification.done'}, request_id)); status(arguments.status_file, {'state': 'verified'}); return 0
-      if sas is None: continue
+      if sas is None:
+        if observed: status(arguments.status_file, {'state': 'waiting', 'phase': 'request_sent', 'events': observed})
+        continue
       if sas.canceled: status(arguments.status_file, {'state': 'cancelled', 'phase': getattr(sas, 'cancel_code', '')}); return 1
       try: emoji = sas.get_emoji(); decimals = sas.get_decimals()
       except (AssertionError, LocalProtocolError, ValueError): continue
