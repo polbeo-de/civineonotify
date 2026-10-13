@@ -37,7 +37,7 @@ final class TestTransport extends AbstractAction {
     }
 
     $event = new NormalizedEvent('civicrm.civineonotify.transport_test', 'ui', 'CiviNeoNotifyTransport', $this->id, 'test', new \DateTimeImmutable('now', new \DateTimeZone('UTC')), NULL, ['subject' => 'CiviNeo Notify test', 'title' => 'CiviNeo Notify test'], [], [], bin2hex(random_bytes(16)), 'manual_test');
-    $body = (new MessageRenderer())->render((string) \Civi::settings()->get('civineonotify_default_message_template'), $event);
+    $body = (new MessageRenderer())->render("{event.name}\n\nHello World", $event);
     $transactionId = bin2hex(random_bytes(16));
     $config = is_array($transport['config_json'] ?? NULL) ? $transport['config_json'] : [];
     $destinationConfig = is_array($destination['config_json'] ?? NULL) ? $destination['config_json'] : [];
