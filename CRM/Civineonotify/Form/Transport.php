@@ -20,7 +20,7 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $this->add('password', 'mastodon_access_token', E::ts('Mastodon access token'), ['size' => 70]);
     $this->add('select', 'mastodon_visibility', E::ts('Default Mastodon visibility'), ['public' => E::ts('Public'), 'unlisted' => E::ts('Unlisted'), 'private' => E::ts('Followers only')]);
     $languages = ['' => E::ts('- No language -')];
-    foreach (\CRM_Core_PseudoConstant::languages() as $locale => $label) $languages[str_replace('_', '-', (string) $locale)] = (string) $label;
+    foreach (\CRM_Contact_BAO_Contact::buildOptions('preferred_language') as $locale => $label) $languages[str_replace('_', '-', (string) $locale)] = (string) $label;
     $this->add('select', 'mastodon_language', E::ts('Default Mastodon language'), $languages, FALSE, ['class' => 'crm-select2']);
     $this->add('text', 'mastodon_spoiler_text', E::ts('Default Mastodon content warning'), ['size' => 70]);
     $this->add('checkbox', 'allow_unverified_recipient_devices', E::ts('Allow unverified recipient devices'));
