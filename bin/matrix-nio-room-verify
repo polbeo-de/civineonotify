@@ -52,6 +52,16 @@ async def verification_send(client: AsyncClient, room_id: str, event_type: str, 
   return await plain_room_send(client, room_id, related(content, request_id), event_type)
 
 
+def mark_room_left(path: Path) -> None:
+  try:
+    payload = json.loads(path.read_text())
+    if isinstance(payload, dict):
+      payload['verification_room_left'] = True
+      status(path, payload)
+  except (OSError, ValueError, json.JSONDecodeError):
+    pass
+
+
 def verification_event(event: object, request_id: str, target: str) -> tuple[str, dict] | None:
   source = getattr(event, 'source', {}); content = source.get('content', {}) if isinstance(source, dict) else {}
   relation = content.get('m.relates_to', {}) if isinstance(content, dict) else {}
@@ -72,7 +82,7 @@ async def main() -> int:
   session = json.loads(arguments.session_file.read_text())
   client = AsyncClient(arguments.homeserver, session['user_id'], device_id=session['device_id'], store_path=str(arguments.store_path), config=AsyncClientConfig(encryption_enabled=True, store_sync_tokens=True, request_timeout=20, max_timeouts=0))
   client.restore_login(session['user_id'], session['device_id'], session['access_token'])
-  sas = None; request_id = ''; shared_key = False; confirmed = False; observed: list[str] = []
+  sas = None; request_id = ''; room_id = None; shared_key = False; confirmed = False; observed: list[str] = []
   try:
     response = await client.sync(timeout=0, full_state=True)
     if not isinstance(response, SyncResponse): raise RuntimeError('Matrix room sync failed.')
@@ -139,6 +149,12 @@ async def main() -> int:
     status(arguments.status_file, {'state': 'failed'}); print(f'Matrix room SAS verification failed: {type(error).__name__}: {str(error).replace(chr(10), " ")[:160]}')
     return 1
   finally:
+    if room_id is not None:
+      try:
+        await client.room_leave(room_id)
+        mark_room_left(arguments.status_file)
+      except Exception:
+        pass
     await client.close()
 
 

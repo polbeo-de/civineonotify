@@ -6,6 +6,8 @@
   the active default destination to a temporary unencrypted verification room,
   without sharing room keys during verification; retain the existing
   same-account device flow.
+- Leave temporary Matrix verification rooms automatically after success,
+  cancellation, timeout, or worker failure.
 - Preserve Matrix-Nio SAS cancellation codes in verification status for
   actionable diagnostics.
 - Fix Mattermost transport edits so selecting a default destination does not

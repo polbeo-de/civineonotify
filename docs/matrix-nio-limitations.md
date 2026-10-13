@@ -65,7 +65,10 @@ verification.
 The administrator selects exactly one current room member, accepts the
 invitation, compares the SAS in both clients, and confirms it in CiviNeo
 Notify. The worker is short-lived and only records protected local status.
-The temporary room can be left or removed after the verification. This is alpha functionality pending
+After success, cancellation, timeout, or a worker error, CiviNeo Notify leaves
+the temporary room automatically. The invited user may also leave it; Matrix
+does not provide a general client-side deletion operation for room history.
+This is alpha functionality pending
 interoperability testing with supported Element clients; ordinary Matrix
 delivery remains unchanged.
 
