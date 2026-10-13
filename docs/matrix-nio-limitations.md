@@ -51,6 +51,28 @@ diagnostics. CiviNeo Notify must not silently rely on an arbitrary system
 `pip install matrix-nio`: an operator needs the documented, pinned runtime
 bundle for the matching CiviNeo release.
 
+## Experimental in-room SAS for another user
+
+The verification dialog also offers an experimental **member of the default
+destination** path. It is for a separate Matrix user in that room, unlike the
+device selector which verifies another device of the bot account. The worker
+uses one private room without E2EE per transport, invites the selected member,
+and sends the standard SAS request and follow-up verification events there as
+plain `m.room.message` events related to the original request. This avoids
+sending an encrypted application message or sharing a room key as part of
+verification.
+
+The administrator selects exactly one current room member, accepts the
+invitation, compares the SAS in both clients, and confirms it in CiviNeo
+Notify. The worker is short-lived and only records protected local status.
+After success, cancellation, timeout, or a worker error, CiviNeo Notify removes
+the selected user from the reusable verification room. The bot remains as its
+sole member so that later verifications reuse the same room. Matrix does not
+provide a general client-side deletion operation for room history.
+This is alpha functionality pending
+interoperability testing with supported Element clients; ordinary Matrix
+delivery remains unchanged.
+
 The source fixes should be split into small, independently tested upstream pull
 requests. CiviNeo-specific concerns — the bounded worker, protected status
 files, administration UI, and delivery policy — remain in this extension.
@@ -58,8 +80,8 @@ files, administration UI, and delivery policy — remain in this extension.
 ## Operator guidance
 
 - A successful **Verify Matrix Nio device** result means the selected Element
-  device is trusted by the CiviNeo Matrix-Nio store. It does not automatically
-  trust other newly created Element devices.
+  device or in-room member device is trusted by the CiviNeo Matrix-Nio store.
+  It does not automatically trust other newly created Element devices.
 - Do not enable **allow unverified recipient devices** merely to make a warning
   disappear. It is a separate security decision that allows room-key sharing
   with unverified recipient devices.
