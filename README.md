@@ -1,7 +1,7 @@
 # CiviNeo Notify
 
 `de.polbeo.civicrm.civineonotify` is an AGPL-3.0-or-later CiviCRM extension for
-rule-based outbound notifications. Matrix and Mattermost incoming webhooks are
+rule-based outbound notifications. Matrix and Mattermost Webhook/API transports are
 supported transports. It is currently an alpha and is disabled by default.
 
 ## Why “CiviNeo Notify”?
@@ -50,6 +50,9 @@ one-time token, credentials bundle, persistent E2EE store, and safe test order.
 The optional Matrix-Nio E2EE/SAS path has completed an end-to-end staging
 verification with Element: it provisions a dedicated device, compares the same
 SAS on both sides, persists device trust, and sends an encrypted test message.
+For a distinct Matrix user, the verification dialog also provides an
+experimental SAS path which invites the selected member to a reusable
+unencrypted verification room; it does not share room keys during verification.
 It remains an **alpha integration**: its pinned Python runtime and narrowly
 scoped interoperability patches are an external deployment prerequisite, not
 bundled with this extension archive. Read the [Matrix-Nio status and design
