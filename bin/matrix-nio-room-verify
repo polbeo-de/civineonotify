@@ -26,8 +26,8 @@ def status(path: Path, payload: dict) -> None:
   temporary.chmod(0o600); temporary.replace(path)
 
 
-async def plain_room_send(client: AsyncClient, room_id: str, content: dict) -> str:
-  method, path, body = Api.room_send(client.access_token, room_id, 'm.room.message', content, str(uuid4()))
+async def plain_room_send(client: AsyncClient, room_id: str, content: dict, event_type: str = 'm.room.message') -> str:
+  method, path, body = Api.room_send(client.access_token, room_id, event_type, content, str(uuid4()))
   reply = await client._send(RoomSendResponse, method, path, body, (room_id,))
   if not isinstance(reply, RoomSendResponse): raise RuntimeError('Matrix room verification event could not be sent.')
   return reply.event_id
@@ -39,10 +39,15 @@ def related(content: dict, request_id: str) -> dict:
   return value
 
 
+async def verification_send(client: AsyncClient, room_id: str, event_type: str, content: dict, request_id: str) -> str:
+  return await plain_room_send(client, room_id, related(content, request_id), event_type)
+
+
 def verification_event(event: object, request_id: str, target: str) -> tuple[str, dict] | None:
   source = getattr(event, 'source', {}); content = source.get('content', {}) if isinstance(source, dict) else {}
   relation = content.get('m.relates_to', {}) if isinstance(content, dict) else {}
   event_type = content.get('msgtype') if isinstance(content, dict) else None
+  if not isinstance(event_type, str): event_type = source.get('type')
   if source.get('sender') != target or not isinstance(event_type, str) or relation.get('event_id') != request_id: return None
   copy = dict(source); copy['content'] = dict(content); copy['content']['transaction_id'] = request_id
   return event_type, copy
@@ -94,21 +99,21 @@ async def main() -> int:
           peer = client.device_store.get(arguments.target_user_id, {}).get(from_device)
           if peer is None: continue
           sas = Sas(session['user_id'], session['device_id'], client.olm.account.identity_keys['ed25519'], peer, request_id)
-          await plain_room_send(client, room_id, related(sas.start_verification().content, request_id)); status(arguments.status_file, {'state': 'waiting', 'phase': 'sas_start_sent'})
+          message = sas.start_verification(); await verification_send(client, room_id, message.type, message.content, request_id); status(arguments.status_file, {'state': 'waiting', 'phase': 'sas_start_sent'})
         elif kind == 'm.key.verification.start' and sas is None:
           if not isinstance(from_device, str): continue
           peer = client.device_store.get(arguments.target_user_id, {}).get(from_device)
           if peer is None: continue
           sas = Sas.from_key_verification_start(session['user_id'], session['device_id'], client.olm.account.identity_keys['ed25519'], peer, KeyVerificationStart.from_dict(source))
-          await plain_room_send(client, room_id, related(sas.accept_verification().content, request_id)); status(arguments.status_file, {'state': 'waiting', 'phase': 'sas_accept_sent'})
+          message = sas.accept_verification(); await verification_send(client, room_id, message.type, message.content, request_id); status(arguments.status_file, {'state': 'waiting', 'phase': 'sas_accept_sent'})
         elif sas is not None and kind == 'm.key.verification.accept':
-          sas.receive_accept_event(KeyVerificationAccept.from_dict(source)); await plain_room_send(client, room_id, related(sas.share_key().content, request_id)); shared_key = True
+          sas.receive_accept_event(KeyVerificationAccept.from_dict(source)); message = sas.share_key(); await verification_send(client, room_id, message.type, message.content, request_id); shared_key = True
         elif sas is not None and kind == 'm.key.verification.key':
           sas.receive_key_event(KeyVerificationKey.from_dict(source))
-          if not sas.we_started_it and not shared_key: await plain_room_send(client, room_id, related(sas.share_key().content, request_id)); shared_key = True
+          if not sas.we_started_it and not shared_key: message = sas.share_key(); await verification_send(client, room_id, message.type, message.content, request_id); shared_key = True
         elif sas is not None and kind == 'm.key.verification.mac':
           sas.receive_mac_event(KeyVerificationMac.from_dict(source))
-          if sas.verified: client.verify_device(sas.other_olm_device); await plain_room_send(client, room_id, related({'msgtype': 'm.key.verification.done'}, request_id)); status(arguments.status_file, {'state': 'verified'}); return 0
+          if sas.verified: client.verify_device(sas.other_olm_device); await verification_send(client, room_id, 'm.key.verification.done', {}, request_id); status(arguments.status_file, {'state': 'verified'}); return 0
       if sas is None:
         if observed: status(arguments.status_file, {'state': 'waiting', 'phase': 'verification_room_invited', 'events': observed})
         continue
@@ -117,7 +122,7 @@ async def main() -> int:
       except (AssertionError, LocalProtocolError, ValueError): continue
       if not confirmed: status(arguments.status_file, {'state': 'compare', 'transaction_id': request_id, 'emoji': emoji, 'decimals': decimals})
       if arguments.confirm_file.exists() and not confirmed:
-        arguments.confirm_file.unlink(); await plain_room_send(client, room_id, related(sas.get_mac().content, request_id)); confirmed = True; status(arguments.status_file, {'state': 'confirming'})
+        arguments.confirm_file.unlink(); message = sas.get_mac(); await verification_send(client, room_id, message.type, message.content, request_id); confirmed = True; status(arguments.status_file, {'state': 'confirming'})
     status(arguments.status_file, {'state': 'timed_out'}); return 1
   except Exception as error:
     status(arguments.status_file, {'state': 'failed'}); print(f'Matrix room SAS verification failed: {type(error).__name__}: {str(error).replace(chr(10), " ")[:160]}')
