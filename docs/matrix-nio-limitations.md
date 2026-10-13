@@ -51,6 +51,23 @@ diagnostics. CiviNeo Notify must not silently rely on an arbitrary system
 `pip install matrix-nio`: an operator needs the documented, pinned runtime
 bundle for the matching CiviNeo release.
 
+## Experimental in-room SAS for another user
+
+The verification dialog also offers an experimental **member of the default
+destination** path. It is for a separate Matrix user in that room, unlike the
+device selector which verifies another device of the bot account. The worker
+sends the standard SAS request and follow-up verification events as plain
+`m.room.message` events related to the original request. This is required by
+the Matrix verification protocol for cross-user verification and deliberately
+avoids sending an encrypted application message or sharing a room key as part
+of verification.
+
+The administrator selects exactly one current room member, compares the SAS in
+both clients, and confirms it in CiviNeo Notify. The worker is short-lived and
+only records protected local status. This is alpha functionality pending
+interoperability testing with supported Element clients; ordinary Matrix
+delivery remains unchanged.
+
 The source fixes should be split into small, independently tested upstream pull
 requests. CiviNeo-specific concerns — the bounded worker, protected status
 files, administration UI, and delivery policy — remain in this extension.
@@ -58,8 +75,8 @@ files, administration UI, and delivery policy — remain in this extension.
 ## Operator guidance
 
 - A successful **Verify Matrix Nio device** result means the selected Element
-  device is trusted by the CiviNeo Matrix-Nio store. It does not automatically
-  trust other newly created Element devices.
+  device or in-room member device is trusted by the CiviNeo Matrix-Nio store.
+  It does not automatically trust other newly created Element devices.
 - Do not enable **allow unverified recipient devices** merely to make a warning
   disappear. It is a separate security decision that allows room-key sharing
   with unverified recipient devices.
