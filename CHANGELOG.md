@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add a Telegram Bot API transport with protected external bot-token storage,
+  group/supergroup/channel delivery, transport-level chat IDs, HTML or plain
+  text formatting, delivery options, and conservative unknown-outcome handling
+  for timeouts.
+
 ## 0.0.3-alpha.3 — 2026-10-14
 
 - Add the Mastodon transport with protected access-token storage, account

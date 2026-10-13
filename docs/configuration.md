@@ -13,8 +13,9 @@ CiviCRM event notifications.
 
 Set **Protected transport storage directory** in CiviNeo Notify settings to an
 absolute, protected directory outside the web root. Matrix provisioning uses it
-as its default. Mattermost transports use `mattermost-tokens.json` in this
-directory by default. Existing explicit transport paths remain valid.
+as its default. Mattermost, Mastodon, and Telegram transports create separate
+token-store files in this directory by default. Existing explicit transport
+paths remain valid.
 
 ## Mattermost (Webhook)
 
@@ -94,6 +95,33 @@ stable Mastodon idempotency key derived from its transaction ID; a timeout is
 recorded as an unknown delivery outcome to avoid creating a duplicate post.
 Mastodon instance URLs must use HTTPS and must not resolve to local, private,
 link-local, or reserved addresses. Redirects are disabled.
+
+## Telegram
+
+The Telegram transport sends outbound text notifications through the official
+Telegram Bot API. Create the bot and its token with BotFather, then enter the
+token directly in the transport form. CiviNeo Notify stores it only in the
+protected external token store and subsequently displays only its last four
+characters.
+
+Configure a negative numeric chat ID for a group, supergroup, or channel. Add
+the bot to that chat and grant it permission to post before using **Test**.
+Direct messages are deliberately unsupported. Create one neutral **Telegram
+chat** destination for the transport and select it as that transport's default
+destination; the configured chat ID remains on the transport and is not
+duplicated in CiviCRM destinations.
+
+Plain text is the default format. HTML may be selected when the message
+template contains only Telegram-supported markup. Link previews are disabled
+by default; silent delivery and content protection are optional. The transport
+does not receive updates, configure webhooks, poll Telegram, send media, or
+split messages. Messages longer than 4,096 characters are rejected rather than
+truncated.
+
+Telegram does not provide a request idempotency mechanism for `sendMessage`.
+If a request times out, CiviNeo Notify records an unknown delivery outcome and
+does not automatically retry it, avoiding a possible duplicate post. Requests
+use HTTPS only and do not follow redirects.
 
 ## Matrix
 
