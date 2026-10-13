@@ -1,6 +1,9 @@
 # Configuration
 
-Create a transport, then named destinations, and finally rules. The Destination list provides a **Test** action which immediately sends the configured default message template to that destination and records the outcome in the delivery log.
+Create a transport, then named destinations, and finally rules. The Transport
+list provides a **Test** action which immediately sends the configured default
+message template to its default destination and records the outcome in the
+delivery log.
 
 ## Mattermost incoming webhook
 
