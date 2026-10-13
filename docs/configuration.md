@@ -52,6 +52,19 @@ Mattermost v4 API; it does not store the token in CiviCRM. The channel ID is
 stored internally in the destination configuration, while the administrator
 sees the team and channel names.
 
+Before creating the token, a Mattermost system administrator must enable
+**Personal Access Tokens** in **System Console → Integrations → Integration
+Management**. The administrator must also allow the selected bot account to
+create personal access tokens through Mattermost role management. After that,
+sign in as the bot account and create a token in **Profile → Security →
+Personal Access Tokens**. Mattermost displays the token only once; enter it
+directly in the CiviNeo Notify transport form and do not save it in CiviCRM,
+source control, or documentation.
+
+Add the bot account to the team and every channel it should notify. Reload the
+destination form after saving the transport token; the channel list contains
+only channels accessible to that bot account.
+
 Incoming webhooks do not support channel discovery; their credentials must
 likewise remain outside CiviCRM.
 
