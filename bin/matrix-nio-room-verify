@@ -96,14 +96,14 @@ async def main() -> int:
         if kind == 'm.key.verification.cancel': status(arguments.status_file, {'state': 'cancelled', 'phase': str(content.get('code', ''))}); return 1
         if kind == 'm.key.verification.ready' and sas is None:
           if not isinstance(from_device, str): continue
-          peer = client.device_store.get(arguments.target_user_id, {}).get(from_device)
-          if peer is None: continue
+          try: peer = client.device_store[arguments.target_user_id][from_device]
+          except KeyError: continue
           sas = Sas(session['user_id'], session['device_id'], client.olm.account.identity_keys['ed25519'], peer, request_id)
           message = sas.start_verification(); await verification_send(client, room_id, message.type, message.content, request_id); status(arguments.status_file, {'state': 'waiting', 'phase': 'sas_start_sent'})
         elif kind == 'm.key.verification.start' and sas is None:
           if not isinstance(from_device, str): continue
-          peer = client.device_store.get(arguments.target_user_id, {}).get(from_device)
-          if peer is None: continue
+          try: peer = client.device_store[arguments.target_user_id][from_device]
+          except KeyError: continue
           sas = Sas.from_key_verification_start(session['user_id'], session['device_id'], client.olm.account.identity_keys['ed25519'], peer, KeyVerificationStart.from_dict(source))
           message = sas.accept_verification(); await verification_send(client, room_id, message.type, message.content, request_id); status(arguments.status_file, {'state': 'waiting', 'phase': 'sas_accept_sent'})
         elif sas is not None and kind == 'm.key.verification.accept':
