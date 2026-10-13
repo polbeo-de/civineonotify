@@ -35,7 +35,8 @@ final class CRM_Civineonotify_Form_ProvisionMatrix extends CRM_Core_Form {
   public function setDefaultValues(): array {
     $config = is_array($this->transport['config_json'] ?? NULL) ? $this->transport['config_json'] : [];
     $credentials = (string) (($this->transport['transport_type'] ?? NULL) === 'matrix_nio' ? ($config['session_path'] ?? '') : ($config['credentials_path'] ?? ''));
-    return ['homeserver' => $config['homeserver'] ?? '', 'user_login' => $config['provisioned_user_login'] ?? 'monitoring_bot', 'room_id' => $config['provisioned_room_id'] ?? '', 'storage_root' => $credentials !== '' ? dirname($credentials) : ''];
+    $protected = (string) \Civi::settings()->get('civineonotify_protected_transport_storage_directory');
+    return ['homeserver' => $config['homeserver'] ?? '', 'user_login' => $config['provisioned_user_login'] ?? 'monitoring_bot', 'room_id' => $config['provisioned_room_id'] ?? '', 'storage_root' => $credentials !== '' ? dirname($credentials) : $protected];
   }
 
   public function postProcess(): void {

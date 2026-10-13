@@ -1,7 +1,20 @@
 # Changelog
 
-## 0.0.3-alpha.1
+## Unreleased
 
+- Add a shared protected transport storage directory setting for Matrix and
+  Mattermost credentials, stores, and runtime files.
+- Add a parallel Mattermost API transport using protected external API-token
+  storage, selectable accessible channels, and channel-ID destinations; rename
+  the existing UI label to Mattermost (Webhook).
+- Document Mattermost personal-access-token enablement, per-bot role
+  permission, token creation, and channel membership requirements.
+- Add an experimental Matrix-Nio SAS flow which invites a selected member of
+  the active default destination to a reusable unencrypted verification room,
+  without sharing room keys during verification; retain the existing
+  same-account device flow.
+- Reuse one unencrypted Matrix verification room per transport and remove the
+  selected user after success, cancellation, timeout, or worker failure.
 - Preserve Matrix-Nio SAS cancellation codes in verification status for
   actionable diagnostics.
 - Fix Mattermost transport edits so selecting a default destination does not
@@ -17,14 +30,6 @@
   outcome in the delivery log.
 - Generalize the transport message and destination contracts so Matrix and
   Mattermost can deliver the same queued CiviCRM event independently.
-
-### Known alpha limitation
-
-- Matrix-Nio recipient verification between different Matrix users still needs
-  a standards-compliant in-room SAS flow. The Mattermost incoming-webhook
-  transport is unaffected.
-
-## Unreleased
 
 - Complete the Matrix-Nio/Element SAS verification flow on staging: compare
   matching emoji, persist the selected Element device as trusted, send the
