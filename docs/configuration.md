@@ -75,6 +75,8 @@ organisation account. Create a personal access token for that account with
 `read:accounts` and `write:statuses` scopes, then configure an HTTPS instance
 URL, the token, default visibility, and optional language or content warning.
 The token is stored only in the protected external token store.
+The language is selected from the CiviCRM language list and stored as a BCP 47
+tag; leave it empty when the account should not declare a post language.
 
 Create one **Mastodon account** destination for each Mastodon transport and set
 it as that transport's default destination. Supported visibility values are
