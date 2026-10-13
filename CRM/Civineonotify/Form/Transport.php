@@ -59,7 +59,14 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
   public function setDefaultValues(): array {
     if (!$this->id) { $protected=(string)\Civi::settings()->get('civineonotify_protected_transport_storage_directory'); return ['is_active' => 1, 'transport_type' => 'matrix_commander_rs', 'timeout_seconds' => 30, 'working_directory' => $protected ?: '/tmp', 'token_store_file' => $protected ? rtrim($protected, '/') . '/mattermost-tokens.json' : '', 'nio_client_path' => dirname(__DIR__, 3) . '/bin/matrix-nio-client', 'mastodon_visibility' => 'public']; }
     $row = \Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? [];
-    return array_merge($row, is_array($row['config_json'] ?? NULL) ? $row['config_json'] : []);
+    $config = is_array($row['config_json'] ?? NULL) ? $row['config_json'] : [];
+    $defaults = array_merge($row, $config);
+    if (($row['transport_type'] ?? NULL) === 'mastodon') {
+      $defaults['mastodon_visibility'] = $config['visibility'] ?? 'public';
+      $defaults['mastodon_language'] = $config['language'] ?? '';
+      $defaults['mastodon_spoiler_text'] = $config['spoiler_text'] ?? '';
+    }
+    return $defaults;
   }
   public function postProcess(): void {
     $v = $this->exportValues();
