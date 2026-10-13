@@ -58,7 +58,9 @@ async def main() -> int:
       if sas is None:
         status(a.status_file, {'state':'waiting', 'phase':'awaiting_sas', 'events':observed, 'outbound_sent':len(outbound)})
         continue
-      if sas.canceled: status(a.status_file, {'state':'cancelled', 'phase':getattr(sas, 'cancel_detail', '')}); return 1
+      if sas.canceled:
+        status(a.status_file, {'state':'cancelled', 'phase':getattr(sas, 'cancel_code', '')})
+        return 1
       if sas.verified:
         # The peer MAC can arrive after our own confirmation.  In that path
         # Matrix-Nio marks the SAS object as verified while no caller has
