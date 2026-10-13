@@ -114,12 +114,12 @@ it has provisioned a device, completed Element SAS verification, persisted the
 selected Element device as trusted, and sent an encrypted test message without
 allowing unverified recipient devices.
 
-This is nevertheless an alpha integration. The verified runtime contains a
-pinned Matrix-Nio version plus narrowly scoped interoperability patches; it is
-an external deployment prerequisite and is not included in the CiviNeo Notify
-ZIP. Operators must use the documented runtime bundle for the release they
-install. The rationale, upstreaming plan, and remaining release criteria are
-documented in [Matrix-Nio E2EE and device-verification status](matrix-nio-limitations.md).
+This is nevertheless an internal alpha integration. The verified runtime
+contains a pinned Matrix-Nio version plus narrowly scoped interoperability
+patches, but no reproducible runtime bundle is currently published. It is not
+installable by external operators from the CiviNeo Notify ZIP; use Matrix
+Commander for external installations. The rationale, upstreaming plan, and
+remaining release criteria are documented in [Matrix-Nio E2EE and device-verification status](matrix-nio-limitations.md).
 
 In particular, **allow unverified recipient devices** is a separate, explicit
 risk decision. It permits message-key sharing with unverified recipient
