@@ -3,11 +3,11 @@
 ## Unreleased
 
 - Add an experimental Matrix-Nio SAS flow which invites a selected member of
-  the active default destination to a temporary unencrypted verification room,
+  the active default destination to a reusable unencrypted verification room,
   without sharing room keys during verification; retain the existing
   same-account device flow.
-- Leave temporary Matrix verification rooms automatically after success,
-  cancellation, timeout, or worker failure.
+- Reuse one unencrypted Matrix verification room per transport and remove the
+  selected user after success, cancellation, timeout, or worker failure.
 - Preserve Matrix-Nio SAS cancellation codes in verification status for
   actionable diagnostics.
 - Fix Mattermost transport edits so selecting a default destination does not

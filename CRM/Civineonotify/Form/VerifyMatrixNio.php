@@ -10,6 +10,7 @@ final class CRM_Civineonotify_Form_VerifyMatrixNio extends CRM_Core_Form {
     $this->transport = \Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? [];
     if (($this->transport['transport_type'] ?? NULL) !== 'matrix_nio') throw new CRM_Core_Exception(E::ts('Matrix Nio transport not found.'));
     $this->config = is_array($this->transport['config_json'] ?? NULL) ? $this->transport['config_json'] : [];
+    $this->persistReusableRoom();
     civineonotify_appendBreadcrumb('Transports', 'civicrm/admin/civineonotify/transports'); civineonotify_appendBreadcrumb('Verify Matrix Nio device');
   }
   public function buildQuickForm(): void {
@@ -56,7 +57,10 @@ final class CRM_Civineonotify_Form_VerifyMatrixNio extends CRM_Core_Form {
       file_put_contents($status, json_encode(['state' => 'waiting', 'phase' => 'starting'], JSON_THROW_ON_ERROR) . "\n", LOCK_EX); chmod($status, 0600);
       $agent = dirname(__DIR__, 3) . '/bin/' . ($method === 'room' ? 'matrix-nio-room-verify' : 'matrix-nio-verify');
       $args = ['/usr/bin/systemd-run','--user','--no-block','--collect','--unit','civineonotify-verify-' . $this->id,'--property=RuntimeMaxSec=5min','--property=MemoryMax=350M','--',(string) $this->config['python_path'],$agent,'--homeserver',(string) $this->config['homeserver'],'--session-file',(string) $this->config['session_path'],'--store-path',(string) $this->config['store_path'],'--status-file',$status,'--confirm-file',$confirm,'--cancel-file',$cancel];
-      if ($method === 'room') array_push($args, '--target-user-id', $target);
+      if ($method === 'room') {
+        array_push($args, '--target-user-id', $target);
+        if (is_string($this->config['verification_room_id'] ?? NULL) && $this->config['verification_room_id'] !== '') array_push($args, '--verification-room-id', $this->config['verification_room_id']);
+      }
       else array_push($args, '--target-device-id', $device);
       $launch = new Process($args, NULL, ['PATH'=>'/usr/bin:/bin','XDG_RUNTIME_DIR'=>$runtime,'DBUS_SESSION_BUS_ADDRESS'=>'unix:path=' . $runtime . '/bus'], NULL, 10); $launch->run();
       if (!$launch->isSuccessful()) { file_put_contents($status, json_encode(['state' => 'failed'], JSON_THROW_ON_ERROR) . "\n", LOCK_EX); chmod($status, 0600); }
@@ -95,6 +99,12 @@ final class CRM_Civineonotify_Form_VerifyMatrixNio extends CRM_Core_Form {
     $destination = \Civi\Api4\CiviNeoNotifyDestination::get(FALSE)->addWhere('id', '=', $destinationId)->addWhere('transport_id', '=', $this->id)->addWhere('is_active', '=', TRUE)->execute()->first() ?? [];
     $config = is_array($destination['config_json'] ?? NULL) ? $destination['config_json'] : []; $room = (string) ($config['room_id'] ?? '');
     return $room !== '' ? $room : NULL;
+  }
+  private function persistReusableRoom(): void {
+    $status = $this->readStatus(); $room = $status['verification_room_id'] ?? NULL;
+    if (!is_string($room) || !str_starts_with($room, '!') || ($this->config['verification_room_id'] ?? NULL) === $room) return;
+    $this->config['verification_room_id'] = $room;
+    \Civi\Api4\CiviNeoNotifyTransport::update(FALSE)->setWhere([['id','=',$this->id]])->setValues(['config_json'=>$this->config])->execute();
   }
   private function readStatus(): array { $f=(string)($this->config['verification_status_file']??''); if (!$f || !is_readable($f)) return []; $v=json_decode((string)file_get_contents($f),TRUE); return is_array($v)?$v:[]; }
 }

@@ -31,6 +31,12 @@ class RoomSas(Sas):
 
 
 def status(path: Path, payload: dict) -> None:
+  try:
+    previous = json.loads(path.read_text())
+    if isinstance(previous, dict) and 'verification_room_id' in previous and 'verification_room_id' not in payload:
+      payload['verification_room_id'] = previous['verification_room_id']
+  except (OSError, ValueError, json.JSONDecodeError):
+    pass
   temporary = path.with_suffix('.tmp'); temporary.write_text(json.dumps(payload, separators=(',', ':')) + '\n')
   temporary.chmod(0o600); temporary.replace(path)
 
@@ -52,11 +58,11 @@ async def verification_send(client: AsyncClient, room_id: str, event_type: str, 
   return await plain_room_send(client, room_id, related(content, request_id), event_type)
 
 
-def mark_room_left(path: Path) -> None:
+def mark_room_released(path: Path) -> None:
   try:
     payload = json.loads(path.read_text())
     if isinstance(payload, dict):
-      payload['verification_room_left'] = True
+      payload['verification_room_released'] = True
       status(path, payload)
   except (OSError, ValueError, json.JSONDecodeError):
     pass
@@ -75,7 +81,7 @@ def verification_event(event: object, request_id: str, target: str) -> tuple[str
 async def main() -> int:
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument('--homeserver', required=True); parser.add_argument('--session-file', type=Path, required=True)
-  parser.add_argument('--store-path', type=Path, required=True); parser.add_argument('--target-user-id', required=True)
+  parser.add_argument('--store-path', type=Path, required=True); parser.add_argument('--target-user-id', required=True); parser.add_argument('--verification-room-id')
   parser.add_argument('--status-file', type=Path, required=True); parser.add_argument('--confirm-file', type=Path, required=True); parser.add_argument('--cancel-file', type=Path, required=True)
   parser.add_argument('--max-seconds', type=int, default=300)
   arguments = parser.parse_args(); private(arguments.session_file); private(arguments.store_path, True)
@@ -88,13 +94,18 @@ async def main() -> int:
     if not isinstance(response, SyncResponse): raise RuntimeError('Matrix room sync failed.')
     response = await client.keys_query()
     if response.__class__.__name__ != 'KeysQueryResponse': raise RuntimeError('Matrix device query failed.')
-    created = await client.room_create(name='CiviNeo Notify verification', is_direct=True, invite=[arguments.target_user_id])
-    if not isinstance(created, RoomCreateResponse): raise RuntimeError('Matrix verification room could not be created.')
-    room_id = created.room_id
+    room_id = arguments.verification_room_id
+    if room_id is None:
+      created = await client.room_create(name='CiviNeo Notify verification', is_direct=False)
+      if not isinstance(created, RoomCreateResponse): raise RuntimeError('Matrix verification room could not be created.')
+      room_id = created.room_id
+    elif room_id not in client.rooms: raise RuntimeError('Matrix verification room is unavailable.')
+    invited = await client.room_invite(room_id, arguments.target_user_id)
+    if invited.__class__.__name__ != 'RoomInviteResponse': raise RuntimeError('Matrix verification invitation could not be sent.')
     # In-room requests are identified by their event ID. ``timestamp`` is a
     # to-device-only field and is intentionally omitted here.
     request_id = await plain_room_send(client, room_id, {'msgtype': 'm.key.verification.request', 'from_device': session['device_id'], 'to': arguments.target_user_id, 'methods': ['m.sas.v1'], 'body': 'SAS verification request'})
-    status(arguments.status_file, {'state': 'waiting', 'phase': 'verification_room_invited'})
+    status(arguments.status_file, {'state': 'waiting', 'phase': 'verification_room_invited', 'verification_room_id': room_id})
     deadline = time.monotonic() + arguments.max_seconds
     while time.monotonic() < deadline:
       if arguments.cancel_file.exists(): status(arguments.status_file, {'state': 'cancelled'}); return 1
@@ -136,7 +147,7 @@ async def main() -> int:
           sas.receive_mac_event(KeyVerificationMac.from_dict(source))
           if sas.verified: client.verify_device(sas.other_olm_device); await verification_send(client, room_id, 'm.key.verification.done', {}, request_id); status(arguments.status_file, {'state': 'verified'}); return 0
       if sas is None:
-        if observed: status(arguments.status_file, {'state': 'waiting', 'phase': 'verification_room_invited', 'events': observed})
+        if observed: status(arguments.status_file, {'state': 'waiting', 'phase': 'verification_room_invited', 'events': observed, 'verification_room_id': room_id})
         continue
       if sas.canceled: status(arguments.status_file, {'state': 'cancelled', 'phase': getattr(sas, 'cancel_code', '')}); return 1
       try: emoji = sas.get_emoji(); decimals = sas.get_decimals()
@@ -151,8 +162,8 @@ async def main() -> int:
   finally:
     if room_id is not None:
       try:
-        await client.room_leave(room_id)
-        mark_room_left(arguments.status_file)
+        await client.room_kick(room_id, arguments.target_user_id, reason='Verification finished')
+        mark_room_released(arguments.status_file)
       except Exception:
         pass
     await client.close()
