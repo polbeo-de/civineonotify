@@ -67,7 +67,7 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     // These values are managed by provisioning/verification flows, not by the
     // transport editor. Retain them when an administrator changes a normal
     // transport setting (for example the default destination).
-    $runtimeKeys = ['provision_status_file', 'verification_status_file', 'verification_user_id', 'verification_device_id', 'verification_device_name', 'provisioned_room_id', 'provisioned_user_login'];
+    $runtimeKeys = ['provision_status_file', 'verification_status_file', 'verification_device_id', 'verification_device_name', 'provisioned_room_id', 'provisioned_user_login'];
     foreach ($runtimeKeys as $key) if (array_key_exists($key, $existingConfig)) $config[$key] = $existingConfig[$key];
     $record = ['name' => trim((string) $v['name']), 'description' => trim((string) ($v['description'] ?? '')), 'transport_type' => (string) $v['transport_type'], 'config_json' => $config, 'default_destination_id' => (int) ($v['default_destination_id'] ?? 0) ?: NULL, 'is_active' => !empty($v['is_active'])];
     if ($this->id) \Civi\Api4\CiviNeoNotifyTransport::update(FALSE)->setWhere([['id', '=', $this->id]])->setValues($record)->execute(); else \Civi\Api4\CiviNeoNotifyTransport::create(FALSE)->setValues($record)->execute();
