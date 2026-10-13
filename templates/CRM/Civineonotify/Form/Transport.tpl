@@ -8,7 +8,9 @@
     <tr><td class="label">{$form.store_path.label}</td><td>{$form.store_path.html}<div class="description">{ts}Leave empty during initial setup; provisioning creates a dedicated, writable E2EE store outside the web root.{/ts}</div></td></tr>
     <tr><td class="label">{$form.working_directory.label}</td><td>{$form.working_directory.html}</td></tr>
     <tr><td class="label">{$form.timeout_seconds.label}</td><td>{$form.timeout_seconds.html}</td></tr>
-    <tr class="mattermost-field"><td class="label">{$form.webhook_secret_file.label}</td><td>{$form.webhook_secret_file.html}<div class="description">{ts}Absolute path to a protected file containing only the webhook URL or MATTERMOST_WEBHOOK_URL. The URL is never stored in CiviCRM.{/ts}</div></td></tr>
+    <tr class="mattermost-field"><td class="label">{$form.server_url.label}</td><td>{$form.server_url.html}</td></tr>
+    <tr class="mattermost-field"><td class="label">{$form.hooks_path.label}</td><td>{$form.hooks_path.html}<div class="description">{ts}Defaults to hooks.{/ts}</div></td></tr>
+    <tr class="mattermost-field"><td class="label">{$form.token_store_file.label}</td><td>{$form.token_store_file.html}<div class="description">{ts}Protected external JSON token store. Tokens are never stored in CiviCRM.{/ts}</div></td></tr>
     <tr class="nio-field"><td class="label">{$form.homeserver.label}</td><td>{$form.homeserver.html}</td></tr>
     <tr class="nio-field"><td class="label">{$form.python_path.label}</td><td>{$form.python_path.html}</td></tr>
     <tr class="nio-field"><td class="label">{$form.nio_client_path.label}</td><td>{$form.nio_client_path.html}<div class="description">{ts}The bundled client script must run in a Python environment with matrix-nio[e2e] installed.{/ts}</div></td></tr>

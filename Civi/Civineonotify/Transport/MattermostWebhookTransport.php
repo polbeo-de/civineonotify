@@ -11,7 +11,7 @@ final class MattermostWebhookTransport implements NotificationTransportInterface
 
   public function send(NotificationMessage $message, NotificationDestination $destination, string $transactionId): MatrixTransportResult {
     try {
-      $url = $this->webhookUrl($this->connection);
+      $url = $this->webhookUrl($this->connection, $destination);
       $payload = ['text' => $message->body];
       $channel = trim((string) ($destination->config['channel'] ?? ''));
       if ($channel !== '') $payload['channel'] = $channel;
@@ -28,7 +28,7 @@ final class MattermostWebhookTransport implements NotificationTransportInterface
   }
 
   public function testConnection(array $connection): MatrixTransportResult {
-    try { $this->webhookUrl($connection); return new MatrixTransportResult(TRUE, 'success'); }
+    try { $this->baseUrl($connection); return new MatrixTransportResult(TRUE, 'success'); }
     catch (\Throwable) { return new MatrixTransportResult(FALSE, 'configuration_error', NULL, NULL, 'Mattermost webhook configuration is not usable.'); }
   }
 
@@ -47,13 +47,18 @@ final class MattermostWebhookTransport implements NotificationTransportInterface
     finally { curl_close($handle); }
   }
 
-  private function webhookUrl(array $connection): string {
-    $path = (string) ($connection['webhook_secret_file'] ?? '');
-    if ($path === '' || !str_starts_with($path, '/') || !is_file($path) || !is_readable($path)) throw new \InvalidArgumentException('Secret file unavailable.');
-    $contents = trim((string) file_get_contents($path));
-    if (preg_match('/^(?:export\s+)?(?:MATTERMOST_WEBHOOK_URL|WEBHOOK_URL)\s*=\s*["\']?([^"\'\s]+)["\']?\s*$/m', $contents, $match)) $contents = $match[1];
-    if (!filter_var($contents, FILTER_VALIDATE_URL) || !str_starts_with($contents, 'https://')) throw new \InvalidArgumentException('Webhook URL unavailable.');
-    return $contents;
+  private function webhookUrl(array $connection, NotificationDestination $destination): string {
+    $key = (string) ($destination->config['token_key'] ?? '');
+    $store = (string) ($connection['token_store_file'] ?? '');
+    if ($key === '' || $store === '') throw new \InvalidArgumentException('Mattermost token unavailable.');
+    return $this->baseUrl($connection) . '/' . rawurlencode((new MattermostTokenStore($store))->get($key));
+  }
+
+  private function baseUrl(array $connection): string {
+    $server = rtrim((string) ($connection['server_url'] ?? ''), '/');
+    $path = trim((string) ($connection['hooks_path'] ?? 'hooks'), '/');
+    if (!filter_var($server, FILTER_VALIDATE_URL) || !str_starts_with($server, 'https://') || $path === '') throw new \InvalidArgumentException('Mattermost server URL unavailable.');
+    return $server . '/' . $path;
   }
 
   private function timeout(array $connection): int { return max(1, min(300, (int) ($connection['timeout_seconds'] ?? 30))); }

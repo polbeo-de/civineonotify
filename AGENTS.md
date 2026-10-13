@@ -29,3 +29,9 @@ This repository implements the CiviCRM extension
   available. The separate PES audit is deliberately a later task.
 - Do not tag or publish without an approved release checklist and maintainer
   approval.
+
+## Deployment paths
+
+- The CiviCRM CLI is available as `~/bin/cv`.
+- On U8, the CiviCRM root is `~/www/html/civicrm-standalone`.
+- On U7, the CiviCRM root is `~/html/civicrm-standalone`.

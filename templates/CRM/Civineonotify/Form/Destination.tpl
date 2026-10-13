@@ -6,6 +6,7 @@
     <tr><td class="label">{$form.description.label}</td><td>{$form.description.html}</td></tr>
     <tr class="matrix-field"><td class="label">{$form.room_id.label}</td><td>{$form.room_id.html}</td></tr>
     <tr class="matrix-field"><td class="label">{$form.room_alias.label}</td><td>{$form.room_alias.html}</td></tr>
+    <tr class="mattermost-field"><td class="label">{$form.webhook_token.label}</td><td>{$form.webhook_token.html}{if $mattermostTokenSuffix}<div class="description">{ts}Stored token:{/ts} ••••{$mattermostTokenSuffix|escape}</div>{/if}</td></tr>
     <tr class="mattermost-field"><td class="label">{$form.channel.label}</td><td>{$form.channel.html}<div class="description">{ts}Optional. Leave empty to use the channel configured on the incoming webhook.{/ts}</div></td></tr>
     <tr><td class="label">{$form.is_active.label}</td><td>{$form.is_active.html}</td></tr>
     <tr><td></td><td>{$form.buttons.html}</td></tr>

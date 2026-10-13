@@ -2,8 +2,15 @@
 
 ## Unreleased
 
-- Add a Mattermost incoming-webhook transport with external secret-file storage,
-  default-channel test delivery, and per-transport delivery status handling.
+- Add a Mattermost incoming-webhook transport with configurable server URL and
+  hooks path, external per-destination token storage, masked token display,
+  optional server-permitted channel overrides, and per-transport delivery
+  status handling.
+- Add Mattermost destination management and a transport **Test** action that
+  immediately posts to the configured webhook default channel and records the
+  outcome in the delivery log.
+- Generalize the transport message and destination contracts so Matrix and
+  Mattermost can deliver the same queued CiviCRM event independently.
 
 - Complete the Matrix-Nio/Element SAS verification flow on staging: compare
   matching emoji, persist the selected Element device as trusted, send the
