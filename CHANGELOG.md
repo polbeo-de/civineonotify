@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add a Mastodon transport with protected access-token storage, account
+  validation, public/unlisted/followers-only text posts, instance-aware
+  character-limit validation, and stable delivery idempotency keys.
 - Add a shared protected transport storage directory setting for Matrix and
   Mattermost credentials, stores, and runtime files.
 - Add a parallel Mattermost API transport using protected external API-token
