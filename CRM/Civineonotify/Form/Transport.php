@@ -34,7 +34,7 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     }
   }
   public function setDefaultValues(): array {
-    if (!$this->id) return ['is_active' => 1, 'transport_type' => 'matrix_commander_rs', 'timeout_seconds' => 30, 'working_directory' => '/tmp', 'nio_client_path' => dirname(__DIR__, 3) . '/bin/matrix-nio-client'];
+    if (!$this->id) { $protected=(string)\Civi::settings()->get('civineonotify_protected_transport_storage_directory'); return ['is_active' => 1, 'transport_type' => 'matrix_commander_rs', 'timeout_seconds' => 30, 'working_directory' => $protected ?: '/tmp', 'token_store_file' => $protected ? rtrim($protected, '/') . '/mattermost-tokens.json' : '', 'nio_client_path' => dirname(__DIR__, 3) . '/bin/matrix-nio-client']; }
     $row = \Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? [];
     return array_merge($row, is_array($row['config_json'] ?? NULL) ? $row['config_json'] : []);
   }
@@ -43,6 +43,7 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $existing = $this->id ? (\Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? []) : [];
     $existingConfig = is_array($existing['config_json'] ?? NULL) ? $existing['config_json'] : [];
     $type = (string) $v['transport_type'];
+    if (in_array($type, ['mattermost_webhook', 'mattermost_api'], TRUE) && empty($v['token_store_file'])) { $protected=(string)\Civi::settings()->get('civineonotify_protected_transport_storage_directory'); if ($protected !== '') $v['token_store_file']=rtrim($protected, '/') . '/mattermost-tokens.json'; }
     if (!in_array($type, ['matrix_commander_rs', 'matrix_nio', 'mattermost_webhook', 'mattermost_api'], TRUE)) { $this->setElementError('transport_type', E::ts('Choose a supported transport type.')); return; }
     if (in_array($type, ['matrix_commander_rs', 'matrix_nio'], TRUE)) {
       foreach (['working_directory'] as $path) if (empty($v[$path]) || !str_starts_with((string) $v[$path], '/')) { $this->setElementError($path, E::ts('Use an absolute path.')); return; }

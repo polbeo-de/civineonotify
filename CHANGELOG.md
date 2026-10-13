@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add a shared protected transport storage directory setting for Matrix and
+  Mattermost credentials, stores, and runtime files.
 - Add a parallel Mattermost API transport using protected external API-token
   storage and channel-ID destinations; rename the existing UI label to
   Mattermost (Webhook).

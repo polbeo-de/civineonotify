@@ -5,6 +5,13 @@ list provides a **Test** action which immediately sends the configured default
 message template to its default destination and records the outcome in the
 delivery log.
 
+## Protected transport storage directory
+
+Set **Protected transport storage directory** in CiviNeo Notify settings to an
+absolute, protected directory outside the web root. Matrix provisioning uses it
+as its default. Mattermost transports use `mattermost-tokens.json` in this
+directory by default. Existing explicit transport paths remain valid.
+
 ## Mattermost (Webhook)
 
 Create a Mattermost incoming-webhook transport with its HTTPS server URL, an
