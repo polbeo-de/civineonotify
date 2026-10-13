@@ -56,7 +56,7 @@ final class CRM_Civineonotify_Form_VerifyMatrixNio extends CRM_Core_Form {
       file_put_contents($status, json_encode(['state' => 'waiting', 'phase' => 'starting'], JSON_THROW_ON_ERROR) . "\n", LOCK_EX); chmod($status, 0600);
       $agent = dirname(__DIR__, 3) . '/bin/' . ($method === 'room' ? 'matrix-nio-room-verify' : 'matrix-nio-verify');
       $args = ['/usr/bin/systemd-run','--user','--no-block','--collect','--unit','civineonotify-verify-' . $this->id,'--property=RuntimeMaxSec=5min','--property=MemoryMax=350M','--',(string) $this->config['python_path'],$agent,'--homeserver',(string) $this->config['homeserver'],'--session-file',(string) $this->config['session_path'],'--store-path',(string) $this->config['store_path'],'--status-file',$status,'--confirm-file',$confirm,'--cancel-file',$cancel];
-      if ($method === 'room') { $room = $this->defaultRoomId(); if ($room === NULL) { $this->setElementError('verification_target_user_id', E::ts('The default destination must be an active Matrix room.')); return; } array_push($args, '--room-id', $room, '--target-user-id', $target); }
+      if ($method === 'room') array_push($args, '--target-user-id', $target);
       else array_push($args, '--target-device-id', $device);
       $launch = new Process($args, NULL, ['PATH'=>'/usr/bin:/bin','XDG_RUNTIME_DIR'=>$runtime,'DBUS_SESSION_BUS_ADDRESS'=>'unix:path=' . $runtime . '/bus'], NULL, 10); $launch->run();
       if (!$launch->isSuccessful()) { file_put_contents($status, json_encode(['state' => 'failed'], JSON_THROW_ON_ERROR) . "\n", LOCK_EX); chmod($status, 0600); }

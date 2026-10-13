@@ -56,15 +56,16 @@ bundle for the matching CiviNeo release.
 The verification dialog also offers an experimental **member of the default
 destination** path. It is for a separate Matrix user in that room, unlike the
 device selector which verifies another device of the bot account. The worker
-sends the standard SAS request and follow-up verification events as plain
-`m.room.message` events related to the original request. This is required by
-the Matrix verification protocol for cross-user verification and deliberately
-avoids sending an encrypted application message or sharing a room key as part
-of verification.
+creates a temporary private room without E2EE, invites the selected member,
+and sends the standard SAS request and follow-up verification events there as
+plain `m.room.message` events related to the original request. This avoids
+sending an encrypted application message or sharing a room key as part of
+verification.
 
-The administrator selects exactly one current room member, compares the SAS in
-both clients, and confirms it in CiviNeo Notify. The worker is short-lived and
-only records protected local status. This is alpha functionality pending
+The administrator selects exactly one current room member, accepts the
+invitation, compares the SAS in both clients, and confirms it in CiviNeo
+Notify. The worker is short-lived and only records protected local status.
+The temporary room can be left or removed after the verification. This is alpha functionality pending
 interoperability testing with supported Element clients; ordinary Matrix
 delivery remains unchanged.
 

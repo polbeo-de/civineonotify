@@ -1,5 +1,5 @@
 <div class="crm-block crm-form-block crm-civineonotify-verify-matrix-nio-form-block">
-  <p>{ts}Verify another device of this account, or verify a member of the default Matrix destination in the room. Compare the displayed SAS before confirming.{/ts}</p>
+  <p>{ts}Verify another device of this account, or invite a member of the default Matrix destination to a temporary unencrypted verification room. Compare the displayed SAS before confirming.{/ts}</p>
   <table class="form-layout">
     <tr><td class="label">{$form.verification_method.label}</td><td>{$form.verification_method.html}</td></tr>
     <tr><td class="label">{$form.verification_device_id.label}</td><td>{$form.verification_device_id.html}</td></tr>

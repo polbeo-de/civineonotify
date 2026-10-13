@@ -51,8 +51,8 @@ The optional Matrix-Nio E2EE/SAS path has completed an end-to-end staging
 verification with Element: it provisions a dedicated device, compares the same
 SAS on both sides, persists device trust, and sends an encrypted test message.
 For a distinct Matrix user, the verification dialog also provides an
-experimental in-room SAS path through the default destination; it does not
-share room keys during verification.
+experimental SAS path which invites the selected member to a temporary,
+unencrypted verification room; it does not share room keys during verification.
 It remains an **alpha integration**: its pinned Python runtime and narrowly
 scoped interoperability patches are an external deployment prerequisite, not
 bundled with this extension archive. Read the [Matrix-Nio status and design

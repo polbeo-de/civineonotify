@@ -10,7 +10,7 @@ import time
 from pathlib import Path
 from uuid import uuid4
 
-from nio import Api, AsyncClient, AsyncClientConfig, RoomSendResponse, SyncResponse
+from nio import Api, AsyncClient, AsyncClientConfig, RoomCreateResponse, RoomSendResponse, SyncResponse
 from nio.crypto.sas import Sas
 from nio.events import KeyVerificationAccept, KeyVerificationKey, KeyVerificationMac, KeyVerificationStart
 from nio.exceptions import LocalProtocolError
@@ -51,7 +51,7 @@ def verification_event(event: object, request_id: str, target: str) -> tuple[str
 async def main() -> int:
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument('--homeserver', required=True); parser.add_argument('--session-file', type=Path, required=True)
-  parser.add_argument('--store-path', type=Path, required=True); parser.add_argument('--room-id', required=True); parser.add_argument('--target-user-id', required=True)
+  parser.add_argument('--store-path', type=Path, required=True); parser.add_argument('--target-user-id', required=True)
   parser.add_argument('--status-file', type=Path, required=True); parser.add_argument('--confirm-file', type=Path, required=True); parser.add_argument('--cancel-file', type=Path, required=True)
   parser.add_argument('--max-seconds', type=int, default=300)
   arguments = parser.parse_args(); private(arguments.session_file); private(arguments.store_path, True)
@@ -61,21 +61,26 @@ async def main() -> int:
   sas = None; request_id = ''; shared_key = False; confirmed = False; observed: list[str] = []
   try:
     response = await client.sync(timeout=0, full_state=True)
-    if not isinstance(response, SyncResponse) or arguments.room_id not in client.rooms: raise RuntimeError('Matrix room sync failed.')
+    if not isinstance(response, SyncResponse): raise RuntimeError('Matrix room sync failed.')
     response = await client.keys_query()
     if response.__class__.__name__ != 'KeysQueryResponse': raise RuntimeError('Matrix device query failed.')
+    created = await client.room_create(name='CiviNeo Notify verification', is_direct=True, invite=[arguments.target_user_id])
+    if not isinstance(created, RoomCreateResponse): raise RuntimeError('Matrix verification room could not be created.')
+    room_id = created.room_id
     # In-room requests are identified by their event ID. ``timestamp`` is a
     # to-device-only field and is intentionally omitted here.
-    request_id = await plain_room_send(client, arguments.room_id, {'msgtype': 'm.key.verification.request', 'from_device': session['device_id'], 'to': arguments.target_user_id, 'methods': ['m.sas.v1'], 'body': 'SAS verification request'})
-    status(arguments.status_file, {'state': 'waiting', 'phase': 'request_sent'})
+    request_id = await plain_room_send(client, room_id, {'msgtype': 'm.key.verification.request', 'from_device': session['device_id'], 'to': arguments.target_user_id, 'methods': ['m.sas.v1'], 'body': 'SAS verification request'})
+    status(arguments.status_file, {'state': 'waiting', 'phase': 'verification_room_invited'})
     deadline = time.monotonic() + arguments.max_seconds
     while time.monotonic() < deadline:
       if arguments.cancel_file.exists(): status(arguments.status_file, {'state': 'cancelled'}); return 1
       response = await client.sync(timeout=5000, full_state=False)
       if not isinstance(response, SyncResponse): raise RuntimeError('Matrix verification sync failed.')
-      for event in response.rooms.join.get(arguments.room_id, type('Timeline', (), {'timeline': type('Events', (), {'events': []})()})()).timeline.events:
+      for event in response.rooms.join.get(room_id, type('Timeline', (), {'timeline': type('Events', (), {'events': []})()})()).timeline.events:
         raw = getattr(event, 'source', {}); raw_content = raw.get('content', {}) if isinstance(raw, dict) else {}
         raw_type = raw_content.get('msgtype') if isinstance(raw_content, dict) else None
+        if isinstance(raw, dict) and raw.get('type') == 'm.room.encrypted' and raw.get('sender') == arguments.target_user_id:
+          if 'm.room.encrypted:target' not in observed and len(observed) < 8: observed.append('m.room.encrypted:target')
         if isinstance(raw_type, str) and raw_type.startswith('m.key.verification.'):
           raw_relation = raw_content.get('m.relates_to', {})
           marker = raw_type + (':target' if raw.get('sender') == arguments.target_user_id else ':other') + (':request' if isinstance(raw_relation, dict) and raw_relation.get('event_id') == request_id else ':unrelated')
@@ -89,30 +94,30 @@ async def main() -> int:
           peer = client.device_store.get(arguments.target_user_id, {}).get(from_device)
           if peer is None: continue
           sas = Sas(session['user_id'], session['device_id'], client.olm.account.identity_keys['ed25519'], peer, request_id)
-          await plain_room_send(client, arguments.room_id, related(sas.start_verification().content, request_id)); status(arguments.status_file, {'state': 'waiting', 'phase': 'sas_start_sent'})
+          await plain_room_send(client, room_id, related(sas.start_verification().content, request_id)); status(arguments.status_file, {'state': 'waiting', 'phase': 'sas_start_sent'})
         elif kind == 'm.key.verification.start' and sas is None:
           if not isinstance(from_device, str): continue
           peer = client.device_store.get(arguments.target_user_id, {}).get(from_device)
           if peer is None: continue
           sas = Sas.from_key_verification_start(session['user_id'], session['device_id'], client.olm.account.identity_keys['ed25519'], peer, KeyVerificationStart.from_dict(source))
-          await plain_room_send(client, arguments.room_id, related(sas.accept_verification().content, request_id)); status(arguments.status_file, {'state': 'waiting', 'phase': 'sas_accept_sent'})
+          await plain_room_send(client, room_id, related(sas.accept_verification().content, request_id)); status(arguments.status_file, {'state': 'waiting', 'phase': 'sas_accept_sent'})
         elif sas is not None and kind == 'm.key.verification.accept':
-          sas.receive_accept_event(KeyVerificationAccept.from_dict(source)); await plain_room_send(client, arguments.room_id, related(sas.share_key().content, request_id)); shared_key = True
+          sas.receive_accept_event(KeyVerificationAccept.from_dict(source)); await plain_room_send(client, room_id, related(sas.share_key().content, request_id)); shared_key = True
         elif sas is not None and kind == 'm.key.verification.key':
           sas.receive_key_event(KeyVerificationKey.from_dict(source))
-          if not sas.we_started_it and not shared_key: await plain_room_send(client, arguments.room_id, related(sas.share_key().content, request_id)); shared_key = True
+          if not sas.we_started_it and not shared_key: await plain_room_send(client, room_id, related(sas.share_key().content, request_id)); shared_key = True
         elif sas is not None and kind == 'm.key.verification.mac':
           sas.receive_mac_event(KeyVerificationMac.from_dict(source))
-          if sas.verified: client.verify_device(sas.other_olm_device); await plain_room_send(client, arguments.room_id, related({'msgtype': 'm.key.verification.done'}, request_id)); status(arguments.status_file, {'state': 'verified'}); return 0
+          if sas.verified: client.verify_device(sas.other_olm_device); await plain_room_send(client, room_id, related({'msgtype': 'm.key.verification.done'}, request_id)); status(arguments.status_file, {'state': 'verified'}); return 0
       if sas is None:
-        if observed: status(arguments.status_file, {'state': 'waiting', 'phase': 'request_sent', 'events': observed})
+        if observed: status(arguments.status_file, {'state': 'waiting', 'phase': 'verification_room_invited', 'events': observed})
         continue
       if sas.canceled: status(arguments.status_file, {'state': 'cancelled', 'phase': getattr(sas, 'cancel_code', '')}); return 1
       try: emoji = sas.get_emoji(); decimals = sas.get_decimals()
       except (AssertionError, LocalProtocolError, ValueError): continue
       if not confirmed: status(arguments.status_file, {'state': 'compare', 'transaction_id': request_id, 'emoji': emoji, 'decimals': decimals})
       if arguments.confirm_file.exists() and not confirmed:
-        arguments.confirm_file.unlink(); await plain_room_send(client, arguments.room_id, related(sas.get_mac().content, request_id)); confirmed = True; status(arguments.status_file, {'state': 'confirming'})
+        arguments.confirm_file.unlink(); await plain_room_send(client, room_id, related(sas.get_mac().content, request_id)); confirmed = True; status(arguments.status_file, {'state': 'confirming'})
     status(arguments.status_file, {'state': 'timed_out'}); return 1
   except Exception as error:
     status(arguments.status_file, {'state': 'failed'}); print(f'Matrix room SAS verification failed: {type(error).__name__}: {str(error).replace(chr(10), " ")[:160]}')

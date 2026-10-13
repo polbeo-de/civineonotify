@@ -2,9 +2,10 @@
 
 ## Unreleased
 
-- Add an experimental in-room Matrix-Nio SAS flow for verifying a selected
-  member of the active default destination without sharing room keys during
-  verification; retain the existing same-account device flow.
+- Add an experimental Matrix-Nio SAS flow which invites a selected member of
+  the active default destination to a temporary unencrypted verification room,
+  without sharing room keys during verification; retain the existing
+  same-account device flow.
 - Preserve Matrix-Nio SAS cancellation codes in verification status for
   actionable diagnostics.
 - Fix Mattermost transport edits so selecting a default destination does not
