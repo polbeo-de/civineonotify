@@ -8,12 +8,13 @@ use Civi\Civineonotify\Security\Redactor;
 use Symfony\Component\Process\Process;
 
 /** Adapter for the bundled Matrix-Nio client helper and a protected Nio store. */
-final class MatrixNioTransport implements MatrixTransportInterface {
+final class MatrixNioTransport implements NotificationTransportInterface {
   public function __construct(private readonly array $connection, private readonly Redactor $redactor = new Redactor()) {}
 
-  public function send(MatrixMessage $message, MatrixDestination $destination, string $transactionId): MatrixTransportResult {
-    if (!$destination->roomId) return new MatrixTransportResult(FALSE, 'configuration_error', NULL, NULL, 'Matrix-Nio requires an internal room ID.');
-    return $this->withStoreLock(fn() => $this->run($this->arguments('send', $destination->roomId), $message->body));
+  public function send(NotificationMessage $message, NotificationDestination $destination, string $transactionId): MatrixTransportResult {
+    $roomId = (string) ($destination->config['room_id'] ?? '');
+    if ($roomId === '') return new MatrixTransportResult(FALSE, 'configuration_error', NULL, NULL, 'Matrix-Nio requires an internal room ID.');
+    return $this->withStoreLock(fn() => $this->run($this->arguments('send', $roomId), $message->body));
   }
 
   public function testConnection(array $connection): MatrixTransportResult {

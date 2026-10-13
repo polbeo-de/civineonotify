@@ -7,7 +7,7 @@ namespace Civi\Civineonotify\Outbox;
 use Civi\Api4\CiviNeoNotifyDelivery;
 use Civi\Api4\CiviNeoNotifyDestination;
 use Civi\Api4\CiviNeoNotifyTransport;
-use Civi\Civineonotify\Transport\{MatrixDestination, MatrixMessage, TransportFactory};
+use Civi\Civineonotify\Transport\{NotificationDestination, NotificationMessage, TransportFactory};
 
 final class Worker {
   public function __construct(private readonly ?RetryPolicy $retryPolicy = NULL) {}
@@ -25,10 +25,10 @@ final class Worker {
       $destinationConfig = is_array($destination['config_json'] ?? NULL) ? $destination['config_json'] : [];
       try { $client = TransportFactory::create((string) $transport['transport_type'], $transportConfig); }
       catch (\Throwable) { $this->failConfiguration($row['id']); continue; }
-      $result = $client->send(new MatrixMessage($row['message_body']), new MatrixDestination($destinationConfig['room_id'] ?? NULL, $destinationConfig['room_alias'] ?? NULL), $row['transaction_id']);
+      $result = $client->send(new NotificationMessage($row['message_body']), new NotificationDestination($destinationConfig), $row['transaction_id']);
       $attempt = (int) $row['attempt_count'] + 1; $policy = $this->retryPolicy ?? new RetryPolicy();
       $retry = !$result->success && !$result->deliveryUnknown && $attempt < (int) \Civi::settings()->get('civineonotify_max_attempts') && $policy->isRetryable($result->category);
-      CiviNeoNotifyDelivery::update(FALSE)->addWhere('id', '=', $row['id'])->setValues(['status' => $result->success ? 'sent' : ($result->deliveryUnknown ? 'delivery_unknown' : ($retry ? 'retry' : 'failed')), 'attempt_count' => $attempt, 'next_attempt_at' => $retry ? $policy->nextAttempt($attempt) : NULL, 'last_attempt_at' => gmdate('Y-m-d H:i:s'), 'sent_at' => $result->success ? gmdate('Y-m-d H:i:s') : NULL, 'external_id' => $result->matrixEventId, 'exit_code' => $result->exitCode, 'error_code' => $result->success ? NULL : $result->category, 'error_message' => $result->message])->execute();
+      CiviNeoNotifyDelivery::update(FALSE)->addWhere('id', '=', $row['id'])->setValues(['status' => $result->success ? 'sent' : ($result->deliveryUnknown ? 'delivery_unknown' : ($retry ? 'retry' : 'failed')), 'attempt_count' => $attempt, 'next_attempt_at' => $retry ? $policy->nextAttempt($attempt) : NULL, 'last_attempt_at' => gmdate('Y-m-d H:i:s'), 'sent_at' => $result->success ? gmdate('Y-m-d H:i:s') : NULL, 'external_id' => $result->externalId, 'exit_code' => $result->exitCode, 'error_code' => $result->success ? NULL : $result->category, 'error_message' => $result->message])->execute();
       $sent += (int) $result->success;
     }
     return ['processed' => count($rows), 'sent' => $sent];

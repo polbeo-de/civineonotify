@@ -8,6 +8,9 @@
     <tr><td class="label">{$form.store_path.label}</td><td>{$form.store_path.html}<div class="description">{ts}Leave empty during initial setup; provisioning creates a dedicated, writable E2EE store outside the web root.{/ts}</div></td></tr>
     <tr><td class="label">{$form.working_directory.label}</td><td>{$form.working_directory.html}</td></tr>
     <tr><td class="label">{$form.timeout_seconds.label}</td><td>{$form.timeout_seconds.html}</td></tr>
+    <tr class="mattermost-field"><td class="label">{$form.server_url.label}</td><td>{$form.server_url.html}</td></tr>
+    <tr class="mattermost-field"><td class="label">{$form.hooks_path.label}</td><td>{$form.hooks_path.html}<div class="description">{ts}Defaults to hooks.{/ts}</div></td></tr>
+    <tr class="mattermost-field"><td class="label">{$form.token_store_file.label}</td><td>{$form.token_store_file.html}<div class="description">{ts}Protected external JSON token store. Tokens are never stored in CiviCRM.{/ts}</div></td></tr>
     <tr class="nio-field"><td class="label">{$form.homeserver.label}</td><td>{$form.homeserver.html}</td></tr>
     <tr class="nio-field"><td class="label">{$form.python_path.label}</td><td>{$form.python_path.html}</td></tr>
     <tr class="nio-field"><td class="label">{$form.nio_client_path.label}</td><td>{$form.nio_client_path.html}<div class="description">{ts}The bundled client script must run in a Python environment with matrix-nio[e2e] installed.{/ts}</div></td></tr>
@@ -22,9 +25,12 @@
 <script>
 CRM.$(function($) {
   function chooseTransport() {
-    var nio = $('#transport_type').val() === 'matrix_nio';
+    var type = $('#transport_type').val();
+    var nio = type === 'matrix_nio';
+    var mattermost = type === 'mattermost_webhook';
     $('.nio-field').toggle(nio);
-    $('#binary_path, #credentials_path').closest('tr').toggle(!nio);
+    $('.mattermost-field').toggle(mattermost);
+    $('#binary_path, #credentials_path, #store_path, #working_directory').closest('tr').toggle(!nio && !mattermost);
   }
   $('#transport_type').on('change', chooseTransport);
   chooseTransport();
