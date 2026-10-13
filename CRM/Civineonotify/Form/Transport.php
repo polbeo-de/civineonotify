@@ -43,7 +43,9 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $existingConfig = is_array($existing['config_json'] ?? NULL) ? $existing['config_json'] : [];
     $type = (string) $v['transport_type'];
     if (!in_array($type, ['matrix_commander_rs', 'matrix_nio', 'mattermost_webhook'], TRUE)) { $this->setElementError('transport_type', E::ts('Choose a supported transport type.')); return; }
-    foreach (['working_directory'] as $path) if (empty($v[$path]) || !str_starts_with((string) $v[$path], '/')) { $this->setElementError($path, E::ts('Use an absolute path.')); return; }
+    if (in_array($type, ['matrix_commander_rs', 'matrix_nio'], TRUE)) {
+      foreach (['working_directory'] as $path) if (empty($v[$path]) || !str_starts_with((string) $v[$path], '/')) { $this->setElementError($path, E::ts('Use an absolute path.')); return; }
+    }
     if ($type === 'mattermost_webhook') {
       if (!preg_match('#^https://[^\s]+$#', (string) $v['server_url'])) { $this->setElementError('server_url', E::ts('Use an HTTPS Mattermost server URL.')); return; }
       if (empty($v['token_store_file']) || !str_starts_with((string) $v['token_store_file'], '/') || !is_dir(dirname((string) $v['token_store_file'])) || !is_writable(dirname((string) $v['token_store_file']))) { $this->setElementError('token_store_file', E::ts('Use an absolute path in a writable protected directory for the Mattermost token store.')); return; }
