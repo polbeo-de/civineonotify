@@ -5,7 +5,14 @@ list provides a **Test** action which immediately sends the configured default
 message template to its default destination and records the outcome in the
 delivery log.
 
-## Mattermost incoming webhook
+## Protected transport storage directory
+
+Set **Protected transport storage directory** in CiviNeo Notify settings to an
+absolute, protected directory outside the web root. Matrix provisioning uses it
+as its default. Mattermost transports use `mattermost-tokens.json` in this
+directory by default. Existing explicit transport paths remain valid.
+
+## Mattermost (Webhook)
 
 Create a Mattermost incoming-webhook transport with its HTTPS server URL, an
 optional hooks path (default: `hooks`), and an absolute path to a protected
@@ -35,9 +42,31 @@ Each transport has an independent delivery status and retry history. Therefore,
 a Mattermost failure does not prevent delivery through a parallel Matrix or
 other configured transport.
 
-The Mattermost REST API is planned as a future transport type. It is not
-implemented by the incoming-webhook transport and its credentials must likewise
-remain outside CiviCRM.
+## Mattermost (API)
+
+The API transport uses a Mattermost personal access token or bot token stored
+in the protected external token store. Configure the HTTPS server URL and the
+token store, then add a destination and choose one of the channels accessible
+to that token. The extension reads public and private team channels through the
+Mattermost v4 API; it does not store the token in CiviCRM. The channel ID is
+stored internally in the destination configuration, while the administrator
+sees the team and channel names.
+
+Before creating the token, a Mattermost system administrator must enable
+**Personal Access Tokens** in **System Console → Integrations → Integration
+Management**. The administrator must also allow the selected bot account to
+create personal access tokens through Mattermost role management. After that,
+sign in as the bot account and create a token in **Profile → Security →
+Personal Access Tokens**. Mattermost displays the token only once; enter it
+directly in the CiviNeo Notify transport form and do not save it in CiviCRM,
+source control, or documentation.
+
+Add the bot account to the team and every channel it should notify. Reload the
+destination form after saving the transport token; the channel list contains
+only channels accessible to that bot account.
+
+Incoming webhooks do not support channel discovery; their credentials must
+likewise remain outside CiviCRM.
 
 ## Matrix
 
