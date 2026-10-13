@@ -133,7 +133,7 @@ async def main() -> int:
       except (AssertionError, LocalProtocolError, ValueError): continue
       if not confirmed: status(arguments.status_file, {'state': 'compare', 'transaction_id': request_id, 'emoji': emoji, 'decimals': decimals})
       if arguments.confirm_file.exists() and not confirmed:
-        arguments.confirm_file.unlink(); message = sas.get_mac(); await verification_send(client, room_id, message.type, message.content, request_id); confirmed = True; status(arguments.status_file, {'state': 'confirming'})
+        arguments.confirm_file.unlink(); sas.accept_sas(); message = sas.get_mac(); await verification_send(client, room_id, message.type, message.content, request_id); confirmed = True; status(arguments.status_file, {'state': 'confirming'})
     status(arguments.status_file, {'state': 'timed_out'}); return 1
   except Exception as error:
     status(arguments.status_file, {'state': 'failed'}); print(f'Matrix room SAS verification failed: {type(error).__name__}: {str(error).replace(chr(10), " ")[:160]}')
