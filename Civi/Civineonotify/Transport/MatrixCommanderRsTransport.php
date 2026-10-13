@@ -8,10 +8,10 @@ use Civi\Civineonotify\Security\Redactor;
 use Symfony\Component\Process\Process;
 
 /** Safe adapter for the verified matrix-commander-rs 0.11.0 command line. */
-final class MatrixCommanderRsTransport implements MatrixTransportInterface {
+final class MatrixCommanderRsTransport implements NotificationTransportInterface {
   public function __construct(private readonly array $connection, private readonly Redactor $redactor = new Redactor(), private readonly ?ErrorClassifier $classifier = NULL) {}
 
-  public function send(MatrixMessage $message, MatrixDestination $destination, string $transactionId): MatrixTransportResult {
+  public function send(NotificationMessage $message, NotificationDestination $destination, string $transactionId): MatrixTransportResult {
     try { return $this->withStoreLock($this->connection, fn() => $this->run($this->arguments($destination), $message->body)); }
     catch (\Throwable $exception) { return new MatrixTransportResult(FALSE, 'configuration_error', NULL, NULL, $this->redactor->redact($exception->getMessage())); }
   }
@@ -25,8 +25,9 @@ final class MatrixCommanderRsTransport implements MatrixTransportInterface {
     return ['transport' => 'matrix_commander_rs', 'stdin_message' => TRUE, 'json_output' => TRUE, 'transaction_id' => FALSE];
   }
 
-  private function arguments(MatrixDestination $destination): array {
-    $room = $destination->roomId ?? $destination->roomAlias;
+  private function arguments(NotificationDestination $destination): array {
+    $room = $destination->config['room_id'] ?? $destination->config['room_alias'] ?? NULL;
+    if (!$room) throw new \InvalidArgumentException('Destination has no Matrix room.');
     return $this->baseArguments($this->connection, ['--message', '-', '--room', $room, '--output', 'json']);
   }
 

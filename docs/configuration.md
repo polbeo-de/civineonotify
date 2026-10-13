@@ -1,6 +1,45 @@
 # Configuration
 
-Create a Matrix transport, then named destinations, and finally rules. Configure an absolute executable path, credentials path, E2EE store path, working directory and timeout. The Destination list provides a **Test** action which immediately sends the configured default message template to that destination and records the outcome in the delivery log.
+Create a transport, then named destinations, and finally rules. The Transport
+list provides a **Test** action which immediately sends the configured default
+message template to its default destination and records the outcome in the
+delivery log.
+
+## Mattermost incoming webhook
+
+Create a Mattermost incoming-webhook transport with its HTTPS server URL, an
+optional hooks path (default: `hooks`), and an absolute path to a protected
+external token-store file. The server URL is normal configuration; webhook
+tokens are not stored in CiviCRM, included in an extension archive, or written
+to a delivery log. An incoming webhook is bound to its configured Mattermost
+channel; create a destination for every independently targeted channel. A
+Mattermost channel override may be configured only where the Mattermost server
+permits it; leaving it empty uses the webhook's configured channel.
+
+To configure it in CiviCRM:
+
+1. Add an active transport of type **Mattermost incoming webhook**, enter its
+   server URL, and leave the hooks path as `hooks` unless the server uses a
+   different path. Provide a protected, writable external token-store path.
+2. Add an active **Mattermost channel** destination for that transport and
+   enter its hook token. The form never shows the token again; it displays only
+   the last four characters. Leave **Mattermost channel override** empty to use
+   the incoming webhook's default channel, or enter an override only where the
+   Mattermost server allows it.
+3. Select that destination as the transport's **Default destination**.
+4. Use the transport's **Test** action. It sends the configured default message
+   immediately, records the result in the delivery log, and does not enqueue a
+   normal CiviCRM event.
+
+Each transport has an independent delivery status and retry history. Therefore,
+a Mattermost failure does not prevent delivery through a parallel Matrix or
+other configured transport.
+
+The Mattermost REST API is planned as a future transport type. It is not
+implemented by the incoming-webhook transport and its credentials must likewise
+remain outside CiviCRM.
+
+## Matrix
 
 The verified `matrix-commander-rs` version is 0.11.0. It supports
 `--credentials`, `--store`, `--timeout`, `--message -` for stdin, `--room`,

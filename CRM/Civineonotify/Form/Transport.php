@@ -10,8 +10,11 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
   public function buildQuickForm(): void {
     CRM_Utils_System::setTitle(E::ts($this->id ? 'Edit transport' : 'Add transport'));
     $this->add('text', 'name', E::ts('Transport name'), ['size' => 70], TRUE);
-    $this->add('select', 'transport_type', E::ts('Transport type'), ['matrix_commander_rs' => E::ts('Matrix Commander'), 'matrix_nio' => E::ts('Matrix Nio')], TRUE);
+    $this->add('select', 'transport_type', E::ts('Transport type'), ['matrix_commander_rs' => E::ts('Matrix Commander'), 'matrix_nio' => E::ts('Matrix Nio'), 'mattermost_webhook' => E::ts('Mattermost incoming webhook')], TRUE);
     foreach (['binary_path' => 'Matrix Commander binary', 'credentials_path' => 'Credentials file', 'store_path' => 'Encryption store', 'working_directory' => 'Working directory', 'timeout_seconds' => 'Timeout (seconds)', 'homeserver' => 'Matrix homeserver', 'python_path' => 'Python executable', 'nio_client_path' => 'Matrix Nio client', 'session_path' => 'Protected Matrix Nio session'] as $field => $label) $this->add('text', $field, E::ts($label), ['size' => 70]);
+    $this->add('text', 'server_url', E::ts('Mattermost server URL'), ['size' => 70]);
+    $this->add('text', 'hooks_path', E::ts('Mattermost hooks path'), ['size' => 70]);
+    $this->add('text', 'token_store_file', E::ts('Mattermost token store file'), ['size' => 70]);
     $this->add('checkbox', 'allow_unverified_recipient_devices', E::ts('Allow unverified recipient devices'));
     $destinationOptions = $this->id
       ? civineonotify_destinationOptions(TRUE, $this->id, E::ts('- No default destination -'))
@@ -39,9 +42,17 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $existing = $this->id ? (\Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? []) : [];
     $existingConfig = is_array($existing['config_json'] ?? NULL) ? $existing['config_json'] : [];
     $type = (string) $v['transport_type'];
-    if (!in_array($type, ['matrix_commander_rs', 'matrix_nio'], TRUE)) { $this->setElementError('transport_type', E::ts('Choose a supported transport type.')); return; }
-    foreach (['working_directory'] as $path) if (empty($v[$path]) || !str_starts_with((string) $v[$path], '/')) { $this->setElementError($path, E::ts('Use an absolute path.')); return; }
-    if ($type === 'matrix_commander_rs') {
+    if (!in_array($type, ['matrix_commander_rs', 'matrix_nio', 'mattermost_webhook'], TRUE)) { $this->setElementError('transport_type', E::ts('Choose a supported transport type.')); return; }
+    if (in_array($type, ['matrix_commander_rs', 'matrix_nio'], TRUE)) {
+      foreach (['working_directory'] as $path) if (empty($v[$path]) || !str_starts_with((string) $v[$path], '/')) { $this->setElementError($path, E::ts('Use an absolute path.')); return; }
+    }
+    if ($type === 'mattermost_webhook') {
+      if (!preg_match('#^https://[^\s]+$#', (string) $v['server_url'])) { $this->setElementError('server_url', E::ts('Use an HTTPS Mattermost server URL.')); return; }
+      if (empty($v['token_store_file']) || !str_starts_with((string) $v['token_store_file'], '/') || !is_dir(dirname((string) $v['token_store_file'])) || !is_writable(dirname((string) $v['token_store_file']))) { $this->setElementError('token_store_file', E::ts('Use an absolute path in a writable protected directory for the Mattermost token store.')); return; }
+      $config = array_filter(array_intersect_key($v, array_flip(['server_url', 'hooks_path', 'token_store_file', 'timeout_seconds'])), static fn($value) => $value !== '' && $value !== NULL);
+      $config['hooks_path'] = trim((string) ($config['hooks_path'] ?? 'hooks'), '/');
+    }
+    elseif ($type === 'matrix_commander_rs') {
       if (!is_file((string) $v['binary_path']) || !is_executable((string) $v['binary_path'])) { $this->setElementError('binary_path', E::ts('The Matrix Commander binary does not exist or is not executable.')); return; }
       $config = array_filter(array_intersect_key($v, array_flip(['binary_path', 'credentials_path', 'store_path', 'working_directory', 'timeout_seconds'])), static fn($value) => $value !== '' && $value !== NULL);
     }

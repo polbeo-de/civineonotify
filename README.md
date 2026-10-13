@@ -1,8 +1,8 @@
 # CiviNeo Notify
 
 `de.polbeo.civicrm.civineonotify` is an AGPL-3.0-or-later CiviCRM extension for
-rule-based outbound notifications. Matrix is its first transport. It is
-currently an alpha and is disabled by default.
+rule-based outbound notifications. Matrix and Mattermost incoming webhooks are
+supported transports. It is currently an alpha and is disabled by default.
 
 ## Why “CiviNeo Notify”?
 
@@ -21,10 +21,10 @@ product direction is to support further destinations and messenger services.
 - Renders an explicit, small token set and writes materialized delivery records
   to a persistent outbox.
 - Provides a searchable event selector, JSON conditions, editable transport and
-  destination records, delivery log, and an explicitly requested Matrix test.
-- Separates hooks from transport. Sending is reserved for a serial scheduled
-  worker and is designed for `matrix-commander-rs` through a safe transport
-  boundary.
+  destination records, delivery log, and an explicitly requested transport
+  test.
+- Separates hooks from transports. Sending is reserved for a serial scheduled
+  worker and uses isolated transport implementations.
 
 No Matrix message is sent at installation or activation. Stage 2 inbound Matrix
 commands are documented but intentionally not present.
