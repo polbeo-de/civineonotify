@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add a parallel Mattermost API transport using protected external API-token
+  storage and channel-ID destinations; rename the existing UI label to
+  Mattermost (Webhook).
 - Add an experimental Matrix-Nio SAS flow which invites a selected member of
   the active default destination to a reusable unencrypted verification room,
   without sharing room keys during verification; retain the existing

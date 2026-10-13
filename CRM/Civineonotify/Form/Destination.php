@@ -13,7 +13,7 @@ final class CRM_Civineonotify_Form_Destination extends CRM_Core_Form {
     $this->add('select', 'transport_id', E::ts('Transport'), civineonotify_transportOptions(), TRUE, ['class' => 'crm-select2']);
     $transportDestinationTypes = [];
     foreach (\Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('is_active', '=', TRUE)->execute() as $transport) {
-      $transportDestinationTypes[(string) $transport['id']] = $transport['transport_type'] === 'mattermost_webhook' ? 'mattermost_channel' : 'matrix_room';
+      $transportDestinationTypes[(string) $transport['id']] = in_array($transport['transport_type'], ['mattermost_webhook', 'mattermost_api'], TRUE) ? 'mattermost_channel' : 'matrix_room';
     }
     $this->assign('transportDestinationTypesJson', json_encode($transportDestinationTypes, JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
     $this->add('text', 'name', E::ts('Destination name'), ['size' => 70], TRUE);
@@ -40,15 +40,18 @@ final class CRM_Civineonotify_Form_Destination extends CRM_Core_Form {
     $v = $this->exportValues();
     $transport = \Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', (int) $v['transport_id'])->execute()->first();
     $type = (string) ($v['destination_type'] ?? '');
-    if (!$transport || (($transport['transport_type'] === 'mattermost_webhook') !== ($type === 'mattermost_channel'))) { $this->setElementError('destination_type', E::ts('Choose a destination type supported by the selected transport.')); return; }
+    $mattermost = in_array((string) ($transport['transport_type'] ?? ''), ['mattermost_webhook', 'mattermost_api'], TRUE);
+    if (!$transport || ($mattermost !== ($type === 'mattermost_channel'))) { $this->setElementError('destination_type', E::ts('Choose a destination type supported by the selected transport.')); return; }
     if ($type === 'matrix_room' && empty($v['room_id']) && empty($v['room_alias'])) { $this->setElementError('room_id', E::ts('Provide a Matrix room ID or alias.')); return; }
     $existing = $this->id ? (\Civi\Api4\CiviNeoNotifyDestination::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? []) : [];
     $existingConfig = is_array($existing['config_json'] ?? NULL) ? $existing['config_json'] : [];
-    if ($type === 'mattermost_channel' && empty($existingConfig['token_key']) && trim((string) ($v['webhook_token'] ?? '')) === '') { $this->setElementError('webhook_token', E::ts('Enter a Mattermost hook token.')); return; }
-    $config = $type === 'mattermost_channel' ? ['channel' => trim((string) ($v['channel'] ?? '')) ?: NULL, 'token_key' => $existingConfig['token_key'] ?? bin2hex(random_bytes(16))] : ['room_id' => trim((string) ($v['room_id'] ?? '')) ?: NULL, 'room_alias' => trim((string) ($v['room_alias'] ?? '')) ?: NULL];
+    $webhook = ($transport['transport_type'] ?? '') === 'mattermost_webhook';
+    if ($type === 'mattermost_channel' && trim((string) ($v['channel'] ?? '')) === '' && !$webhook) { $this->setElementError('channel', E::ts('Enter a Mattermost channel ID.')); return; }
+    if ($type === 'mattermost_channel' && $webhook && empty($existingConfig['token_key']) && trim((string) ($v['webhook_token'] ?? '')) === '') { $this->setElementError('webhook_token', E::ts('Enter a Mattermost hook token.')); return; }
+    $config = $type === 'mattermost_channel' ? array_filter(['channel' => trim((string) ($v['channel'] ?? '')) ?: NULL, 'token_key' => $webhook ? ($existingConfig['token_key'] ?? bin2hex(random_bytes(16))) : NULL], static fn($value) => $value !== NULL) : ['room_id' => trim((string) ($v['room_id'] ?? '')) ?: NULL, 'room_alias' => trim((string) ($v['room_alias'] ?? '')) ?: NULL];
     $record = ['transport_id' => (int) $v['transport_id'], 'name' => trim((string) $v['name']), 'description' => trim((string) ($v['description'] ?? '')), 'destination_type' => $type, 'config_json' => $config, 'is_active' => !empty($v['is_active'])];
     if ($this->id) \Civi\Api4\CiviNeoNotifyDestination::update(FALSE)->setWhere([['id', '=', $this->id]])->setValues($record)->execute(); else { $created = \Civi\Api4\CiviNeoNotifyDestination::create(FALSE)->setValues($record)->execute()->first(); $this->id = (int) $created['id']; }
-    if ($type === 'mattermost_channel' && trim((string) ($v['webhook_token'] ?? '')) !== '') {
+    if ($type === 'mattermost_channel' && $webhook && trim((string) ($v['webhook_token'] ?? '')) !== '') {
       $transportConfig = is_array($transport['config_json'] ?? NULL) ? $transport['config_json'] : [];
       try { (new MattermostTokenStore((string) ($transportConfig['token_store_file'] ?? '')))->put((string) $config['token_key'], trim((string) $v['webhook_token'])); }
       catch (\Throwable) { $this->setElementError('webhook_token', E::ts('The Mattermost token could not be stored.')); return; }

@@ -5,7 +5,7 @@ list provides a **Test** action which immediately sends the configured default
 message template to its default destination and records the outcome in the
 delivery log.
 
-## Mattermost incoming webhook
+## Mattermost (Webhook)
 
 Create a Mattermost incoming-webhook transport with its HTTPS server URL, an
 optional hooks path (default: `hooks`), and an absolute path to a protected
@@ -35,9 +35,16 @@ Each transport has an independent delivery status and retry history. Therefore,
 a Mattermost failure does not prevent delivery through a parallel Matrix or
 other configured transport.
 
-The Mattermost REST API is planned as a future transport type. It is not
-implemented by the incoming-webhook transport and its credentials must likewise
-remain outside CiviCRM.
+## Mattermost (API)
+
+The API transport uses a Mattermost personal access token or bot token stored
+in the protected external token store. Configure the HTTPS server URL and the
+token store, then add destinations with Mattermost channel IDs. It posts through
+the Mattermost v4 posts API. Channel discovery is a future administration
+improvement; no API token is stored in CiviCRM.
+
+Incoming webhooks do not support channel discovery; their credentials must
+likewise remain outside CiviCRM.
 
 ## Matrix
 

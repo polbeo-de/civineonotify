@@ -1,7 +1,7 @@
 # CiviNeo Notify
 
 `de.polbeo.civicrm.civineonotify` is an AGPL-3.0-or-later CiviCRM extension for
-rule-based outbound notifications. Matrix and Mattermost incoming webhooks are
+rule-based outbound notifications. Matrix and Mattermost Webhook/API transports are
 supported transports. It is currently an alpha and is disabled by default.
 
 ## Why “CiviNeo Notify”?

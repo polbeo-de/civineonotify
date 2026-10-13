@@ -10,6 +10,7 @@ final class TransportFactory {
       'matrix_commander_rs' => new MatrixCommanderRsTransport($config),
       'matrix_nio' => new MatrixNioTransport($config),
       'mattermost_webhook' => new MattermostWebhookTransport($config),
+      'mattermost_api' => new MattermostApiTransport($config),
       default => throw new \InvalidArgumentException('Unsupported transport type.'),
     };
   }
