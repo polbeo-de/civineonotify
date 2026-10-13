@@ -5,6 +5,10 @@ list provides a **Test** action which immediately sends the configured default
 message template to its default destination and records the outcome in the
 delivery log.
 
+The **Test** action uses a fixed, readable test body: the rendered test event
+name followed by `Hello World`. It does not change the template used for normal
+CiviCRM event notifications.
+
 ## Protected transport storage directory
 
 Set **Protected transport storage directory** in CiviNeo Notify settings to an
