@@ -63,16 +63,16 @@ final class CRM_Civineonotify_Form_Admin extends CRM_Core_Form {
   private function transportStatus(array $transport): array {
     $type = (string) ($transport['transport_type'] ?? '');
     if (!in_array($type, ['matrix_commander_rs', 'matrix_nio'], TRUE)) {
-      return ['provisioning_status' => E::ts('Not applicable'), 'trust_status' => E::ts('Not applicable'), 'is_matrix_nio' => FALSE];
+      return ['provisioning_status' => E::ts('Not applicable'), 'trust_status' => E::ts('Not applicable'), 'is_matrix_nio' => FALSE, 'is_matrix_transport' => FALSE];
     }
     $config = is_array($transport['config_json'] ?? NULL) ? $transport['config_json'] : [];
     $provisioning = $this->readProvisioningStatus((string) ($config['provision_status_file'] ?? ''));
     if ($provisioning === '') $provisioning = E::ts('Not provisioned');
     if ($type !== 'matrix_nio') {
-      return ['provisioning_status' => $provisioning, 'trust_status' => E::ts('Not applicable'), 'is_matrix_nio' => FALSE];
+      return ['provisioning_status' => $provisioning, 'trust_status' => E::ts('Not applicable'), 'is_matrix_nio' => FALSE, 'is_matrix_transport' => TRUE];
     }
     $trust = $this->readVerificationStatus((string) ($config['verification_status_file'] ?? ''));
-    return ['provisioning_status' => $provisioning, 'trust_status' => $trust, 'is_matrix_nio' => TRUE];
+    return ['provisioning_status' => $provisioning, 'trust_status' => $trust, 'is_matrix_nio' => TRUE, 'is_matrix_transport' => TRUE];
   }
 
   private function readProvisioningStatus(string $file): string {

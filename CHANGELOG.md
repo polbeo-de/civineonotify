@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.0.3-alpha.1
+
+- Preserve Matrix-Nio SAS cancellation codes in verification status for
+  actionable diagnostics.
+- Fix Mattermost transport edits so selecting a default destination does not
+  require the hidden Matrix working-directory field.
+- Limit destination-type choices to the type supported by the selected
+  transport.
+- Add a Mattermost incoming-webhook transport with configurable server URL and
+  hooks path, external per-destination token storage, masked token display,
+  optional server-permitted channel overrides, and per-transport delivery
+  status handling.
+- Add Mattermost destination management and a transport **Test** action that
+  immediately posts to the configured webhook default channel and records the
+  outcome in the delivery log.
+- Generalize the transport message and destination contracts so Matrix and
+  Mattermost can deliver the same queued CiviCRM event independently.
+
+### Known alpha limitation
+
+- Matrix-Nio recipient verification between different Matrix users still needs
+  a standards-compliant in-room SAS flow. The Mattermost incoming-webhook
+  transport is unaffected.
+
 ## Unreleased
 
 - Complete the Matrix-Nio/Element SAS verification flow on staging: compare

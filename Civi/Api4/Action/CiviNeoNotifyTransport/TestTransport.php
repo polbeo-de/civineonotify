@@ -11,8 +11,8 @@ use Civi\Api4\Generic\AbstractAction;
 use Civi\Api4\Generic\Result;
 use Civi\Civineonotify\Event\NormalizedEvent;
 use Civi\Civineonotify\Rule\MessageRenderer;
-use Civi\Civineonotify\Transport\MatrixDestination;
-use Civi\Civineonotify\Transport\MatrixMessage;
+use Civi\Civineonotify\Transport\NotificationDestination;
+use Civi\Civineonotify\Transport\NotificationMessage;
 use Civi\Civineonotify\Transport\TransportFactory;
 
 final class TestTransport extends AbstractAction {
@@ -44,8 +44,8 @@ final class TestTransport extends AbstractAction {
     try { $client = TransportFactory::create((string) $transport['transport_type'], $config); }
     catch (\Throwable) { throw new \CRM_Core_Exception('The transport type is unsupported.'); }
     $response = $client->send(
-      new MatrixMessage($body, (string) \Civi::settings()->get('civineonotify_default_message_format')),
-      new MatrixDestination($destinationConfig['room_id'] ?? NULL, $destinationConfig['room_alias'] ?? NULL),
+      new NotificationMessage($body, (string) \Civi::settings()->get('civineonotify_default_message_format')),
+      new NotificationDestination($destinationConfig),
       $transactionId,
     );
     CiviNeoNotifyDelivery::create(FALSE)->setValues([
@@ -54,7 +54,7 @@ final class TestTransport extends AbstractAction {
       'transaction_id' => $transactionId, 'message_body' => $body, 'payload_json' => ['origin' => 'manual_transport_test'],
       'status' => $response->success ? 'sent' : ($response->deliveryUnknown ? 'delivery_unknown' : 'failed'),
       'attempt_count' => 1, 'last_attempt_at' => gmdate('Y-m-d H:i:s'), 'sent_at' => $response->success ? gmdate('Y-m-d H:i:s') : NULL,
-      'external_id' => $response->matrixEventId, 'exit_code' => $response->exitCode,
+      'external_id' => $response->externalId, 'exit_code' => $response->exitCode,
       'error_code' => $response->success ? NULL : $response->category, 'error_message' => $response->message,
     ])->execute();
     $result[] = ['success' => $response->success, 'category' => $response->category, 'message' => $response->message];

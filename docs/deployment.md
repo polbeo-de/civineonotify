@@ -15,22 +15,11 @@ external administrator downloads for installation.
 
 ## Staging deployment
 
-Advance `staging` deliberately, then deploy its current remote commit:
-
-```bash
-git switch staging
-git merge --ff-only main
-git push <staging-remote> staging
-bin/deploy-staging \
-  --host <staging-host> \
-  --civi-root <civicrm-root> \
-  --cv <cv-path>
-```
-
-The script fetches `origin/staging`, builds a validated ZIP from that exact
-commit, transfers it to the host, switches only the extension directory,
-enables the extension, and runs `upgrade:db`. It deliberately does not invoke
-notification jobs.
+Staging deployment is performed by private operator automation. It deploys only
+the exact current `origin/staging` commit as a validated extension ZIP, enables
+the extension, and runs its forward-only database upgrades. The public
+repository intentionally contains no server connection details or deployment
+automation.
 
 ## Release artifact and production deployment
 
@@ -50,22 +39,10 @@ Validate the archive before publishing it to the designated forge. The archive
 contains exactly one top-level directory:
 `de.polbeo.civicrm.civineonotify/`.
 
-The production deployer compares the supplied asset byte-for-byte with a fresh
-archive rebuilt from the local annotated tag. It has no branch or checkout
-mode:
-
-```bash
-bin/deploy-release \
-  --artifact "dist/civineonotify-${VERSION}.zip" \
-  --version "$VERSION" \
-  --host <production-host> \
-  --civi-root <civicrm-root> \
-  --cv <cv-path>
-```
-
-The CiviCRM and `cv` paths must be supplied by the maintainer before the first
-production deployment; they are intentionally not guessed or baked into the
-repository.
+Private operator automation compares the supplied asset byte-for-byte with a
+fresh archive rebuilt from the annotated tag. It has no branch or checkout
+mode. Server connection details and deployment paths are intentionally absent
+from this repository.
 
 ## Retention and recovery
 
