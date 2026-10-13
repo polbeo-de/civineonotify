@@ -46,9 +46,11 @@ other configured transport.
 
 The API transport uses a Mattermost personal access token or bot token stored
 in the protected external token store. Configure the HTTPS server URL and the
-token store, then add destinations with Mattermost channel IDs. It posts through
-the Mattermost v4 posts API. Channel discovery is a future administration
-improvement; no API token is stored in CiviCRM.
+token store, then add a destination and choose one of the channels accessible
+to that token. The extension reads public and private team channels through the
+Mattermost v4 API; it does not store the token in CiviCRM. The channel ID is
+stored internally in the destination configuration, while the administrator
+sees the team and channel names.
 
 Incoming webhooks do not support channel discovery; their credentials must
 likewise remain outside CiviCRM.
