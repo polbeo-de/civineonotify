@@ -13,7 +13,7 @@
     <tr class="external-token-field"><td class="label">{$form.token_store_file.label}</td><td>{$form.token_store_file.html}<div class="description">{ts}Protected external JSON token store. Tokens are never stored in CiviCRM.{/ts}</div></td></tr>
     <tr class="mattermost-api-field"><td class="label">{$form.api_token.label}</td><td>{$form.api_token.html}<div class="description">{ts}Stored outside CiviCRM in the protected token store.{/ts}</div></td></tr>
     <tr class="mastodon-field"><td class="label">{$form.instance_url.label}</td><td>{$form.instance_url.html}</td></tr>
-    <tr class="mastodon-field"><td class="label">{$form.mastodon_access_token.label}</td><td>{$form.mastodon_access_token.html}<div class="description">{ts}Stored outside CiviCRM in the protected token store.{/ts}</div></td></tr>
+    <tr class="mastodon-field"><td class="label">{$form.mastodon_access_token.label}</td><td>{$form.mastodon_access_token.html}<div class="description">{ts}Stored outside CiviCRM in the protected token store.{/ts}</div>{if $mastodonTokenSuffix}<div class="description">{ts}Stored token:{/ts} ••••{$mastodonTokenSuffix|escape}</div>{/if}</td></tr>
     <tr class="mastodon-field"><td class="label">{$form.mastodon_visibility.label}</td><td>{$form.mastodon_visibility.html}</td></tr>
     <tr class="mastodon-field"><td class="label">{$form.mastodon_language.label}</td><td>{$form.mastodon_language.html}</td></tr>
     <tr class="mastodon-field"><td class="label">{$form.mastodon_spoiler_text.label}</td><td>{$form.mastodon_spoiler_text.html}</td></tr>
