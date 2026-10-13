@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Let Matrix-Nio SAS verification select recipient devices from the default
+  destination, allowing separately provisioned bot accounts to establish the
+  trust required for encrypted delivery.
 - Fix Mattermost transport edits so selecting a default destination does not
   require the hidden Matrix working-directory field.
 - Limit destination-type choices to the type supported by the selected

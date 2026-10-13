@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""List the other Matrix devices of the logged-in user without exposing secrets."""
+"""List devices of members in one Matrix room without exposing secrets."""
 from __future__ import annotations
 
 import argparse
@@ -22,6 +22,7 @@ async def main() -> int:
   parser.add_argument('--homeserver', required=True)
   parser.add_argument('--session-file', type=Path, required=True)
   parser.add_argument('--store-path', type=Path, required=True)
+  parser.add_argument('--room-id', required=True)
   arguments = parser.parse_args()
   private(arguments.session_file); private(arguments.store_path, True)
   session = json.loads(arguments.session_file.read_text())
@@ -32,8 +33,19 @@ async def main() -> int:
     if not isinstance(response, SyncResponse): raise RuntimeError('Matrix device sync failed.')
     response = await client.keys_query()
     if not isinstance(response, KeysQueryResponse): raise RuntimeError('Matrix device query failed.')
-    own_devices = client.device_store[session['user_id']]
-    devices = [{'id': device_id, 'name': f"{getattr(device, 'display_name', '') or device_id} ({device_id})"} for device_id, device in own_devices.items() if device_id != session['device_id']]
+    room = client.rooms.get(arguments.room_id)
+    if room is None:
+      raise RuntimeError('Matrix room is not available.')
+    devices = []
+    for user_id in sorted(room.users):
+      for device_id, device in client.device_store[user_id].items():
+        if user_id == session['user_id'] and device_id == session['device_id']:
+          continue
+        devices.append({
+          'user_id': user_id,
+          'id': device_id,
+          'name': f"{getattr(device, 'display_name', '') or device_id} ({device_id})",
+        })
     print(json.dumps({'devices': devices}, separators=(',', ':')))
     return 0
   finally:

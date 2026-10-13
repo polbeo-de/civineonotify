@@ -57,9 +57,10 @@ files, administration UI, and delivery policy — remain in this extension.
 
 ## Operator guidance
 
-- A successful **Verify Matrix Nio device** result means the selected Element
-  device is trusted by the CiviNeo Matrix-Nio store. It does not automatically
-  trust other newly created Element devices.
+- A successful **Verify Matrix Nio device** result means the selected recipient
+  device in the default destination is trusted by the CiviNeo Matrix-Nio
+  store. It does not automatically trust other newly created recipient
+  devices.
 - Do not enable **allow unverified recipient devices** merely to make a warning
   disappear. It is a separate security decision that allows room-key sharing
   with unverified recipient devices.

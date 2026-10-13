@@ -20,7 +20,7 @@ async def main() -> int:
   p = argparse.ArgumentParser(description=__doc__)
   p.add_argument('--homeserver', required=True); p.add_argument('--session-file', type=Path, required=True)
   p.add_argument('--store-path', type=Path, required=True); p.add_argument('--status-file', type=Path, required=True)
-  p.add_argument('--target-device-id', required=True)
+  p.add_argument('--target-user-id', required=True); p.add_argument('--target-device-id', required=True)
   p.add_argument('--confirm-file', type=Path, required=True); p.add_argument('--cancel-file', type=Path, required=True)
   p.add_argument('--max-seconds', type=int, default=300)
   a = p.parse_args(); private(a.session_file); private(a.store_path, True)
@@ -31,9 +31,9 @@ async def main() -> int:
     if not isinstance(reply, SyncResponse): status(a.status_file, {'state':'failed'}); return 1
     reply = await c.keys_query()
     if not isinstance(reply, KeysQueryResponse): status(a.status_file, {'state':'failed'}); return 1
-    peer = c.device_store[data['user_id']].get(a.target_device_id)
+    peer = c.device_store[a.target_user_id].get(a.target_device_id)
     if peer is None: status(a.status_file, {'state':'failed'}); return 1
-    request = ToDeviceMessage('m.key.verification.request', data['user_id'], a.target_device_id, {'from_device': data['device_id'], 'methods': ['m.sas.v1'], 'timestamp': int(time.time() * 1000), 'transaction_id': transaction})
+    request = ToDeviceMessage('m.key.verification.request', a.target_user_id, a.target_device_id, {'from_device': data['device_id'], 'methods': ['m.sas.v1'], 'timestamp': int(time.time() * 1000), 'transaction_id': transaction})
     reply = await c.to_device(request)
     if not isinstance(reply, ToDeviceResponse): status(a.status_file, {'state':'failed'}); return 1
     status(a.status_file, {'state':'waiting', 'phase':'request_sent'})
@@ -46,7 +46,7 @@ async def main() -> int:
         content = source.get('content', {})
         event_type = source.get('type')
         if isinstance(event_type, str) and event_type not in observed and len(observed) < 8: observed.append(event_type)
-        if event_type == 'm.key.verification.ready' and source.get('sender') == data['user_id'] and content.get('from_device') == a.target_device_id and content.get('transaction_id') == transaction: ready = True
+        if event_type == 'm.key.verification.ready' and source.get('sender') == a.target_user_id and content.get('from_device') == a.target_device_id and content.get('transaction_id') == transaction: ready = True
       if ready and not started:
         status(a.status_file, {'state':'waiting', 'phase':'ready_received', 'events':observed})
         reply = await c.start_key_verification(peer, transaction_id=transaction)
@@ -71,7 +71,7 @@ async def main() -> int:
         # receives this protocol-level acknowledgement.
         done = ToDeviceMessage(
           'm.key.verification.done',
-          data['user_id'],
+          a.target_user_id,
           a.target_device_id,
           {'transaction_id': transaction},
         )
