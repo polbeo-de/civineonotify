@@ -11,6 +11,7 @@ final class TransportFactory {
       'matrix_nio' => new MatrixNioTransport($config),
       'mattermost_webhook' => new MattermostWebhookTransport($config),
       'mattermost_api' => new MattermostApiTransport($config),
+      'mastodon' => new MastodonTransport($config),
       default => throw new \InvalidArgumentException('Unsupported transport type.'),
     };
   }
