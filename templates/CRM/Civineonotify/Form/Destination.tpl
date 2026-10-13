@@ -23,9 +23,10 @@ var civineonotifyMattermostApiChannelErrors = {$mattermostApiChannelErrorsJson n
 CRM.$(function($) {
   function chooseDestination() {
     var mattermost = $('#destination_type').val() === 'mattermost_channel';
+    var mastodon = $('#destination_type').val() === 'mastodon_account';
     var transportId = $('#transport_id').val();
     var api = Object.prototype.hasOwnProperty.call(civineonotifyMattermostApiChannels, transportId) || Object.prototype.hasOwnProperty.call(civineonotifyMattermostApiChannelErrors, transportId);
-    $('.matrix-field').toggle(!mattermost);
+    $('.matrix-field').toggle(!mattermost && !mastodon);
     $('.mattermost-webhook-field').toggle(mattermost && !api);
     $('.mattermost-api-field').toggle(mattermost && api);
     if (mattermost && api) {

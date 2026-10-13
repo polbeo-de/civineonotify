@@ -10,12 +10,19 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
   public function buildQuickForm(): void {
     CRM_Utils_System::setTitle(E::ts($this->id ? 'Edit transport' : 'Add transport'));
     $this->add('text', 'name', E::ts('Transport name'), ['size' => 70], TRUE);
-    $this->add('select', 'transport_type', E::ts('Transport type'), ['matrix_commander_rs' => E::ts('Matrix Commander'), 'matrix_nio' => E::ts('Matrix Nio'), 'mattermost_webhook' => E::ts('Mattermost (Webhook)'), 'mattermost_api' => E::ts('Mattermost (API)')], TRUE);
+    $this->add('select', 'transport_type', E::ts('Transport type'), ['matrix_commander_rs' => E::ts('Matrix Commander'), 'matrix_nio' => E::ts('Matrix Nio'), 'mattermost_webhook' => E::ts('Mattermost (Webhook)'), 'mattermost_api' => E::ts('Mattermost (API)'), 'mastodon' => E::ts('Mastodon')], TRUE);
     foreach (['binary_path' => 'Matrix Commander binary', 'credentials_path' => 'Credentials file', 'store_path' => 'Encryption store', 'working_directory' => 'Working directory', 'timeout_seconds' => 'Timeout (seconds)', 'homeserver' => 'Matrix homeserver', 'python_path' => 'Python executable', 'nio_client_path' => 'Matrix Nio client', 'session_path' => 'Protected Matrix Nio session'] as $field => $label) $this->add('text', $field, E::ts($label), ['size' => 70]);
     $this->add('text', 'server_url', E::ts('Mattermost server URL'), ['size' => 70]);
     $this->add('text', 'hooks_path', E::ts('Mattermost hooks path'), ['size' => 70]);
     $this->add('text', 'token_store_file', E::ts('Mattermost token store file'), ['size' => 70]);
     $this->add('password', 'api_token', E::ts('Mattermost API token'), ['size' => 70]);
+    $this->add('text', 'instance_url', E::ts('Mastodon instance URL'), ['size' => 70]);
+    $this->add('password', 'mastodon_access_token', E::ts('Mastodon access token'), ['size' => 70]);
+    $this->add('select', 'mastodon_visibility', E::ts('Default Mastodon visibility'), ['public' => E::ts('Public'), 'unlisted' => E::ts('Unlisted'), 'private' => E::ts('Followers only')]);
+    $languages = ['' => E::ts('- No language -')];
+    foreach (\CRM_Contact_BAO_Contact::buildOptions('preferred_language') as $locale => $label) $languages[str_replace('_', '-', (string) $locale)] = (string) $label;
+    $this->add('select', 'mastodon_language', E::ts('Default Mastodon language'), $languages, FALSE, ['class' => 'crm-select2']);
+    $this->add('text', 'mastodon_spoiler_text', E::ts('Default Mastodon content warning'), ['size' => 70]);
     $this->add('checkbox', 'allow_unverified_recipient_devices', E::ts('Allow unverified recipient devices'));
     $destinationOptions = $this->id
       ? civineonotify_destinationOptions(TRUE, $this->id, E::ts('- No default destination -'))
@@ -29,22 +36,45 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $this->addButtons([['type' => 'submit', 'name' => E::ts('Save transport'), 'isDefault' => TRUE], ['type' => 'cancel', 'name' => E::ts('Cancel')]]);
     if ($this->id) {
       $row = \Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? [];
+      if (($row['transport_type'] ?? NULL) === 'mastodon') {
+        $config = is_array($row['config_json'] ?? NULL) ? $row['config_json'] : [];
+        try {
+          $suffix = !empty($config['token_store_file']) && !empty($config['api_token_key']) ? (new \Civi\Civineonotify\Transport\MattermostTokenStore((string) $config['token_store_file']))->suffix((string) $config['api_token_key']) : '';
+          $this->assign('mastodonTokenSuffix', $suffix);
+        }
+        catch (\Throwable) { $this->assign('mastodonTokenSuffix', ''); }
+      }
+      if (($row['transport_type'] ?? NULL) === 'mattermost_api') {
+        $config = is_array($row['config_json'] ?? NULL) ? $row['config_json'] : [];
+        try {
+          $suffix = !empty($config['token_store_file']) && !empty($config['api_token_key']) ? (new \Civi\Civineonotify\Transport\MattermostTokenStore((string) $config['token_store_file']))->suffix((string) $config['api_token_key']) : '';
+          $this->assign('mattermostApiTokenSuffix', $suffix);
+        }
+        catch (\Throwable) { $this->assign('mattermostApiTokenSuffix', ''); }
+      }
       if (in_array($row['transport_type'] ?? NULL, ['matrix_commander_rs', 'matrix_nio'], TRUE)) $this->assign('provisionUrl', CRM_Utils_System::url('civicrm/admin/civineonotify/provision-matrix', ['reset' => 1, 'id' => $this->id]));
       if (($row['transport_type'] ?? NULL) === 'matrix_nio') $this->assign('verifyUrl', CRM_Utils_System::url('civicrm/admin/civineonotify/verify-matrix-nio', ['reset' => 1, 'id' => $this->id]));
     }
   }
   public function setDefaultValues(): array {
-    if (!$this->id) { $protected=(string)\Civi::settings()->get('civineonotify_protected_transport_storage_directory'); return ['is_active' => 1, 'transport_type' => 'matrix_commander_rs', 'timeout_seconds' => 30, 'working_directory' => $protected ?: '/tmp', 'token_store_file' => $protected ? rtrim($protected, '/') . '/mattermost-tokens.json' : '', 'nio_client_path' => dirname(__DIR__, 3) . '/bin/matrix-nio-client']; }
+    if (!$this->id) { $protected=(string)\Civi::settings()->get('civineonotify_protected_transport_storage_directory'); return ['is_active' => 1, 'transport_type' => 'matrix_commander_rs', 'timeout_seconds' => 30, 'working_directory' => $protected ?: '/tmp', 'token_store_file' => $protected ? rtrim($protected, '/') . '/mattermost-tokens.json' : '', 'nio_client_path' => dirname(__DIR__, 3) . '/bin/matrix-nio-client', 'mastodon_visibility' => 'public']; }
     $row = \Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? [];
-    return array_merge($row, is_array($row['config_json'] ?? NULL) ? $row['config_json'] : []);
+    $config = is_array($row['config_json'] ?? NULL) ? $row['config_json'] : [];
+    $defaults = array_merge($row, $config);
+    if (($row['transport_type'] ?? NULL) === 'mastodon') {
+      $defaults['mastodon_visibility'] = $config['visibility'] ?? 'public';
+      $defaults['mastodon_language'] = $config['language'] ?? '';
+      $defaults['mastodon_spoiler_text'] = $config['spoiler_text'] ?? '';
+    }
+    return $defaults;
   }
   public function postProcess(): void {
     $v = $this->exportValues();
     $existing = $this->id ? (\Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? []) : [];
     $existingConfig = is_array($existing['config_json'] ?? NULL) ? $existing['config_json'] : [];
     $type = (string) $v['transport_type'];
-    if (in_array($type, ['mattermost_webhook', 'mattermost_api'], TRUE) && empty($v['token_store_file'])) { $protected=(string)\Civi::settings()->get('civineonotify_protected_transport_storage_directory'); if ($protected !== '') $v['token_store_file']=rtrim($protected, '/') . '/mattermost-tokens.json'; }
-    if (!in_array($type, ['matrix_commander_rs', 'matrix_nio', 'mattermost_webhook', 'mattermost_api'], TRUE)) { $this->setElementError('transport_type', E::ts('Choose a supported transport type.')); return; }
+    if (in_array($type, ['mattermost_webhook', 'mattermost_api', 'mastodon'], TRUE) && empty($v['token_store_file'])) { $protected=(string)\Civi::settings()->get('civineonotify_protected_transport_storage_directory'); if ($protected !== '') $v['token_store_file']=rtrim($protected, '/') . ($type === 'mastodon' ? 'mastodon-tokens.json' : 'mattermost-tokens.json'); }
+    if (!in_array($type, ['matrix_commander_rs', 'matrix_nio', 'mattermost_webhook', 'mattermost_api', 'mastodon'], TRUE)) { $this->setElementError('transport_type', E::ts('Choose a supported transport type.')); return; }
     if (in_array($type, ['matrix_commander_rs', 'matrix_nio'], TRUE)) {
       foreach (['working_directory'] as $path) if (empty($v[$path]) || !str_starts_with((string) $v[$path], '/')) { $this->setElementError($path, E::ts('Use an absolute path.')); return; }
     }
@@ -54,6 +84,13 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
       $config = array_filter(array_intersect_key($v, array_flip(['server_url', 'token_store_file', 'timeout_seconds'])), static fn($value) => $value !== '' && $value !== NULL);
       if ($type === 'mattermost_webhook') $config['hooks_path'] = trim((string) ($v['hooks_path'] ?? 'hooks'), '/');
       if ($type === 'mattermost_api') { $config['api_token_key'] = $existingConfig['api_token_key'] ?? bin2hex(random_bytes(16)); if (trim((string)($v['api_token']??'')) === '' && empty($existingConfig['api_token_key'])) { $this->setElementError('api_token', E::ts('Enter a Mattermost API token.')); return; } }
+    }
+    elseif ($type === 'mastodon') {
+      if (!preg_match('#^https://[^\s]+$#', (string) $v['instance_url'])) { $this->setElementError('instance_url', E::ts('Use an HTTPS Mastodon instance URL.')); return; }
+      if (empty($v['token_store_file']) || !str_starts_with((string) $v['token_store_file'], '/') || !is_dir(dirname((string) $v['token_store_file'])) || !is_writable(dirname((string) $v['token_store_file']))) { $this->setElementError('token_store_file', E::ts('Use an absolute path in a writable protected directory for the token store.')); return; }
+      if (!in_array((string) $v['mastodon_visibility'], ['public', 'unlisted', 'private'], TRUE)) { $this->setElementError('mastodon_visibility', E::ts('Choose a supported Mastodon visibility.')); return; }
+      $config = array_filter(['instance_url' => rtrim((string) $v['instance_url'], '/'), 'token_store_file' => (string) $v['token_store_file'], 'timeout_seconds' => (int) $v['timeout_seconds'], 'visibility' => (string) $v['mastodon_visibility'], 'language' => trim((string) $v['mastodon_language']), 'spoiler_text' => trim((string) $v['mastodon_spoiler_text']), 'api_token_key' => $existingConfig['api_token_key'] ?? bin2hex(random_bytes(16))], static fn($value) => $value !== '');
+      if (trim((string) ($v['mastodon_access_token'] ?? '')) === '' && empty($existingConfig['api_token_key'])) { $this->setElementError('mastodon_access_token', E::ts('Enter a Mastodon access token.')); return; }
     }
     elseif ($type === 'matrix_commander_rs') {
       if (!is_file((string) $v['binary_path']) || !is_executable((string) $v['binary_path'])) { $this->setElementError('binary_path', E::ts('The Matrix Commander binary does not exist or is not executable.')); return; }
@@ -75,6 +112,7 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $record = ['name' => trim((string) $v['name']), 'description' => trim((string) ($v['description'] ?? '')), 'transport_type' => (string) $v['transport_type'], 'config_json' => $config, 'default_destination_id' => (int) ($v['default_destination_id'] ?? 0) ?: NULL, 'is_active' => !empty($v['is_active'])];
     if ($this->id) \Civi\Api4\CiviNeoNotifyTransport::update(FALSE)->setWhere([['id', '=', $this->id]])->setValues($record)->execute(); else { $created=\Civi\Api4\CiviNeoNotifyTransport::create(FALSE)->setValues($record)->execute()->first(); $this->id=(int)$created['id']; }
     if ($type === 'mattermost_api' && trim((string)($v['api_token']??'')) !== '') try { (new \Civi\Civineonotify\Transport\MattermostTokenStore((string)$config['token_store_file']))->put((string)$config['api_token_key'], trim((string)$v['api_token'])); } catch (\Throwable) { throw new CRM_Core_Exception(E::ts('The Mattermost API token could not be stored.')); }
+    if ($type === 'mastodon' && trim((string)($v['mastodon_access_token']??'')) !== '') try { (new \Civi\Civineonotify\Transport\MattermostTokenStore((string)$config['token_store_file']))->put((string)$config['api_token_key'], trim((string)$v['mastodon_access_token'])); } catch (\Throwable) { throw new CRM_Core_Exception(E::ts('The Mastodon access token could not be stored.')); }
     CRM_Core_Session::setStatus(E::ts('Transport saved.'), E::ts('Saved'), 'success'); CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/admin/civineonotify/transports', ['reset' => 1]));
   }
 }

@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## 0.0.3-alpha.3 — 2026-10-14
+
+- Add the Mastodon transport with protected access-token storage, account
+  validation, public/unlisted/followers-only text posts, instance-aware
+  character-limit validation, and stable delivery idempotency keys.
+- Add Mastodon language selection, retained transport-form defaults, and masked
+  suffix displays for stored Mastodon and Mattermost API tokens.
+- Simplify transport test posts to the rendered event name followed by
+  `Hello World`.
+
+## 0.0.3-alpha.2
+
 - Add a shared protected transport storage directory setting for Matrix and
   Mattermost credentials, stores, and runtime files.
 - Add a parallel Mattermost API transport using protected external API-token

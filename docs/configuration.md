@@ -5,6 +5,10 @@ list provides a **Test** action which immediately sends the configured default
 message template to its default destination and records the outcome in the
 delivery log.
 
+The **Test** action uses a fixed, readable test body: the rendered test event
+name followed by `Hello World`. It does not change the template used for normal
+CiviCRM event notifications.
+
 ## Protected transport storage directory
 
 Set **Protected transport storage directory** in CiviNeo Notify settings to an
@@ -68,6 +72,29 @@ only channels accessible to that bot account.
 Incoming webhooks do not support channel discovery; their credentials must
 likewise remain outside CiviCRM.
 
+## Mastodon
+
+The Mastodon transport publishes plain-text notifications through one
+organisation account. Create a personal access token for that account with
+`read:accounts` and `write:statuses` scopes, then configure an HTTPS instance
+URL, the token, default visibility, and optional language or content warning.
+The token is stored only in the protected external token store.
+The language is selected from the CiviCRM language list and stored as a BCP 47
+tag; leave it empty when the account should not declare a post language.
+
+Create one **Mastodon account** destination for each Mastodon transport and set
+it as that transport's default destination. Supported visibility values are
+**Public**, **Unlisted**, and **Followers only**. Direct messages, media,
+polls, threads, and automatic truncation are deliberately unsupported.
+
+The transport validates credentials with Mastodon's account endpoint and reads
+the instance character limit where available. A message over a reliably known
+limit is rejected rather than shortened. Every outbox delivery supplies a
+stable Mastodon idempotency key derived from its transaction ID; a timeout is
+recorded as an unknown delivery outcome to avoid creating a duplicate post.
+Mastodon instance URLs must use HTTPS and must not resolve to local, private,
+link-local, or reserved addresses. Redirects are disabled.
+
 ## Matrix
 
 The verified `matrix-commander-rs` version is 0.11.0. It supports
@@ -103,11 +130,63 @@ Set global defaults, create inactive example rules, then enable both a specific 
 
 ## Rules and conditions
 
-Choose an event from the searchable **Event name** list. The list represents the CiviCRM post-hook events emitted by this extension, for example `civicrm.case.edit`. A rule can optionally also restrict entity type and operation.
+Create rules under **Administration → CiviNeo Notify: Rules**. A rule matches one
+normalised CiviCRM post-hook event and, when it matches, queues one
+notification. Rules with the same event are evaluated by ascending **Priority**
+(then by ID). **Stop after match** prevents later matching rules for that event
+from being evaluated.
 
-Conditions are stored as JSON. `all` requires every clause to match; `any` requires one or more clauses to match. Supported operators are `=`, `!=`, `in`, `not_in`, `contains`, `is_empty`, `is_not_empty`, and `changed`. Fields may refer to `event.*`, `entity.*`, `data.*` (the value after a change), or `previous.*` (the value before a change).
+Every rule needs:
 
-Example: notify only when a case status changes:
+- **Rule name**: an administrator-facing name.
+- **Event name**: an exact event name from the searchable list, for example
+  `civicrm.case.create` or `civicrm.case.edit`. It is not a wildcard or a
+  regular expression.
+- **Message template**: the notification body, using only the documented
+  tokens below.
+- **Conditions (JSON)**: optional additional matching criteria. Leave it empty
+  or use `{}` to match every occurrence of the selected event.
+- **Destination** or **Transport**: select a destination to send there. If
+  only a transport is selected, its active default destination is used. A rule
+  without a resolved transport and destination cannot be queued.
+
+Conditions use exactly one top-level `all` or `any` array. `all` requires every
+clause to match; `any` requires at least one. Each clause has `field` and
+`operator`, with `value` required where the selected operator needs one.
+Supported operators are `=`, `!=`, `in`, `not_in`, `contains`, `is_empty`,
+`is_not_empty`, and `changed`. `in` and `not_in` require an array value.
+`changed` is valid only for `data.*` fields and compares the current value with
+the matching `previous.*` value.
+
+Fields may refer to `event.name` and `event.operation`, `entity.type` and
+`entity.id`, or a key present in `data.*` (the value after a change) and
+`previous.*` (the value before a change). A missing field evaluates as an empty
+value; test such rules with representative records before activating them.
+
+### Example: notify when a new case is created
+
+Create an active rule with these form values:
+
+- **Rule name**: `New case`
+- **Event name**: `civicrm.case.create`
+- **Destination**: the destination that should receive the notification
+- **Message template**: `New case #{case.id}: {case.contact.first_name} {case.contact.last_name}`
+
+The event name already limits this rule to newly created cases, so conditions
+are optional. The following JSON is an explicit, equivalent filter and a useful
+starting point when a rule must combine several criteria:
+
+```json
+{
+  "all": [
+    {"field": "entity.type", "operator": "=", "value": "Case"},
+    {"field": "event.operation", "operator": "=", "value": "create"}
+  ]
+}
+```
+
+For comparison, this filter sends a notification only when a case status
+changes and the case type is one of the listed values:
 
 ```json
 {
@@ -117,6 +196,24 @@ Example: notify only when a case status changes:
   ]
 }
 ```
+
+### Delivery path
+
+Rules do not send messages during the CiviCRM post-hook. The path is:
+
+`CiviCRM post-hook` → `normalised event` → `active matching rule` →
+`rendered message` → `outbox delivery` → `scheduled worker` →
+`transport and destination`.
+
+The selected destination determines its transport. When only a transport is
+set on the rule, CiviNeo Notify resolves that transport's default destination.
+The delivery is stored as `pending` before any external transport is called.
+The serial **CiviNeoNotify: Process outbox** scheduled job invokes
+`CiviNeoNotifyDelivery.runoutbox`; its worker selects due pending or retry
+deliveries, checks that both transport and destination are active, and then
+sends through the appropriate Matrix or Mattermost implementation. Results,
+retry timing, and failures are recorded in the delivery log. A failed delivery
+does not block other queued deliveries.
 
 ## Message templates
 
@@ -129,3 +226,31 @@ For case events, these additional tokens provide readable values:
 - `{case.contact.first_name}` and `{case.contact.last_name}`
 
 For example: `Fall #{case.id}: {case.status.old} → {case.status.new} ({case.contact.first_name} {case.contact.last_name})`.
+
+### Extending the token allowlist
+
+Adding a token is a code change, not an administrator setting. Keep the token
+language deliberately small: a token must expose one clearly named,
+non-sensitive value that is useful in a notification. Do not add credentials,
+authentication material, contact details beyond the documented case values, or
+an unrestricted `{data.*}` or `{previous.*}` pattern. Event payloads can carry
+fields that are not suitable for a notification destination.
+
+To add an approved token:
+
+1. Add its exact name to the `$allowed` list in
+   `Civi/Civineonotify/Rule/MessageRenderer.php`.
+2. Add the corresponding value to the `$map` in the same class, or add an
+   equally narrow explicit resolver. Return an empty string when the value is
+   not applicable to the current event; do not load additional CiviCRM records
+   while rendering a message.
+3. Add a unit test in `tests/phpunit/Rule/MessageRendererTest.php` for the
+   rendered value. Keep the test that rejects an undeclared token, and add a
+   rejection test for a nearby sensitive field when appropriate.
+4. Add the token to the list above, with its availability and empty-value
+   behaviour where that is not obvious. Record the user-visible addition in
+   `CHANGELOG.md`.
+
+The renderer validates every placeholder before rendering. Unknown tokens make
+the template invalid rather than being interpreted as Smarty, PHP, a method
+call, or a data lookup.
