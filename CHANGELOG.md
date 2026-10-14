@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add a Bluesky public-post transport with protected App Password storage,
+  PDS discovery, short-lived session refresh, Unicode grapheme validation,
+  automatic URL facets, and stable record-key delivery safety.
+
 ## 0.0.3-alpha.4 — 2026-10-14
 
 - Add a Telegram Bot API transport with protected external bot-token storage,
