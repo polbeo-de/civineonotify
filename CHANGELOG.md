@@ -3,7 +3,7 @@
 ## Unreleased
 
 - Add a Telegram Bot API transport with protected external bot-token storage,
-  group/supergroup/channel delivery, transport-level chat IDs, HTML or plain
+  group/supergroup/channel delivery, per-destination chat IDs, HTML or plain
   text formatting, delivery options, and conservative unknown-outcome handling
   for timeouts.
 

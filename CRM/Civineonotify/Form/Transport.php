@@ -24,7 +24,6 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $this->add('select', 'mastodon_language', E::ts('Default Mastodon language'), $languages, FALSE, ['class' => 'crm-select2']);
     $this->add('text', 'mastodon_spoiler_text', E::ts('Default Mastodon content warning'), ['size' => 70]);
     $this->add('password', 'telegram_bot_token', E::ts('Telegram bot token'), ['size' => 70]);
-    $this->add('text', 'telegram_chat_id', E::ts('Telegram destination chat ID'), ['size' => 30]);
     $this->add('select', 'telegram_parse_mode', E::ts('Telegram formatting'), ['' => E::ts('Plain text'), 'HTML' => E::ts('HTML')]);
     $this->add('checkbox', 'telegram_disable_link_preview', E::ts('Disable Telegram link previews'));
     $this->add('checkbox', 'telegram_disable_notification', E::ts('Send Telegram notifications silently'));
@@ -81,7 +80,6 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
       $defaults['mastodon_spoiler_text'] = $config['spoiler_text'] ?? '';
     }
     if (($row['transport_type'] ?? NULL) === 'telegram') {
-      $defaults['telegram_chat_id'] = $config['chat_id'] ?? '';
       $defaults['telegram_parse_mode'] = $config['parse_mode'] ?? '';
       $defaults['telegram_disable_link_preview'] = !empty($config['disable_link_preview']);
       $defaults['telegram_disable_notification'] = !empty($config['disable_notification']);
@@ -114,9 +112,8 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
       if (trim((string) ($v['mastodon_access_token'] ?? '')) === '' && empty($existingConfig['api_token_key'])) { $this->setElementError('mastodon_access_token', E::ts('Enter a Mastodon access token.')); return; }
     }
     elseif ($type === 'telegram') {
-      if (!preg_match('/^-[0-9]{1,20}$/', trim((string) $v['telegram_chat_id']))) { $this->setElementError('telegram_chat_id', E::ts('Enter a negative numeric Telegram group, supergroup, or channel chat ID.')); return; }
       if (empty($v['token_store_file']) || !str_starts_with((string) $v['token_store_file'], '/') || !is_dir(dirname((string) $v['token_store_file'])) || !is_writable(dirname((string) $v['token_store_file']))) { $this->setElementError('token_store_file', E::ts('Use an absolute path in a writable protected directory for the token store.')); return; }
-      $config = ['token_store_file' => (string)$v['token_store_file'], 'api_token_key' => $existingConfig['api_token_key'] ?? bin2hex(random_bytes(16)), 'chat_id' => trim((string)$v['telegram_chat_id']), 'parse_mode' => (string)$v['telegram_parse_mode'], 'disable_link_preview' => !empty($v['telegram_disable_link_preview']), 'disable_notification' => !empty($v['telegram_disable_notification']), 'protect_content' => !empty($v['telegram_protect_content']), 'timeout_seconds' => (int)$v['timeout_seconds']];
+      $config = ['token_store_file' => (string)$v['token_store_file'], 'api_token_key' => $existingConfig['api_token_key'] ?? bin2hex(random_bytes(16)), 'parse_mode' => (string)$v['telegram_parse_mode'], 'disable_link_preview' => !empty($v['telegram_disable_link_preview']), 'disable_notification' => !empty($v['telegram_disable_notification']), 'protect_content' => !empty($v['telegram_protect_content']), 'timeout_seconds' => (int)$v['timeout_seconds']];
       if (trim((string)($v['telegram_bot_token'] ?? '')) === '' && empty($existingConfig['api_token_key'])) { $this->setElementError('telegram_bot_token', E::ts('Enter a Telegram bot token.')); return; }
     }
     elseif ($type === 'matrix_commander_rs') {

@@ -12,12 +12,12 @@ final class TelegramTransportTest extends TestCase {
     $path = tempnam(sys_get_temp_dir(), 'civineonotify-telegram-');
     file_put_contents($path, json_encode(['key' => 'test-token'], JSON_THROW_ON_ERROR));
     $requests = [];
-    $transport = new TelegramTransport(['token_store_file' => $path, 'api_token_key' => 'key', 'chat_id' => '-100123', 'parse_mode' => 'HTML', 'disable_link_preview' => TRUE], static function (string $method, string $url, array $payload, int $timeout) use (&$requests): array {
+    $transport = new TelegramTransport(['token_store_file' => $path, 'api_token_key' => 'key', 'parse_mode' => 'HTML', 'disable_link_preview' => TRUE], static function (string $method, string $url, array $payload, int $timeout) use (&$requests): array {
       $requests[] = compact('method', 'url', 'payload', 'timeout');
       return ['status' => 200, 'body' => '{"ok":true,"result":{"message_id":42}}'];
     });
     try {
-      $result = $transport->send(new NotificationMessage('Hello'), new NotificationDestination([]), 'delivery-1');
+      $result = $transport->send(new NotificationMessage('Hello'), new NotificationDestination(['chat_id' => '-100123']), 'delivery-1');
       self::assertTrue($result->success);
       self::assertSame('42', $result->externalId);
       self::assertSame('POST', $requests[0]['method']);
@@ -28,18 +28,18 @@ final class TelegramTransportTest extends TestCase {
   }
 
   public function testRejectsDirectChatsAndDoesNotMakeRequest(): void {
-    $transport = new TelegramTransport(['chat_id' => '123456']);
-    self::assertFalse($transport->dryRun('Hello')['valid']);
+    $transport = new TelegramTransport([]);
+    self::assertFalse($transport->dryRun('Hello', ['chat_id' => '123456'])['valid']);
   }
 
   public function testReportsRateLimitAndTimeoutWithoutClaimingDelivery(): void {
     $path = tempnam(sys_get_temp_dir(), 'civineonotify-telegram-');
     file_put_contents($path, json_encode(['key' => 'test-token'], JSON_THROW_ON_ERROR));
     try {
-      $rateLimited = new TelegramTransport(['token_store_file' => $path, 'api_token_key' => 'key', 'chat_id' => '-100123'], static fn(): array => ['status' => 429, 'body' => '{"ok":false,"error_code":429}']);
-      self::assertSame('rate_limited', $rateLimited->send(new NotificationMessage('Hello'), new NotificationDestination([]), 'delivery-1')->category);
-      $timedOut = new TelegramTransport(['token_store_file' => $path, 'api_token_key' => 'key', 'chat_id' => '-100123'], static function (): array { throw new RuntimeException('Operation timed out'); });
-      $result = $timedOut->send(new NotificationMessage('Hello'), new NotificationDestination([]), 'delivery-1');
+      $rateLimited = new TelegramTransport(['token_store_file' => $path, 'api_token_key' => 'key'], static fn(): array => ['status' => 429, 'body' => '{"ok":false,"error_code":429}']);
+      self::assertSame('rate_limited', $rateLimited->send(new NotificationMessage('Hello'), new NotificationDestination(['chat_id' => '-100123']), 'delivery-1')->category);
+      $timedOut = new TelegramTransport(['token_store_file' => $path, 'api_token_key' => 'key'], static function (): array { throw new RuntimeException('Operation timed out'); });
+      $result = $timedOut->send(new NotificationMessage('Hello'), new NotificationDestination(['chat_id' => '-100123']), 'delivery-1');
       self::assertSame('unknown_delivery_state', $result->category);
       self::assertTrue($result->deliveryUnknown);
     }

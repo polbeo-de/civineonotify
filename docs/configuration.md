@@ -104,12 +104,11 @@ token directly in the transport form. CiviNeo Notify stores it only in the
 protected external token store and subsequently displays only its last four
 characters.
 
-Configure a negative numeric chat ID for a group, supergroup, or channel. Add
-the bot to that chat and grant it permission to post before using **Test**.
-Direct messages are deliberately unsupported. Create one neutral **Telegram
-chat** destination for the transport and select it as that transport's default
-destination; the configured chat ID remains on the transport and is not
-duplicated in CiviCRM destinations.
+Create one **Telegram chat** destination for every group, supergroup, or
+channel the bot should notify. Each destination has its own negative numeric
+chat ID; select one of them as the transport's default destination. Add the bot
+to every configured chat and grant it permission to post before using **Test**.
+Direct messages are deliberately unsupported.
 
 Plain text is the default format. HTML may be selected when the message
 template contains only Telegram-supported markup. Link previews are disabled

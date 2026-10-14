@@ -18,7 +18,6 @@
     <tr class="mastodon-field"><td class="label">{$form.mastodon_language.label}</td><td>{$form.mastodon_language.html}</td></tr>
     <tr class="mastodon-field"><td class="label">{$form.mastodon_spoiler_text.label}</td><td>{$form.mastodon_spoiler_text.html}</td></tr>
     <tr class="telegram-field"><td class="label">{$form.telegram_bot_token.label}</td><td>{$form.telegram_bot_token.html}<div class="description">{ts}Stored outside CiviCRM in the protected token store.{/ts}</div>{if $telegramTokenSuffix}<div class="description">{ts}Stored token:{/ts} ••••{$telegramTokenSuffix|escape}</div>{/if}</td></tr>
-    <tr class="telegram-field"><td class="label">{$form.telegram_chat_id.label}</td><td>{$form.telegram_chat_id.html}<div class="description">{ts}Group, supergroup, or channel chat ID. Direct messages are not supported.{/ts}</div></td></tr>
     <tr class="telegram-field"><td class="label">{$form.telegram_parse_mode.label}</td><td>{$form.telegram_parse_mode.html}</td></tr>
     <tr class="telegram-field"><td class="label">{$form.telegram_disable_link_preview.label}</td><td>{$form.telegram_disable_link_preview.html}</td></tr>
     <tr class="telegram-field"><td class="label">{$form.telegram_disable_notification.label}</td><td>{$form.telegram_disable_notification.html}</td></tr>

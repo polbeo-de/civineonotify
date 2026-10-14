@@ -10,7 +10,7 @@ final class TelegramTransport implements NotificationTransportInterface {
   public function __construct(private readonly array $connection, private readonly ?\Closure $requester = NULL) {}
   public function send(NotificationMessage $message, NotificationDestination $destination, string $transactionId): MatrixTransportResult {
     try {
-      $payload = $this->payload($message->body); $response = $this->request('sendMessage', $payload);
+      $payload = $this->payload($message->body, $destination->config); $response = $this->request('sendMessage', $payload);
       $body = json_decode($response['body'], TRUE, 512, JSON_THROW_ON_ERROR);
       if (($response['status'] ?? 0) === 200 && is_array($body) && !empty($body['ok']) && !empty($body['result']['message_id'])) return new MatrixTransportResult(TRUE, 'success', (string) $body['result']['message_id'], 200);
       return new MatrixTransportResult(FALSE, $this->category((int) ($response['status'] ?? 0), is_array($body) ? $body : []), NULL, (int) ($response['status'] ?? 0), $this->message(is_array($body) ? $body : []));
@@ -21,10 +21,10 @@ final class TelegramTransport implements NotificationTransportInterface {
   public function testConnection(array $connection): MatrixTransportResult { try { $response = $this->request('getMe', []); $body = json_decode($response['body'], TRUE, 512, JSON_THROW_ON_ERROR); return (($response['status'] ?? 0) === 200 && !empty($body['ok'])) ? new MatrixTransportResult(TRUE, 'success') : new MatrixTransportResult(FALSE, 'authentication_error', NULL, (int) $response['status'], 'Telegram rejected the bot token.'); } catch (\Throwable) { return new MatrixTransportResult(FALSE, 'configuration_error', NULL, NULL, 'Telegram configuration is not usable.'); } }
   public function capabilities(): array { return ['transport' => 'telegram', 'plain_text' => TRUE, 'html' => TRUE, 'dry_run' => TRUE]; }
   /** @return array{valid:bool,payload:array<string,mixed>,message:?string} */
-  public function dryRun(string $body): array { try { return ['valid' => TRUE, 'payload' => $this->payload($body), 'message' => NULL]; } catch (\Throwable) { return ['valid' => FALSE, 'payload' => [], 'message' => 'Telegram configuration is not usable.']; } }
+  public function dryRun(string $body, array $destination = []): array { try { return ['valid' => TRUE, 'payload' => $this->payload($body, $destination), 'message' => NULL]; } catch (\Throwable) { return ['valid' => FALSE, 'payload' => [], 'message' => 'Telegram configuration is not usable.']; } }
   /** @return array<string,mixed> */
-  private function payload(string $body): array {
-    $chat = trim((string) ($this->connection['chat_id'] ?? '')); if (!preg_match('/^-[0-9]{1,20}$/', $chat) || $body === '' || mb_strlen($body) > 4096) throw new \InvalidArgumentException();
+  private function payload(string $body, array $destination): array {
+    $chat = trim((string) ($destination['chat_id'] ?? '')); if (!preg_match('/^-[0-9]{1,20}$/', $chat) || $body === '' || mb_strlen($body) > 4096) throw new \InvalidArgumentException();
     $format = (string) ($this->connection['parse_mode'] ?? ''); if (!in_array($format, ['', 'HTML'], TRUE)) throw new \InvalidArgumentException();
     $payload = ['chat_id' => $chat, 'text' => $body, 'disable_web_page_preview' => !empty($this->connection['disable_link_preview']), 'disable_notification' => !empty($this->connection['disable_notification']), 'protect_content' => !empty($this->connection['protect_content'])];
     if ($format !== '') $payload['parse_mode'] = $format;
