@@ -123,9 +123,9 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
       if (trim((string)($v['telegram_bot_token'] ?? '')) === '' && empty($existingConfig['api_token_key'])) { $this->setElementError('telegram_bot_token', E::ts('Enter a Telegram bot token.')); return; }
     }
     elseif ($type === 'bluesky') {
-      if (!preg_match('/^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$/i', trim((string) $v['bluesky_handle']))) { $this->setElementError('bluesky_handle', E::ts('Enter a valid Bluesky account handle.')); return; }
+      if (!preg_match('/^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$/i', ltrim(trim((string) $v['bluesky_handle']), '@'))) { $this->setElementError('bluesky_handle', E::ts('Enter a valid Bluesky account handle.')); return; }
       if (empty($v['token_store_file']) || !str_starts_with((string) $v['token_store_file'], '/') || !is_dir(dirname((string) $v['token_store_file'])) || !is_writable(dirname((string) $v['token_store_file']))) { $this->setElementError('token_store_file', E::ts('Use an absolute path in a writable protected directory for the token store.')); return; }
-      $config = ['handle' => strtolower(trim((string) $v['bluesky_handle'])), 'token_store_file' => (string) $v['token_store_file'], 'api_token_key' => $existingConfig['api_token_key'] ?? bin2hex(random_bytes(16)), 'language' => trim((string) $v['bluesky_language']), 'detect_links' => !empty($v['bluesky_detect_links']), 'timeout_seconds' => (int) $v['timeout_seconds']];
+      $config = ['handle' => strtolower(ltrim(trim((string) $v['bluesky_handle']), '@')), 'token_store_file' => (string) $v['token_store_file'], 'api_token_key' => $existingConfig['api_token_key'] ?? bin2hex(random_bytes(16)), 'language' => trim((string) $v['bluesky_language']), 'detect_links' => !empty($v['bluesky_detect_links']), 'timeout_seconds' => (int) $v['timeout_seconds']];
       if (trim((string) ($v['bluesky_app_password'] ?? '')) === '' && empty($existingConfig['api_token_key'])) { $this->setElementError('bluesky_app_password', E::ts('Enter a Bluesky App Password.')); return; }
     }
     elseif ($type === 'matrix_commander_rs') {
