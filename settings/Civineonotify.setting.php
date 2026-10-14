@@ -6,7 +6,7 @@ use CRM_Civineonotify_ExtensionUtil as E;
 
 $settings = [
   'civineonotify_enabled' => ['type' => 'Boolean', 'html_type' => 'checkbox', 'default' => FALSE, 'title' => E::ts('Enable CiviNeo Notify')],
-  'civineonotify_default_message_template' => ['type' => 'String', 'default' => "{event.name}\n\n{entity.type} #{entity.id} was changed in {site.name}.", 'html_type' => 'textarea', 'title' => E::ts('Default message template')],
+  'civineonotify_default_message_template' => ['type' => 'String', 'default' => '{event.name} Hello, world!', 'html_type' => 'textarea', 'title' => E::ts('Default message template')],
   'civineonotify_default_message_format' => ['type' => 'String', 'html_type' => 'text', 'default' => 'plain', 'title' => E::ts('Default message format')],
   'civineonotify_batch_size' => ['type' => 'Integer', 'html_type' => 'text', 'default' => 25, 'title' => E::ts('Worker batch size')],
   'civineonotify_max_attempts' => ['type' => 'Integer', 'html_type' => 'text', 'default' => 5, 'title' => E::ts('Maximum delivery attempts')],

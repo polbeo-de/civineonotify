@@ -13,8 +13,9 @@ CiviCRM event notifications.
 
 Set **Protected transport storage directory** in CiviNeo Notify settings to an
 absolute, protected directory outside the web root. Matrix provisioning uses it
-as its default. Mattermost transports use `mattermost-tokens.json` in this
-directory by default. Existing explicit transport paths remain valid.
+as its default. Mattermost, Mastodon, and Telegram transports create separate
+token-store files in this directory by default. Existing explicit transport
+paths remain valid.
 
 ## Mattermost (Webhook)
 
@@ -95,6 +96,64 @@ recorded as an unknown delivery outcome to avoid creating a duplicate post.
 Mastodon instance URLs must use HTTPS and must not resolve to local, private,
 link-local, or reserved addresses. Redirects are disabled.
 
+## Telegram
+
+The Telegram transport sends outbound text notifications through the official
+Telegram Bot API. Create the bot and its token with BotFather, then enter the
+token directly in the transport form. CiviNeo Notify stores it only in the
+protected external token store and subsequently displays only its last four
+characters.
+
+### Bot onboarding and chat IDs
+
+1. Open **@BotFather** in Telegram and use `/newbot` to create a dedicated
+   notification bot. Telegram displays its bot token only once. Treat it as a
+   password: enter it directly in the CiviNeo Notify transport form and never
+   add it to source control, a ticket, a screenshot, or a chat message.
+2. Create the **Telegram** transport with that token and save it. The transport
+   holds one bot identity and may serve multiple destinations.
+3. Add the bot to every target group or supergroup. For a channel, add it as an
+   administrator with permission to post messages. Direct-message destinations
+   are not supported.
+4. Obtain each target chat ID with one manual `getUpdates` request. First send
+   a fresh command such as `/start@your_bot_username` in a group after adding
+   the bot. For a channel, publish a fresh channel post after adding the bot as
+   an administrator. Then run this locally, replacing the placeholder without
+   exposing the real token:
+
+   ```bash
+   read -rs TELEGRAM_BOT_TOKEN
+   curl -s "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates"
+   unset TELEGRAM_BOT_TOKEN
+   ```
+
+   In the JSON response, use `message.chat.id` for a group or
+   `channel_post.chat.id` for a channel. CiviNeo Notify accepts the negative
+   numeric IDs used by groups, supergroups, and channels; supergroups and
+   channels commonly start with `-100`. An empty `result` means the bot has no
+   pending update: confirm that it was added before the fresh command or post,
+   then repeat the request. In groups, privacy mode still permits explicit
+   commands addressed to the bot.
+5. Create one **Telegram chat** destination per chat ID, then set one of those
+   destinations as the transport's default. Rules may select any of the other
+   Telegram destinations directly.
+
+Use the transport's **Test** action only after selecting an active default
+destination. It sends the fixed test message to that destination and records
+the result in the delivery log.
+
+Plain text is the default format. HTML may be selected when the message
+template contains only Telegram-supported markup. Link previews are disabled
+by default; silent delivery and content protection are optional. The transport
+does not receive updates, configure webhooks, poll Telegram, send media, or
+split messages. Messages longer than 4,096 characters are rejected rather than
+truncated.
+
+Telegram does not provide a request idempotency mechanism for `sendMessage`.
+If a request times out, CiviNeo Notify records an unknown delivery outcome and
+does not automatically retry it, avoiding a possible duplicate post. Requests
+use HTTPS only and do not follow redirects.
+
 ## Matrix
 
 The verified `matrix-commander-rs` version is 0.11.0. It supports
@@ -114,12 +173,12 @@ it has provisioned a device, completed Element SAS verification, persisted the
 selected Element device as trusted, and sent an encrypted test message without
 allowing unverified recipient devices.
 
-This is nevertheless an alpha integration. The verified runtime contains a
-pinned Matrix-Nio version plus narrowly scoped interoperability patches; it is
-an external deployment prerequisite and is not included in the CiviNeo Notify
-ZIP. Operators must use the documented runtime bundle for the release they
-install. The rationale, upstreaming plan, and remaining release criteria are
-documented in [Matrix-Nio E2EE and device-verification status](matrix-nio-limitations.md).
+This is nevertheless an internal alpha integration. The verified runtime
+contains a pinned Matrix-Nio version plus narrowly scoped interoperability
+patches, but no reproducible runtime bundle is currently published. It is not
+installable by external operators from the CiviNeo Notify ZIP; use Matrix
+Commander for external installations. The rationale, upstreaming plan, and
+remaining release criteria are documented in [Matrix-Nio E2EE and device-verification status](matrix-nio-limitations.md).
 
 In particular, **allow unverified recipient devices** is a separate, explicit
 risk decision. It permits message-key sharing with unverified recipient

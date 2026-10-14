@@ -9,6 +9,7 @@
     <tr class="mattermost-webhook-field"><td class="label">{$form.webhook_token.label}</td><td>{$form.webhook_token.html}{if $mattermostTokenSuffix}<div class="description">{ts}Stored token:{/ts} ••••{$mattermostTokenSuffix|escape}</div>{/if}</td></tr>
     <tr class="mattermost-api-field"><td class="label">{$form.mattermost_channel_id.label}</td><td>{$form.mattermost_channel_id.html}<div class="description mattermost-api-channel-description">{ts}Choose a channel the configured Mattermost account can access.{/ts}</div><div class="description mattermost-api-channel-error">{ts}The Mattermost channels could not be loaded. Check the API token and reload this page.{/ts}</div></td></tr>
     <tr class="mattermost-webhook-field"><td class="label">{$form.channel_override.label}</td><td>{$form.channel_override.html}<div class="description">{ts}Optional; leave empty to use the webhook's default channel.{/ts}</div></td></tr>
+    <tr class="telegram-field"><td class="label">{$form.telegram_chat_id.label}</td><td>{$form.telegram_chat_id.html}<div class="description">{ts}Group, supergroup, or channel chat ID. Direct messages are not supported.{/ts}</div></td></tr>
     <tr><td class="label">{$form.is_active.label}</td><td>{$form.is_active.html}</td></tr>
     <tr><td></td><td>{$form.buttons.html}</td></tr>
   </table>
@@ -24,11 +25,13 @@ CRM.$(function($) {
   function chooseDestination() {
     var mattermost = $('#destination_type').val() === 'mattermost_channel';
     var mastodon = $('#destination_type').val() === 'mastodon_account';
+    var telegram = $('#destination_type').val() === 'telegram_chat';
     var transportId = $('#transport_id').val();
     var api = Object.prototype.hasOwnProperty.call(civineonotifyMattermostApiChannels, transportId) || Object.prototype.hasOwnProperty.call(civineonotifyMattermostApiChannelErrors, transportId);
-    $('.matrix-field').toggle(!mattermost && !mastodon);
+    $('.matrix-field').toggle(!mattermost && !mastodon && !telegram);
     $('.mattermost-webhook-field').toggle(mattermost && !api);
     $('.mattermost-api-field').toggle(mattermost && api);
+    $('.telegram-field').toggle(telegram);
     if (mattermost && api) {
       $('.mattermost-api-channel-description').toggle(!civineonotifyMattermostApiChannelErrors[transportId]);
       $('.mattermost-api-channel-error').toggle(!!civineonotifyMattermostApiChannelErrors[transportId]);
