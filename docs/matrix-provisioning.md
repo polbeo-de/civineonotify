@@ -5,14 +5,22 @@ This procedure creates the two local artifacts required by a Matrix transport:
 - a `matrix-commander-rs` credentials JSON file (mode `0600`); and
 - a persistent end-to-end-encryption (E2EE) store directory (mode `0700`).
 
-Neither belongs in the database, the CiviCRM file area, the web root, a shell history, nor a ticket. The same store must remain with the same bot device for its entire life. CiviNeo Notify serializes use of that store so a scheduled worker and a manual test cannot use it concurrently.
+Neither belongs in the database, the CiviCRM file area, the web root, a shell
+history, nor a ticket. The same store must remain with the same bot device for
+its entire life. Avoid running concurrent Matrix client processes against that
+store.
 
 ## Before starting
 
 1. Ask the Matrix homeserver administrator to create a dedicated bot/service account. Do not use a person's account.
 2. Have the bot join the intended room. For encrypted notifications, the room must already use Matrix E2EE and the bot device must be trusted according to the homeserver's device-verification policy.
-3. Obtain the password for that dedicated bot account through the homeserver's approved account-management process. Do not use a personal account or its Element device.
-4. Obtain the password only through the homeserver's approved account-management process. The protected **Provision Matrix credentials** form transmits it once over HTTPS to its isolated provisioning job; it is not stored in CiviCRM, a command line, a log, or configuration file. For the optional command-line procedure below, use a temporary protected file containing only the password and make it readable only by the provisioning account.
+3. Obtain the password for that dedicated bot account through the homeserver's
+   approved account-management process. Do not use a personal account or its
+   Element device. The protected **Provision Matrix credentials** form transmits
+   it once over HTTPS to its isolated provisioning job; it is not stored in
+   CiviCRM, a command line, a log, or configuration file. For the optional
+   command-line procedure below, use a temporary protected file containing only
+   the password and make it readable only by the provisioning account.
 
 The administrator needs four ordinary, non-secret facts: the HTTPS homeserver URL, the bot's target **internal room ID** (for example `!opaque:example.org`), the executable path for `matrix-commander-rs`, and a private directory outside the web root where the service account can maintain the credential file and store.
 
@@ -53,9 +61,9 @@ Under **Administration → CiviNeo Notify → Transports**, create a Matrix tran
 - a conservative timeout, normally 30 seconds.
 
 Create a Destination with the intended internal room ID and select it as the
-transport's default destination. **Test transport** then sends the configured
-default message template to that destination and records the outcome in the
-delivery log. Review the entry before enabling rules.
+transport's default destination. **Test transport** then sends the global
+**Transport test message template** to that destination and records the outcome
+in the delivery log. Review the entry before enabling rules.
 
 ## Backup and recovery
 
