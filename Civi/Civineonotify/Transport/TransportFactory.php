@@ -13,6 +13,7 @@ final class TransportFactory {
       'mattermost_api' => new MattermostApiTransport($config),
       'mastodon' => new MastodonTransport($config),
       'telegram' => new TelegramTransport($config),
+      'bluesky' => new BlueskyTransport($config),
       default => throw new \InvalidArgumentException('Unsupported transport type.'),
     };
   }

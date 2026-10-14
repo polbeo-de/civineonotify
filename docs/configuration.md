@@ -5,9 +5,10 @@ list provides a **Test** action which immediately sends the configured default
 message template to its default destination and records the outcome in the
 delivery log.
 
-The **Test** action uses a fixed, readable test body: the rendered test event
-name followed by `Hello World`. It does not change the template used for normal
-CiviCRM event notifications.
+The **Transport Test** action uses the global **Transport test message
+template** setting. It does not change the template used for normal CiviCRM
+event notifications. The **Destination Test** action uses the global **Default
+message template** setting.
 
 ## Protected transport storage directory
 
@@ -83,8 +84,10 @@ The token is stored only in the protected external token store.
 The language is selected from the CiviCRM language list and stored as a BCP 47
 tag; leave it empty when the account should not declare a post language.
 
-Create one **Mastodon account** destination for each Mastodon transport and set
-it as that transport's default destination. Supported visibility values are
+When creating a Mastodon transport, CiviNeo Notify offers to create and select
+its neutral **Mastodon account** destination automatically. Keep the suggested
+option or give the destination a meaningful name. You can also add a destination
+manually. Supported visibility values are
 **Public**, **Unlisted**, and **Followers only**. Direct messages, media,
 polls, threads, and automatic truncation are deliberately unsupported.
 
@@ -153,6 +156,38 @@ Telegram does not provide a request idempotency mechanism for `sendMessage`.
 If a request times out, CiviNeo Notify records an unknown delivery outcome and
 does not automatically retry it, avoiding a possible duplicate post. Requests
 use HTTPS only and do not follow redirects.
+
+## Bluesky
+
+The Bluesky transport publishes public text posts through one configured AT
+Protocol account. Create an **App Password** in the Bluesky account settings;
+never use the main account password. Configure the account handle and App
+Password in CiviNeo Notify. The password is held only in the protected external
+token store and is subsequently displayed only by its final four characters.
+
+When creating a Bluesky transport, CiviNeo Notify offers to create and select
+its neutral **Bluesky account** destination automatically. You can also add it
+manually. Each transport represents one public account;
+use additional transports for additional accounts. Posts are public only:
+direct messages, visibility controls, media, threads, replies, editing, and
+timeline polling are deliberately unsupported.
+
+The transport resolves the handle to a DID and discovers the account PDS from
+the DID document, so accounts hosted outside the default service are supported.
+It creates a short-lived session for each send and refreshes its in-memory
+access token once on an authentication expiry. App Passwords and session JWTs
+are never written to CiviCRM, delivery logs, or dry-run output.
+
+Posts may contain at most 300 Unicode grapheme clusters. Empty or longer posts
+are rejected rather than truncated or split. An optional BCP 47 language tag
+and automatic HTTP/HTTPS link facets are supported; link facet offsets use UTF-8
+bytes as required by AT Protocol. The transport is outbound-only and does not
+register a webhook or poll Bluesky.
+
+Every delivery derives a stable protocol-valid record key from its transaction
+identifier. On a record-key conflict, CiviNeo Notify reads the record and only
+treats an identical post as delivered. A timeout remains an unknown delivery
+outcome and is not retried automatically, avoiding duplicate public posts.
 
 ## Matrix
 

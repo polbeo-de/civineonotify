@@ -26,9 +26,10 @@ CRM.$(function($) {
     var mattermost = $('#destination_type').val() === 'mattermost_channel';
     var mastodon = $('#destination_type').val() === 'mastodon_account';
     var telegram = $('#destination_type').val() === 'telegram_chat';
+    var bluesky = $('#destination_type').val() === 'bluesky_account';
     var transportId = $('#transport_id').val();
     var api = Object.prototype.hasOwnProperty.call(civineonotifyMattermostApiChannels, transportId) || Object.prototype.hasOwnProperty.call(civineonotifyMattermostApiChannelErrors, transportId);
-    $('.matrix-field').toggle(!mattermost && !mastodon && !telegram);
+    $('.matrix-field').toggle(!mattermost && !mastodon && !telegram && !bluesky);
     $('.mattermost-webhook-field').toggle(mattermost && !api);
     $('.mattermost-api-field').toggle(mattermost && api);
     $('.telegram-field').toggle(telegram);
