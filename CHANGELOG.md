@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## 0.0.3-alpha.5 — 2026-10-14
+
+- Offer to create and select the neutral default destination while saving a new
+  Mastodon or Bluesky transport.
+
+- Make the transport-test message a separately configurable global template.
+
+- Add a Bluesky public-post transport with protected App Password storage,
+  PDS discovery, short-lived session refresh, Unicode grapheme validation,
+  automatic URL facets, and stable record-key delivery safety.
+
 ## 0.0.3-alpha.4 — 2026-10-14
 
 - Add a Telegram Bot API transport with protected external bot-token storage,

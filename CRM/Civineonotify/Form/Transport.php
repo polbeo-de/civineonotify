@@ -10,7 +10,7 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
   public function buildQuickForm(): void {
     CRM_Utils_System::setTitle(E::ts($this->id ? 'Edit transport' : 'Add transport'));
     $this->add('text', 'name', E::ts('Transport name'), ['size' => 70], TRUE);
-    $this->add('select', 'transport_type', E::ts('Transport type'), ['matrix_commander_rs' => E::ts('Matrix Commander'), 'matrix_nio' => E::ts('Matrix Nio'), 'mattermost_webhook' => E::ts('Mattermost (Webhook)'), 'mattermost_api' => E::ts('Mattermost (API)'), 'mastodon' => E::ts('Mastodon'), 'telegram' => E::ts('Telegram')], TRUE);
+    $this->add('select', 'transport_type', E::ts('Transport type'), ['matrix_commander_rs' => E::ts('Matrix Commander'), 'matrix_nio' => E::ts('Matrix Nio'), 'mattermost_webhook' => E::ts('Mattermost (Webhook)'), 'mattermost_api' => E::ts('Mattermost (API)'), 'mastodon' => E::ts('Mastodon'), 'telegram' => E::ts('Telegram'), 'bluesky' => E::ts('Bluesky')], TRUE);
     foreach (['binary_path' => 'Matrix Commander binary', 'credentials_path' => 'Credentials file', 'store_path' => 'Encryption store', 'working_directory' => 'Working directory', 'timeout_seconds' => 'Timeout (seconds)', 'homeserver' => 'Matrix homeserver', 'python_path' => 'Python executable', 'nio_client_path' => 'Matrix Nio client', 'session_path' => 'Protected Matrix Nio session'] as $field => $label) $this->add('text', $field, E::ts($label), ['size' => 70]);
     $this->add('text', 'server_url', E::ts('Mattermost server URL'), ['size' => 70]);
     $this->add('text', 'hooks_path', E::ts('Mattermost hooks path'), ['size' => 70]);
@@ -28,6 +28,12 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $this->add('checkbox', 'telegram_disable_link_preview', E::ts('Disable Telegram link previews'));
     $this->add('checkbox', 'telegram_disable_notification', E::ts('Send Telegram notifications silently'));
     $this->add('checkbox', 'telegram_protect_content', E::ts('Protect Telegram content'));
+    $this->add('text', 'bluesky_handle', E::ts('Bluesky account handle'), ['size' => 70]);
+    $this->add('password', 'bluesky_app_password', E::ts('Bluesky App Password'), ['size' => 70]);
+    $this->add('select', 'bluesky_language', E::ts('Default Bluesky language'), $languages, FALSE, ['class' => 'crm-select2']);
+    $this->add('checkbox', 'bluesky_detect_links', E::ts('Detect Bluesky links automatically'));
+    $this->add('checkbox', 'create_social_default_destination', E::ts('Create and set a default destination'));
+    $this->add('text', 'social_default_destination_name', E::ts('Default destination name'), ['size' => 70]);
     $this->add('checkbox', 'allow_unverified_recipient_devices', E::ts('Allow unverified recipient devices'));
     $destinationOptions = $this->id
       ? civineonotify_destinationOptions(TRUE, $this->id, E::ts('- No default destination -'))
@@ -41,6 +47,7 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $this->addButtons([['type' => 'submit', 'name' => E::ts('Save transport'), 'isDefault' => TRUE], ['type' => 'cancel', 'name' => E::ts('Cancel')]]);
     if ($this->id) {
       $row = \Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? [];
+      $this->assign('canCreateSocialDefaultDestination', empty($row['default_destination_id']));
       if (($row['transport_type'] ?? NULL) === 'mastodon') {
         $config = is_array($row['config_json'] ?? NULL) ? $row['config_json'] : [];
         try {
@@ -65,12 +72,13 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
         }
         catch (\Throwable) { $this->assign('telegramTokenSuffix', ''); }
       }
+      if (($row['transport_type'] ?? NULL) === 'bluesky') { $config = is_array($row['config_json'] ?? NULL) ? $row['config_json'] : []; try { $this->assign('blueskyPasswordSuffix', !empty($config['token_store_file']) && !empty($config['api_token_key']) ? (new \Civi\Civineonotify\Transport\MattermostTokenStore((string) $config['token_store_file']))->suffix((string) $config['api_token_key']) : ''); } catch (\Throwable) { $this->assign('blueskyPasswordSuffix', ''); } }
       if (in_array($row['transport_type'] ?? NULL, ['matrix_commander_rs', 'matrix_nio'], TRUE)) $this->assign('provisionUrl', CRM_Utils_System::url('civicrm/admin/civineonotify/provision-matrix', ['reset' => 1, 'id' => $this->id]));
       if (($row['transport_type'] ?? NULL) === 'matrix_nio') $this->assign('verifyUrl', CRM_Utils_System::url('civicrm/admin/civineonotify/verify-matrix-nio', ['reset' => 1, 'id' => $this->id]));
     }
   }
   public function setDefaultValues(): array {
-    if (!$this->id) { $protected=(string)\Civi::settings()->get('civineonotify_protected_transport_storage_directory'); return ['is_active' => 1, 'transport_type' => 'matrix_commander_rs', 'timeout_seconds' => 30, 'working_directory' => $protected ?: '/tmp', 'token_store_file' => $protected ? rtrim($protected, '/') . '/mattermost-tokens.json' : '', 'nio_client_path' => dirname(__DIR__, 3) . '/bin/matrix-nio-client', 'mastodon_visibility' => 'public', 'telegram_disable_link_preview' => 1]; }
+    if (!$this->id) { $protected=(string)\Civi::settings()->get('civineonotify_protected_transport_storage_directory'); $this->assign('canCreateSocialDefaultDestination', TRUE); return ['is_active' => 1, 'transport_type' => 'matrix_commander_rs', 'timeout_seconds' => 30, 'working_directory' => $protected ?: '/tmp', 'token_store_file' => $protected ? rtrim($protected, '/') . '/mattermost-tokens.json' : '', 'nio_client_path' => dirname(__DIR__, 3) . '/bin/matrix-nio-client', 'mastodon_visibility' => 'public', 'telegram_disable_link_preview' => 1, 'bluesky_detect_links' => 1, 'create_social_default_destination' => 1]; }
     $row = \Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? [];
     $config = is_array($row['config_json'] ?? NULL) ? $row['config_json'] : [];
     $defaults = array_merge($row, $config);
@@ -85,6 +93,7 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
       $defaults['telegram_disable_notification'] = !empty($config['disable_notification']);
       $defaults['telegram_protect_content'] = !empty($config['protect_content']);
     }
+    if (($row['transport_type'] ?? NULL) === 'bluesky') { $defaults['bluesky_handle']=$config['handle']??''; $defaults['bluesky_language']=$config['language']??''; $defaults['bluesky_detect_links']=!empty($config['detect_links']); }
     return $defaults;
   }
   public function postProcess(): void {
@@ -92,8 +101,11 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $existing = $this->id ? (\Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? []) : [];
     $existingConfig = is_array($existing['config_json'] ?? NULL) ? $existing['config_json'] : [];
     $type = (string) $v['transport_type'];
-    if (in_array($type, ['mattermost_webhook', 'mattermost_api', 'mastodon', 'telegram'], TRUE) && empty($v['token_store_file'])) { $protected=(string)\Civi::settings()->get('civineonotify_protected_transport_storage_directory'); if ($protected !== '') $v['token_store_file']=rtrim($protected, '/') . ($type === 'mastodon' ? 'mastodon-tokens.json' : ($type === 'telegram' ? 'telegram-tokens.json' : 'mattermost-tokens.json')); }
-    if (!in_array($type, ['matrix_commander_rs', 'matrix_nio', 'mattermost_webhook', 'mattermost_api', 'mastodon', 'telegram'], TRUE)) { $this->setElementError('transport_type', E::ts('Choose a supported transport type.')); return; }
+    $createSocialDefaultDestination = in_array($type, ['mastodon', 'bluesky'], TRUE)
+      && !empty($v['create_social_default_destination'])
+      && (empty($existing['default_destination_id']));
+    if (in_array($type, ['mattermost_webhook', 'mattermost_api', 'mastodon', 'telegram', 'bluesky'], TRUE) && empty($v['token_store_file'])) { $protected=(string)\Civi::settings()->get('civineonotify_protected_transport_storage_directory'); if ($protected !== '') $v['token_store_file']=rtrim($protected, '/') . ($type === 'mastodon' ? 'mastodon-tokens.json' : ($type === 'telegram' ? 'telegram-tokens.json' : ($type === 'bluesky' ? 'bluesky-tokens.json' : 'mattermost-tokens.json'))); }
+    if (!in_array($type, ['matrix_commander_rs', 'matrix_nio', 'mattermost_webhook', 'mattermost_api', 'mastodon', 'telegram', 'bluesky'], TRUE)) { $this->setElementError('transport_type', E::ts('Choose a supported transport type.')); return; }
     if (in_array($type, ['matrix_commander_rs', 'matrix_nio'], TRUE)) {
       foreach (['working_directory'] as $path) if (empty($v[$path]) || !str_starts_with((string) $v[$path], '/')) { $this->setElementError($path, E::ts('Use an absolute path.')); return; }
     }
@@ -115,6 +127,12 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
       if (empty($v['token_store_file']) || !str_starts_with((string) $v['token_store_file'], '/') || !is_dir(dirname((string) $v['token_store_file'])) || !is_writable(dirname((string) $v['token_store_file']))) { $this->setElementError('token_store_file', E::ts('Use an absolute path in a writable protected directory for the token store.')); return; }
       $config = ['token_store_file' => (string)$v['token_store_file'], 'api_token_key' => $existingConfig['api_token_key'] ?? bin2hex(random_bytes(16)), 'parse_mode' => (string)$v['telegram_parse_mode'], 'disable_link_preview' => !empty($v['telegram_disable_link_preview']), 'disable_notification' => !empty($v['telegram_disable_notification']), 'protect_content' => !empty($v['telegram_protect_content']), 'timeout_seconds' => (int)$v['timeout_seconds']];
       if (trim((string)($v['telegram_bot_token'] ?? '')) === '' && empty($existingConfig['api_token_key'])) { $this->setElementError('telegram_bot_token', E::ts('Enter a Telegram bot token.')); return; }
+    }
+    elseif ($type === 'bluesky') {
+      if (!preg_match('/^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$/i', ltrim(trim((string) $v['bluesky_handle']), '@'))) { $this->setElementError('bluesky_handle', E::ts('Enter a valid Bluesky account handle.')); return; }
+      if (empty($v['token_store_file']) || !str_starts_with((string) $v['token_store_file'], '/') || !is_dir(dirname((string) $v['token_store_file'])) || !is_writable(dirname((string) $v['token_store_file']))) { $this->setElementError('token_store_file', E::ts('Use an absolute path in a writable protected directory for the token store.')); return; }
+      $config = ['handle' => strtolower(ltrim(trim((string) $v['bluesky_handle']), '@')), 'token_store_file' => (string) $v['token_store_file'], 'api_token_key' => $existingConfig['api_token_key'] ?? bin2hex(random_bytes(16)), 'language' => trim((string) $v['bluesky_language']), 'detect_links' => !empty($v['bluesky_detect_links']), 'timeout_seconds' => (int) $v['timeout_seconds']];
+      if (trim((string) ($v['bluesky_app_password'] ?? '')) === '' && empty($existingConfig['api_token_key'])) { $this->setElementError('bluesky_app_password', E::ts('Enter a Bluesky App Password.')); return; }
     }
     elseif ($type === 'matrix_commander_rs') {
       if (!is_file((string) $v['binary_path']) || !is_executable((string) $v['binary_path'])) { $this->setElementError('binary_path', E::ts('The Matrix Commander binary does not exist or is not executable.')); return; }
@@ -138,6 +156,19 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     if ($type === 'mattermost_api' && trim((string)($v['api_token']??'')) !== '') try { (new \Civi\Civineonotify\Transport\MattermostTokenStore((string)$config['token_store_file']))->put((string)$config['api_token_key'], trim((string)$v['api_token'])); } catch (\Throwable) { throw new CRM_Core_Exception(E::ts('The Mattermost API token could not be stored.')); }
     if ($type === 'mastodon' && trim((string)($v['mastodon_access_token']??'')) !== '') try { (new \Civi\Civineonotify\Transport\MattermostTokenStore((string)$config['token_store_file']))->put((string)$config['api_token_key'], trim((string)$v['mastodon_access_token'])); } catch (\Throwable) { throw new CRM_Core_Exception(E::ts('The Mastodon access token could not be stored.')); }
     if ($type === 'telegram' && trim((string)($v['telegram_bot_token']??'')) !== '') try { (new \Civi\Civineonotify\Transport\MattermostTokenStore((string)$config['token_store_file']))->put((string)$config['api_token_key'], trim((string)$v['telegram_bot_token'])); } catch (\Throwable) { throw new CRM_Core_Exception(E::ts('The Telegram bot token could not be stored.')); }
+    if ($type === 'bluesky' && trim((string)($v['bluesky_app_password']??'')) !== '') try { (new \Civi\Civineonotify\Transport\MattermostTokenStore((string)$config['token_store_file']))->put((string)$config['api_token_key'], trim((string)$v['bluesky_app_password'])); } catch (\Throwable) { throw new CRM_Core_Exception(E::ts('The Bluesky App Password could not be stored.')); }
+    if ($createSocialDefaultDestination) {
+      $destinationName = trim((string) ($v['social_default_destination_name'] ?? ''));
+      if ($destinationName === '') $destinationName = trim((string) $v['name']) . ' — ' . E::ts('Default');
+      $destination = \Civi\Api4\CiviNeoNotifyDestination::create(FALSE)->setValues([
+        'transport_id' => $this->id,
+        'name' => $destinationName,
+        'destination_type' => $type === 'mastodon' ? 'mastodon_account' : 'bluesky_account',
+        'config_json' => [],
+        'is_active' => TRUE,
+      ])->execute()->first();
+      \Civi\Api4\CiviNeoNotifyTransport::update(FALSE)->setWhere([['id', '=', $this->id]])->setValues(['default_destination_id' => (int) $destination['id']])->execute();
+    }
     CRM_Core_Session::setStatus(E::ts('Transport saved.'), E::ts('Saved'), 'success'); CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/admin/civineonotify/transports', ['reset' => 1]));
   }
 }

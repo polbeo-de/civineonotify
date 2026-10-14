@@ -22,13 +22,19 @@
     <tr class="telegram-field"><td class="label">{$form.telegram_disable_link_preview.label}</td><td>{$form.telegram_disable_link_preview.html}</td></tr>
     <tr class="telegram-field"><td class="label">{$form.telegram_disable_notification.label}</td><td>{$form.telegram_disable_notification.html}</td></tr>
     <tr class="telegram-field"><td class="label">{$form.telegram_protect_content.label}</td><td>{$form.telegram_protect_content.html}</td></tr>
+    <tr class="bluesky-field"><td class="label">{$form.bluesky_handle.label}</td><td>{$form.bluesky_handle.html}<div class="description">{ts}The leading @ is optional.{/ts}</div></td></tr>
+    <tr class="bluesky-field"><td class="label">{$form.bluesky_app_password.label}</td><td>{$form.bluesky_app_password.html}<div class="description">{ts}Stored outside CiviCRM in the protected token store. Use an App Password, never the account password.{/ts}</div>{if $blueskyPasswordSuffix}<div class="description">{ts}Stored token:{/ts} ••••{$blueskyPasswordSuffix|escape}</div>{/if}</td></tr>
+    <tr class="bluesky-field"><td class="label">{$form.bluesky_language.label}</td><td>{$form.bluesky_language.html}</td></tr>
+    <tr class="bluesky-field"><td class="label">{$form.bluesky_detect_links.label}</td><td>{$form.bluesky_detect_links.html}</td></tr>
+    {if $canCreateSocialDefaultDestination}<tr class="social-default-destination-field"><td class="label">{$form.create_social_default_destination.label}</td><td>{$form.create_social_default_destination.html}<div class="description">{ts}Mastodon and Bluesky accounts do not require separate destination settings.{/ts}</div></td></tr>
+    <tr class="social-default-destination-field"><td class="label">{$form.social_default_destination_name.label}</td><td>{$form.social_default_destination_name.html}<div class="description">{ts}This destination will be used when a rule selects only this transport.{/ts}</div></td></tr>{/if}
     <tr class="nio-field"><td class="label">{$form.homeserver.label}</td><td>{$form.homeserver.html}</td></tr>
     <tr class="nio-field"><td class="label">{$form.python_path.label}</td><td>{$form.python_path.html}</td></tr>
     <tr class="nio-field"><td class="label">{$form.nio_client_path.label}</td><td>{$form.nio_client_path.html}<div class="description">{ts}The bundled client script must run in a Python environment with matrix-nio[e2e] installed.{/ts}</div></td></tr>
     <tr class="nio-field"><td class="label">{$form.session_path.label}</td><td>{$form.session_path.html}<div class="description">{ts}Private session JSON outside the web root. It contains an access token and must be mode 0600.{/ts}</div></td></tr>
     <tr class="nio-field"><td class="label">{$form.allow_unverified_recipient_devices.label}</td><td>{$form.allow_unverified_recipient_devices.html}<div class="description">{ts}Off by default. Enabling it still encrypts messages but shares their session with recipient devices which have not been verified.{/ts}</div></td></tr>
     <tr><td class="label">{$form.is_active.label}</td><td>{$form.is_active.html}</td></tr>
-    <tr><td class="label">{$form.default_destination_id.label}</td><td>{$form.default_destination_id.html}{if $defaultDestinationNotice}<div class="description">{$defaultDestinationNotice}</div>{/if}</td></tr>
+    <tr class="default-destination-field"><td class="label">{$form.default_destination_id.label}</td><td>{$form.default_destination_id.html}{if $defaultDestinationNotice}<div class="description">{$defaultDestinationNotice}</div>{/if}</td></tr>
     <tr><td></td><td>{$form.buttons.html}{if $provisionUrl}<a class="button" href="{$provisionUrl}">{ts}Provision Matrix credentials{/ts}</a>{/if}{if $verifyUrl}<a class="button" href="{$verifyUrl}">{ts}Verify Matrix device{/ts}</a>{/if}</td></tr>
   </table>
 </div>
@@ -42,16 +48,26 @@ CRM.$(function($) {
     var mattermostApi = type === 'mattermost_api';
     var mastodon = type === 'mastodon';
     var telegram = type === 'telegram';
+    var bluesky = type === 'bluesky';
     $('.nio-field').toggle(nio);
     $('.mattermost-field').toggle(mattermost);
-    $('.external-token-field').toggle(mattermost || mastodon || telegram);
+    $('.external-token-field').toggle(mattermost || mastodon || telegram || bluesky);
     $('.mattermost-api-field').toggle(mattermostApi);
     $('.mastodon-field').toggle(mastodon);
     $('.telegram-field').toggle(telegram);
+    $('.bluesky-field').toggle(bluesky);
+    $('.social-default-destination-field').toggle((mastodon || bluesky) && $('#create_social_default_destination').is(':checked'));
+    $('.default-destination-field').toggle(!(mastodon || bluesky) || !$('#create_social_default_destination').is(':checked'));
     $('#hooks_path').closest('tr').toggle(type === 'mattermost_webhook');
-    $('#binary_path, #credentials_path, #store_path, #working_directory').closest('tr').toggle(!nio && !mattermost && !mastodon && !telegram);
+    $('#binary_path, #credentials_path, #store_path, #working_directory').closest('tr').toggle(!nio && !mattermost && !mastodon && !telegram && !bluesky);
   }
   $('#transport_type').on('change', chooseTransport);
+  $('#create_social_default_destination').on('change', chooseTransport);
+  $('#name').on('input', function() {
+    var destination = $('#social_default_destination_name');
+    if (!destination.data('edited')) destination.val($(this).val() ? $(this).val() + ' — ' + CRM.ts('Default') : '');
+  });
+  $('#social_default_destination_name').on('input', function() { $(this).data('edited', true); });
   chooseTransport();
 });
 </script>
