@@ -40,10 +40,17 @@ Use the same review trail for every public pre-release and stable release:
    the annotated tag, and verify the intended archive before publication.
 3. Push the release branch and open a pull request from `publish/<version>` to
    `main`. A tag or GitHub Release never replaces this pull request.
-4. With maintainer approval, publish the GitHub Release and attach the
-   installation ZIP as a release **asset**. Mark testing builds as
-   pre-releases; do not put the sole archive link only in the release text.
-5. Merge the approved release pull request into `main`. Keep the branch and
+4. With maintainer approval, publish the GitHub Release as the `polbeo`
+   account, never as an individual maintainer or release preparer. Verify the
+   displayed release author after publication. Use `<version>` alone as the
+   release title (no product-name prefix), attach the installation ZIP as a
+   release **asset**, and mark testing builds as pre-releases.
+5. Write release notes with a `## What's Changed` heading and concise,
+   noteworthy changes, followed by GitHub's `**Full Changelog**:` comparison
+   link from the preceding tag to the new tag. Use GitHub's generated release
+   notes/contributor data where available so release contributors are shown;
+   do not put the sole archive link only in the release text.
+6. Merge the approved release pull request into `main`. Keep the branch and
    tag references consistent with the published release.
 
 ## Deployment paths
