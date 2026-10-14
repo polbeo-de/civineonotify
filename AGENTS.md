@@ -48,8 +48,9 @@ Use the same review trail for every public pre-release and stable release:
 5. Write release notes with a `## What's Changed` heading and concise,
    noteworthy changes, followed by GitHub's `**Full Changelog**:` comparison
    link from the preceding tag to the new tag. Use GitHub's generated release
-   notes/contributor data where available so release contributors are shown;
-   do not put the sole archive link only in the release text.
+   notes/contributor data where available, but show contributors only when they
+   are accounts other than `polbeo`; `polbeo` is the publisher, not a release
+   contributor. Do not put the sole archive link only in the release text.
 6. Merge the approved release pull request into `main`. Keep the branch and
    tag references consistent with the published release.
 
