@@ -34,6 +34,11 @@ This repository implements the CiviCRM extension
 
 Use the same review trail for every public pre-release and stable release:
 
+GitHub CLI credentials are available for both `hfcoma` and `polbeo`. Before a
+release, switch with `gh auth switch --hostname github.com --user polbeo` and
+verify `gh api user --jq .login` returns `polbeo`; switch back to `hfcoma` for
+normal individual development work when needed.
+
 1. Create `publish/<version>` from the approved staging commit and update the
    version, changelog, documentation, and release checklist.
 2. Run the required validation and secret scan, build the installation ZIP from
