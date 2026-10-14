@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.0.3-alpha.5 — 2026-10-14
+
 - Offer to create and select the neutral default destination while saving a new
   Mastodon or Bluesky transport.
 
