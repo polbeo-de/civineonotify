@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Offer to create and select the neutral default destination while saving a new
+  Mastodon or Bluesky transport.
+
 - Make the transport-test message a separately configurable global template.
 
 - Add a Bluesky public-post transport with protected App Password storage,
