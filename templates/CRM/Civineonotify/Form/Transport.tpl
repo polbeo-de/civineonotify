@@ -17,6 +17,11 @@
     <tr class="mastodon-field"><td class="label">{$form.mastodon_visibility.label}</td><td>{$form.mastodon_visibility.html}</td></tr>
     <tr class="mastodon-field"><td class="label">{$form.mastodon_language.label}</td><td>{$form.mastodon_language.html}</td></tr>
     <tr class="mastodon-field"><td class="label">{$form.mastodon_spoiler_text.label}</td><td>{$form.mastodon_spoiler_text.html}</td></tr>
+    <tr class="telegram-field"><td class="label">{$form.telegram_bot_token.label}</td><td>{$form.telegram_bot_token.html}<div class="description">{ts}Stored outside CiviCRM in the protected token store.{/ts}</div>{if $telegramTokenSuffix}<div class="description">{ts}Stored token:{/ts} ••••{$telegramTokenSuffix|escape}</div>{/if}</td></tr>
+    <tr class="telegram-field"><td class="label">{$form.telegram_parse_mode.label}</td><td>{$form.telegram_parse_mode.html}</td></tr>
+    <tr class="telegram-field"><td class="label">{$form.telegram_disable_link_preview.label}</td><td>{$form.telegram_disable_link_preview.html}</td></tr>
+    <tr class="telegram-field"><td class="label">{$form.telegram_disable_notification.label}</td><td>{$form.telegram_disable_notification.html}</td></tr>
+    <tr class="telegram-field"><td class="label">{$form.telegram_protect_content.label}</td><td>{$form.telegram_protect_content.html}</td></tr>
     <tr class="nio-field"><td class="label">{$form.homeserver.label}</td><td>{$form.homeserver.html}</td></tr>
     <tr class="nio-field"><td class="label">{$form.python_path.label}</td><td>{$form.python_path.html}</td></tr>
     <tr class="nio-field"><td class="label">{$form.nio_client_path.label}</td><td>{$form.nio_client_path.html}<div class="description">{ts}The bundled client script must run in a Python environment with matrix-nio[e2e] installed.{/ts}</div></td></tr>
@@ -36,13 +41,15 @@ CRM.$(function($) {
     var mattermost = type === 'mattermost_webhook' || type === 'mattermost_api';
     var mattermostApi = type === 'mattermost_api';
     var mastodon = type === 'mastodon';
+    var telegram = type === 'telegram';
     $('.nio-field').toggle(nio);
     $('.mattermost-field').toggle(mattermost);
-    $('.external-token-field').toggle(mattermost || mastodon);
+    $('.external-token-field').toggle(mattermost || mastodon || telegram);
     $('.mattermost-api-field').toggle(mattermostApi);
     $('.mastodon-field').toggle(mastodon);
+    $('.telegram-field').toggle(telegram);
     $('#hooks_path').closest('tr').toggle(type === 'mattermost_webhook');
-    $('#binary_path, #credentials_path, #store_path, #working_directory').closest('tr').toggle(!nio && !mattermost && !mastodon);
+    $('#binary_path, #credentials_path, #store_path, #working_directory').closest('tr').toggle(!nio && !mattermost && !mastodon && !telegram);
   }
   $('#transport_type').on('change', chooseTransport);
   chooseTransport();

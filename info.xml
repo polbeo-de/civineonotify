@@ -2,7 +2,7 @@
 <extension key="de.polbeo.civicrm.civineonotify" type="module">
   <file>civineonotify</file><name>CiviNeo Notify</name>
   <description>Configurable outbound notifications for CiviCRM, including Matrix and Mattermost.</description>
-  <license>AGPL-3.0-or-later</license><version>0.0.3-alpha.3</version><develStage>alpha</develStage>
+  <license>AGPL-3.0-or-later</license><version>0.0.3-alpha.4</version><develStage>alpha</develStage>
   <compatibility><ver>6.16</ver></compatibility>
   <php_compatibility><ver>8.1</ver><ver>8.2</ver><ver>8.3</ver><ver>8.4</ver></php_compatibility>
   <classloader><psr0 prefix="CRM_" path="."/><psr4 prefix="Civi\" path="Civi"/></classloader>

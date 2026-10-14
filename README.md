@@ -53,10 +53,12 @@ SAS on both sides, persists device trust, and sends an encrypted test message.
 For a distinct Matrix user, the verification dialog also provides an
 experimental SAS path which invites the selected member to a reusable
 unencrypted verification room; it does not share room keys during verification.
-It remains an **alpha integration**: its pinned Python runtime and narrowly
-scoped interoperability patches are an external deployment prerequisite, not
-bundled with this extension archive. Read the [Matrix-Nio status and design
-rationale](docs/matrix-nio-limitations.md) before selecting it.
+It remains an **internal alpha integration**: its pinned Python runtime and
+narrowly scoped interoperability patches are not bundled or published as an
+installable artifact. External installations should use Matrix Commander until
+a reproducible Matrix-Nio runtime bundle is released. Read the [Matrix-Nio
+status and design rationale](docs/matrix-nio-limitations.md) before selecting
+it.
 
 Deployment responsibilities and the staging/release-artifact workflow are
 documented in [deployment](docs/deployment.md). Production installations must

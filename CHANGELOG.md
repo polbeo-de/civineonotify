@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## 0.0.3-alpha.4 — 2026-10-14
+
+- Add a Telegram Bot API transport with protected external bot-token storage,
+  group/supergroup/channel delivery, per-destination chat IDs, HTML or plain
+  text formatting, delivery options, and conservative unknown-outcome handling
+  for timeouts.
+- Add Telegram bot onboarding and chat-ID discovery documentation for groups,
+  supergroups, and channels.
+- Display successful destination tests as successful rather than as warnings.
+- Set the default notification template to `{event.name} Hello, world!`.
+
 ## 0.0.3-alpha.3 — 2026-10-14
 
 - Add the Mastodon transport with protected access-token storage, account
