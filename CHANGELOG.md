@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Make the transport-test message a separately configurable global template.
+
 - Add a Bluesky public-post transport with protected App Password storage,
   PDS discovery, short-lived session refresh, Unicode grapheme validation,
   automatic URL facets, and stable record-key delivery safety.
