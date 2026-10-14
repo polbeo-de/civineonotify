@@ -30,7 +30,7 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $this->add('checkbox', 'telegram_protect_content', E::ts('Protect Telegram content'));
     $this->add('text', 'bluesky_handle', E::ts('Bluesky account handle'), ['size' => 70]);
     $this->add('password', 'bluesky_app_password', E::ts('Bluesky App Password'), ['size' => 70]);
-    $this->add('text', 'bluesky_language', E::ts('Default Bluesky language'), ['size' => 20]);
+    $this->add('select', 'bluesky_language', E::ts('Default Bluesky language'), $languages, FALSE, ['class' => 'crm-select2']);
     $this->add('checkbox', 'bluesky_detect_links', E::ts('Detect Bluesky links automatically'));
     $this->add('checkbox', 'allow_unverified_recipient_devices', E::ts('Allow unverified recipient devices'));
     $destinationOptions = $this->id
