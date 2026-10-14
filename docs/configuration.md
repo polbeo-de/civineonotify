@@ -154,6 +154,37 @@ If a request times out, CiviNeo Notify records an unknown delivery outcome and
 does not automatically retry it, avoiding a possible duplicate post. Requests
 use HTTPS only and do not follow redirects.
 
+## Bluesky
+
+The Bluesky transport publishes public text posts through one configured AT
+Protocol account. Create an **App Password** in the Bluesky account settings;
+never use the main account password. Configure the account handle and App
+Password in CiviNeo Notify. The password is held only in the protected external
+token store and is subsequently displayed only by its final four characters.
+
+Create one neutral **Bluesky account** destination for the transport and select
+it as its default destination. Each transport represents one public account;
+use additional transports for additional accounts. Posts are public only:
+direct messages, visibility controls, media, threads, replies, editing, and
+timeline polling are deliberately unsupported.
+
+The transport resolves the handle to a DID and discovers the account PDS from
+the DID document, so accounts hosted outside the default service are supported.
+It creates a short-lived session for each send and refreshes its in-memory
+access token once on an authentication expiry. App Passwords and session JWTs
+are never written to CiviCRM, delivery logs, or dry-run output.
+
+Posts may contain at most 300 Unicode grapheme clusters. Empty or longer posts
+are rejected rather than truncated or split. An optional BCP 47 language tag
+and automatic HTTP/HTTPS link facets are supported; link facet offsets use UTF-8
+bytes as required by AT Protocol. The transport is outbound-only and does not
+register a webhook or poll Bluesky.
+
+Every delivery derives a stable protocol-valid record key from its transaction
+identifier. On a record-key conflict, CiviNeo Notify reads the record and only
+treats an identical post as delivered. A timeout remains an unknown delivery
+outcome and is not retried automatically, avoiding duplicate public posts.
+
 ## Matrix
 
 The verified `matrix-commander-rs` version is 0.11.0. It supports
