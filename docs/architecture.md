@@ -11,7 +11,7 @@ flowchart TB
   Civi[CiviCRM events, templates, rules, and destinations]
   Hook[Short post-hook<br/>normalize and enqueue only]
   Outbox[(CiviNeoNotifyDelivery<br/>persistent outbox)]
-  Job[CiviNeoNotifyDelivery.runoutbox<br/>serial scheduled worker]
+  Job[CiviNeoNotifyDelivery.runoutbox<br/>scheduled outbox worker]
   Factory[Transport factory]
   Store[(Protected external storage<br/>credentials, tokens, and E2EE stores)]
 
@@ -48,7 +48,8 @@ log. A failed delivery does not block other queued deliveries.
 The CiviCRM Scheduled Jobs runner uses API v3.
 `CiviNeoNotifyDelivery.runoutbox` is therefore a narrow API v3 bridge to the
 worker; the administrative UI and manual tests use API v4 actions. Retrying an
-entry returns it to `pending`; the serial worker performs the actual send.
+entry returns it to `pending`; the worker processes its selected batch
+sequentially.
 
 Secrets are never stored in CiviCRM transport or destination records. A global
 protected-storage-directory setting provides the default location for
@@ -82,7 +83,7 @@ and release criteria are documented in
 [matrix-nio-limitations.md](matrix-nio-limitations.md).
 
 Matrix-Nio refuses by default to share message keys with unverified recipient
-devices. A future transport must retain that safe default and expose any
+devices. This Matrix transport retains that safe default and exposes any
 `allow unverified recipient devices` setting as an explicit, documented
 administrator choice. It does not replace verification of the persistent bot
 device itself.

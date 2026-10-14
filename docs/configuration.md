@@ -1,9 +1,11 @@
 # Configuration
 
-Create a transport, then named destinations, and finally rules. The Transport
-list provides a **Test** action which immediately sends the configured default
-message template to its default destination and records the outcome in the
-delivery log.
+Create one or more transports, then named destinations, and finally rules. A
+transport represents a sending identity or protocol configuration; a
+destination represents where that transport sends. A matching event may create
+multiple independent deliveries through different transports. The Transport
+list provides a **Test** action which immediately sends a test message to its
+default destination and records the outcome in the delivery log.
 
 The **Transport Test** action uses the global **Transport test message
 template** setting. It does not change the template used for normal CiviCRM
@@ -14,9 +16,9 @@ message template** setting.
 
 Set **Protected transport storage directory** in CiviNeo Notify settings to an
 absolute, protected directory outside the web root. Matrix provisioning uses it
-as its default. Mattermost, Mastodon, and Telegram transports create separate
-token-store files in this directory by default. Existing explicit transport
-paths remain valid.
+as its default. Mattermost, Mastodon, Telegram, and Bluesky transports create
+separate token-store files in this directory by default. Existing explicit
+transport paths remain valid.
 
 ## Mattermost (Webhook)
 
@@ -31,7 +33,7 @@ permits it; leaving it empty uses the webhook's configured channel.
 
 To configure it in CiviCRM:
 
-1. Add an active transport of type **Mattermost incoming webhook**, enter its
+1. Add an active transport of type **Mattermost (Webhook)**, enter its
    server URL, and leave the hooks path as `hooks` unless the server uses a
    different path. Provide a protected, writable external token-store path.
 2. Add an active **Mattermost channel** destination for that transport and
@@ -40,9 +42,9 @@ To configure it in CiviCRM:
    the incoming webhook's default channel, or enter an override only where the
    Mattermost server allows it.
 3. Select that destination as the transport's **Default destination**.
-4. Use the transport's **Test** action. It sends the configured default message
-   immediately, records the result in the delivery log, and does not enqueue a
-   normal CiviCRM event.
+4. Use the transport's **Test** action. It sends the global **Transport test
+   message template**, records the result in the delivery log, and does not
+   enqueue a normal CiviCRM event.
 
 Each transport has an independent delivery status and retry history. Therefore,
 a Mattermost failure does not prevent delivery through a parallel Matrix or
@@ -142,8 +144,8 @@ characters.
    Telegram destinations directly.
 
 Use the transport's **Test** action only after selecting an active default
-destination. It sends the fixed test message to that destination and records
-the result in the delivery log.
+destination. It renders the global **Transport test message template**, sends
+it to that destination, and records the result in the delivery log.
 
 Plain text is the default format. HTML may be selected when the message
 template contains only Telegram-supported markup. Link previews are disabled
@@ -220,7 +222,12 @@ risk decision. It permits message-key sharing with unverified recipient
 devices; it does not verify the bot device and must not be used to mask a
 failed or incomplete Matrix-Nio verification.
 
-Set global defaults, create inactive example rules, then enable both a specific rule and the extension. Configure the `CiviNeoNotifyDelivery.runoutbox` scheduled job to run serially. This is a CiviCRM API v3 bridge to the extension worker; scheduled jobs do not invoke custom API v4 actions directly. Back up credentials and the Matrix store together, separately from the database, using protected backup storage.
+Set global defaults, create inactive example rules, then enable both a specific
+rule and the extension. Configure the `CiviNeoNotifyDelivery.runoutbox`
+scheduled job so executions do not overlap. This is a CiviCRM API v3 bridge to
+the extension worker; scheduled jobs do not invoke custom API v4 actions
+directly. Back up credentials and the Matrix store together, separately from
+the database, using protected backup storage.
 
 ## Rules and conditions
 
@@ -302,12 +309,12 @@ Rules do not send messages during the CiviCRM post-hook. The path is:
 The selected destination determines its transport. When only a transport is
 set on the rule, CiviNeo Notify resolves that transport's default destination.
 The delivery is stored as `pending` before any external transport is called.
-The serial **CiviNeoNotify: Process outbox** scheduled job invokes
+The **CiviNeoNotify: Process outbox** scheduled job invokes
 `CiviNeoNotifyDelivery.runoutbox`; its worker selects due pending or retry
 deliveries, checks that both transport and destination are active, and then
-sends through the appropriate Matrix or Mattermost implementation. Results,
-retry timing, and failures are recorded in the delivery log. A failed delivery
-does not block other queued deliveries.
+sends through the appropriate configured transport. Results, retry timing, and
+failures are recorded in the delivery log. A failed delivery does not block
+other queued deliveries.
 
 ## Message templates
 
