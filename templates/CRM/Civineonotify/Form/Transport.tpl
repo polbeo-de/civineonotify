@@ -22,7 +22,7 @@
     <tr class="telegram-field"><td class="label">{$form.telegram_disable_link_preview.label}</td><td>{$form.telegram_disable_link_preview.html}</td></tr>
     <tr class="telegram-field"><td class="label">{$form.telegram_disable_notification.label}</td><td>{$form.telegram_disable_notification.html}</td></tr>
     <tr class="telegram-field"><td class="label">{$form.telegram_protect_content.label}</td><td>{$form.telegram_protect_content.html}</td></tr>
-    <tr class="bluesky-field"><td class="label">{$form.bluesky_handle.label}</td><td>{$form.bluesky_handle.html}</td></tr>
+    <tr class="bluesky-field"><td class="label">{$form.bluesky_handle.label}</td><td>{$form.bluesky_handle.html}<div class="description">{ts}The leading @ is optional.{/ts}</div></td></tr>
     <tr class="bluesky-field"><td class="label">{$form.bluesky_app_password.label}</td><td>{$form.bluesky_app_password.html}<div class="description">{ts}Stored outside CiviCRM in the protected token store. Use an App Password, never the account password.{/ts}</div>{if $blueskyPasswordSuffix}<div class="description">{ts}Stored token:{/ts} ••••{$blueskyPasswordSuffix|escape}</div>{/if}</td></tr>
     <tr class="bluesky-field"><td class="label">{$form.bluesky_language.label}</td><td>{$form.bluesky_language.html}</td></tr>
     <tr class="bluesky-field"><td class="label">{$form.bluesky_detect_links.label}</td><td>{$form.bluesky_detect_links.html}</td></tr>
