@@ -19,7 +19,7 @@ final class CRM_Civineonotify_Form_Destination extends CRM_Core_Form {
     $transportDestinationTypes = [];
     $channelOptions = ['' => E::ts('- select a channel -')];
     foreach (\Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('is_active', '=', TRUE)->execute() as $transport) {
-      $transportDestinationTypes[(string) $transport['id']] = in_array($transport['transport_type'], ['mattermost_webhook', 'mattermost_api'], TRUE) ? 'mattermost_channel' : ($transport['transport_type'] === 'mastodon' ? 'mastodon_account' : ($transport['transport_type'] === 'telegram' ? 'telegram_chat' : 'matrix_room'));
+      $transportDestinationTypes[(string) $transport['id']] = in_array($transport['transport_type'], ['mattermost_webhook', 'mattermost_api'], TRUE) ? 'mattermost_channel' : ($transport['transport_type'] === 'mastodon' ? 'mastodon_account' : ($transport['transport_type'] === 'bluesky' ? 'bluesky_account' : ($transport['transport_type'] === 'telegram' ? 'telegram_chat' : 'matrix_room')));
       if ($transport['transport_type'] === 'mattermost_api') {
         try {
           $config = is_array($transport['config_json'] ?? NULL) ? $transport['config_json'] : [];
@@ -33,7 +33,7 @@ final class CRM_Civineonotify_Form_Destination extends CRM_Core_Form {
     $this->assign('mattermostApiChannelsJson', json_encode($this->mattermostApiChannels, JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
     $this->assign('mattermostApiChannelErrorsJson', json_encode($this->mattermostApiChannelErrors, JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
     $this->add('text', 'name', E::ts('Destination name'), ['size' => 70], TRUE);
-    $this->add('select', 'destination_type', E::ts('Destination type'), ['matrix_room' => E::ts('Matrix room'), 'mattermost_channel' => E::ts('Mattermost channel'), 'mastodon_account' => E::ts('Mastodon account'), 'telegram_chat' => E::ts('Telegram chat')], TRUE);
+    $this->add('select', 'destination_type', E::ts('Destination type'), ['matrix_room' => E::ts('Matrix room'), 'mattermost_channel' => E::ts('Mattermost channel'), 'mastodon_account' => E::ts('Mastodon account'), 'bluesky_account' => E::ts('Bluesky account'), 'telegram_chat' => E::ts('Telegram chat')], TRUE);
     $this->add('text', 'room_id', E::ts('Matrix room ID'), ['size' => 70]); $this->add('text', 'room_alias', E::ts('Matrix room alias'), ['size' => 70]);
     $this->add('select', 'mattermost_channel_id', E::ts('Mattermost channel'), $channelOptions);
     $this->add('text', 'channel_override', E::ts('Mattermost channel override'), ['size' => 70]);
@@ -65,7 +65,7 @@ final class CRM_Civineonotify_Form_Destination extends CRM_Core_Form {
     $type = (string) ($v['destination_type'] ?? '');
     $transportType = (string) ($transport['transport_type'] ?? '');
     $mattermost = in_array($transportType, ['mattermost_webhook', 'mattermost_api'], TRUE);
-    $supportedType = $mattermost ? 'mattermost_channel' : ($transportType === 'mastodon' ? 'mastodon_account' : ($transportType === 'telegram' ? 'telegram_chat' : 'matrix_room'));
+    $supportedType = $mattermost ? 'mattermost_channel' : ($transportType === 'mastodon' ? 'mastodon_account' : ($transportType === 'bluesky' ? 'bluesky_account' : ($transportType === 'telegram' ? 'telegram_chat' : 'matrix_room')));
     if (!$transport || $type !== $supportedType) { $this->setElementError('destination_type', E::ts('Choose a destination type supported by the selected transport.')); return; }
     if ($type === 'matrix_room' && empty($v['room_id']) && empty($v['room_alias'])) { $this->setElementError('room_id', E::ts('Provide a Matrix room ID or alias.')); return; }
     if ($type === 'telegram_chat' && !preg_match('/^-[0-9]{1,20}$/', trim((string) ($v['telegram_chat_id'] ?? '')))) { $this->setElementError('telegram_chat_id', E::ts('Enter a negative numeric Telegram group, supergroup, or channel chat ID.')); return; }
@@ -77,7 +77,7 @@ final class CRM_Civineonotify_Form_Destination extends CRM_Core_Form {
     if ($type === 'mattermost_channel' && $api && $channel === '') { $this->setElementError('mattermost_channel_id', E::ts('Choose a Mattermost channel.')); return; }
     if ($type === 'mattermost_channel' && $api && (isset($this->mattermostApiChannelErrors[(string) $transport['id']]) || !isset($this->mattermostApiChannels[(string) $transport['id']][$channel]))) { $this->setElementError('mattermost_channel_id', E::ts('The Mattermost channels could not be loaded. Check the API token and try again.')); return; }
     if ($type === 'mattermost_channel' && $webhook && empty($existingConfig['token_key']) && trim((string) ($v['webhook_token'] ?? '')) === '') { $this->setElementError('webhook_token', E::ts('Enter a Mattermost hook token.')); return; }
-    $config = $type === 'mattermost_channel' ? array_filter(['channel' => $channel ?: NULL, 'token_key' => $webhook ? ($existingConfig['token_key'] ?? bin2hex(random_bytes(16))) : NULL], static fn($value) => $value !== NULL) : ($type === 'telegram_chat' ? ['chat_id' => trim((string) $v['telegram_chat_id'])] : ($type === 'mastodon_account' ? [] : ['room_id' => trim((string) ($v['room_id'] ?? '')) ?: NULL, 'room_alias' => trim((string) ($v['room_alias'] ?? '')) ?: NULL]));
+    $config = $type === 'mattermost_channel' ? array_filter(['channel' => $channel ?: NULL, 'token_key' => $webhook ? ($existingConfig['token_key'] ?? bin2hex(random_bytes(16))) : NULL], static fn($value) => $value !== NULL) : ($type === 'telegram_chat' ? ['chat_id' => trim((string) $v['telegram_chat_id'])] : (in_array($type, ['mastodon_account', 'bluesky_account'], TRUE) ? [] : ['room_id' => trim((string) ($v['room_id'] ?? '')) ?: NULL, 'room_alias' => trim((string) ($v['room_alias'] ?? '')) ?: NULL]));
     $record = ['transport_id' => (int) $v['transport_id'], 'name' => trim((string) $v['name']), 'description' => trim((string) ($v['description'] ?? '')), 'destination_type' => $type, 'config_json' => $config, 'is_active' => !empty($v['is_active'])];
     if ($this->id) \Civi\Api4\CiviNeoNotifyDestination::update(FALSE)->setWhere([['id', '=', $this->id]])->setValues($record)->execute(); else { $created = \Civi\Api4\CiviNeoNotifyDestination::create(FALSE)->setValues($record)->execute()->first(); $this->id = (int) $created['id']; }
     if ($type === 'mattermost_channel' && $webhook && trim((string) ($v['webhook_token'] ?? '')) !== '') {

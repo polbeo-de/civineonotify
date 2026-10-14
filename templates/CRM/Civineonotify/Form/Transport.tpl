@@ -22,6 +22,10 @@
     <tr class="telegram-field"><td class="label">{$form.telegram_disable_link_preview.label}</td><td>{$form.telegram_disable_link_preview.html}</td></tr>
     <tr class="telegram-field"><td class="label">{$form.telegram_disable_notification.label}</td><td>{$form.telegram_disable_notification.html}</td></tr>
     <tr class="telegram-field"><td class="label">{$form.telegram_protect_content.label}</td><td>{$form.telegram_protect_content.html}</td></tr>
+    <tr class="bluesky-field"><td class="label">{$form.bluesky_handle.label}</td><td>{$form.bluesky_handle.html}</td></tr>
+    <tr class="bluesky-field"><td class="label">{$form.bluesky_app_password.label}</td><td>{$form.bluesky_app_password.html}<div class="description">{ts}Stored outside CiviCRM in the protected token store. Use an App Password, never the account password.{/ts}</div>{if $blueskyPasswordSuffix}<div class="description">{ts}Stored token:{/ts} ••••{$blueskyPasswordSuffix|escape}</div>{/if}</td></tr>
+    <tr class="bluesky-field"><td class="label">{$form.bluesky_language.label}</td><td>{$form.bluesky_language.html}</td></tr>
+    <tr class="bluesky-field"><td class="label">{$form.bluesky_detect_links.label}</td><td>{$form.bluesky_detect_links.html}</td></tr>
     <tr class="nio-field"><td class="label">{$form.homeserver.label}</td><td>{$form.homeserver.html}</td></tr>
     <tr class="nio-field"><td class="label">{$form.python_path.label}</td><td>{$form.python_path.html}</td></tr>
     <tr class="nio-field"><td class="label">{$form.nio_client_path.label}</td><td>{$form.nio_client_path.html}<div class="description">{ts}The bundled client script must run in a Python environment with matrix-nio[e2e] installed.{/ts}</div></td></tr>
@@ -42,14 +46,16 @@ CRM.$(function($) {
     var mattermostApi = type === 'mattermost_api';
     var mastodon = type === 'mastodon';
     var telegram = type === 'telegram';
+    var bluesky = type === 'bluesky';
     $('.nio-field').toggle(nio);
     $('.mattermost-field').toggle(mattermost);
-    $('.external-token-field').toggle(mattermost || mastodon || telegram);
+    $('.external-token-field').toggle(mattermost || mastodon || telegram || bluesky);
     $('.mattermost-api-field').toggle(mattermostApi);
     $('.mastodon-field').toggle(mastodon);
     $('.telegram-field').toggle(telegram);
+    $('.bluesky-field').toggle(bluesky);
     $('#hooks_path').closest('tr').toggle(type === 'mattermost_webhook');
-    $('#binary_path, #credentials_path, #store_path, #working_directory').closest('tr').toggle(!nio && !mattermost && !mastodon && !telegram);
+    $('#binary_path, #credentials_path, #store_path, #working_directory').closest('tr').toggle(!nio && !mattermost && !mastodon && !telegram && !bluesky);
   }
   $('#transport_type').on('change', chooseTransport);
   chooseTransport();
