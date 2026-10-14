@@ -14,13 +14,7 @@ flowchart TB
   Job[CiviNeoNotifyDelivery.runoutbox<br/>scheduled outbox worker]
   Factory[Transport factory]
   Store[(Protected external storage<br/>credentials, tokens, and E2EE stores)]
->>>>>>> 87362f6 (Harmonize multi-transport documentation)
 
-The CiviCRM Scheduled Jobs runner uses API v3. `CiviNeoNotifyDelivery.runoutbox` is therefore a narrow API v3 bridge to the worker; the administrative UI uses API v4 actions separately. A rule match only enqueues a notification. Retrying an entry returns it to `pending`; the serial worker performs the actual send.
-
-<<<<<<< HEAD
-The resolver boundary is `rule → event default (reserved) → entity default (reserved) → global setting`. Version 0.0.1 exposes rule and global values. Inbound Matrix support is deliberately not implemented; see `inbound-roadmap.md`.
-=======
   Factory --> Matrix[Matrix<br/>Commander RS or Nio]
   Factory --> MMWebhook[Mattermost<br/>Incoming Webhook]
   Factory --> MMApi[Mattermost<br/>API / bot]
