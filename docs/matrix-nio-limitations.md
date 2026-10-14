@@ -48,8 +48,9 @@ The required Matrix-Nio interoperability fixes are not yet upstream releases.
 They cover the modern `hkdf-hmac-sha256.v2` MAC negotiation, Vodozemac emoji
 index handling, request/ready event modelling, and safe verification-state
 diagnostics. CiviNeo Notify must not silently rely on an arbitrary system
-`pip install matrix-nio`: an operator needs the documented, pinned runtime
-bundle for the matching CiviNeo release.
+`pip install matrix-nio`. No documented, pinned runtime bundle is currently
+published for a matching CiviNeo release, so external operators must not select
+this transport yet.
 
 ## Experimental in-room SAS for another user
 

@@ -12,6 +12,7 @@ final class TransportFactory {
       'mattermost_webhook' => new MattermostWebhookTransport($config),
       'mattermost_api' => new MattermostApiTransport($config),
       'mastodon' => new MastodonTransport($config),
+      'telegram' => new TelegramTransport($config),
       default => throw new \InvalidArgumentException('Unsupported transport type.'),
     };
   }
