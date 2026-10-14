@@ -84,8 +84,10 @@ The token is stored only in the protected external token store.
 The language is selected from the CiviCRM language list and stored as a BCP 47
 tag; leave it empty when the account should not declare a post language.
 
-Create one **Mastodon account** destination for each Mastodon transport and set
-it as that transport's default destination. Supported visibility values are
+When creating a Mastodon transport, CiviNeo Notify offers to create and select
+its neutral **Mastodon account** destination automatically. Keep the suggested
+option or give the destination a meaningful name. You can also add a destination
+manually. Supported visibility values are
 **Public**, **Unlisted**, and **Followers only**. Direct messages, media,
 polls, threads, and automatic truncation are deliberately unsupported.
 
@@ -163,8 +165,9 @@ never use the main account password. Configure the account handle and App
 Password in CiviNeo Notify. The password is held only in the protected external
 token store and is subsequently displayed only by its final four characters.
 
-Create one neutral **Bluesky account** destination for the transport and select
-it as its default destination. Each transport represents one public account;
+When creating a Bluesky transport, CiviNeo Notify offers to create and select
+its neutral **Bluesky account** destination automatically. You can also add it
+manually. Each transport represents one public account;
 use additional transports for additional accounts. Posts are public only:
 direct messages, visibility controls, media, threads, replies, editing, and
 timeline polling are deliberately unsupported.

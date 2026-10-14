@@ -32,6 +32,8 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $this->add('password', 'bluesky_app_password', E::ts('Bluesky App Password'), ['size' => 70]);
     $this->add('select', 'bluesky_language', E::ts('Default Bluesky language'), $languages, FALSE, ['class' => 'crm-select2']);
     $this->add('checkbox', 'bluesky_detect_links', E::ts('Detect Bluesky links automatically'));
+    $this->add('checkbox', 'create_social_default_destination', E::ts('Create and set a default destination'));
+    $this->add('text', 'social_default_destination_name', E::ts('Default destination name'), ['size' => 70]);
     $this->add('checkbox', 'allow_unverified_recipient_devices', E::ts('Allow unverified recipient devices'));
     $destinationOptions = $this->id
       ? civineonotify_destinationOptions(TRUE, $this->id, E::ts('- No default destination -'))
@@ -45,6 +47,7 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $this->addButtons([['type' => 'submit', 'name' => E::ts('Save transport'), 'isDefault' => TRUE], ['type' => 'cancel', 'name' => E::ts('Cancel')]]);
     if ($this->id) {
       $row = \Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? [];
+      $this->assign('canCreateSocialDefaultDestination', empty($row['default_destination_id']));
       if (($row['transport_type'] ?? NULL) === 'mastodon') {
         $config = is_array($row['config_json'] ?? NULL) ? $row['config_json'] : [];
         try {
@@ -75,7 +78,7 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     }
   }
   public function setDefaultValues(): array {
-    if (!$this->id) { $protected=(string)\Civi::settings()->get('civineonotify_protected_transport_storage_directory'); return ['is_active' => 1, 'transport_type' => 'matrix_commander_rs', 'timeout_seconds' => 30, 'working_directory' => $protected ?: '/tmp', 'token_store_file' => $protected ? rtrim($protected, '/') . '/mattermost-tokens.json' : '', 'nio_client_path' => dirname(__DIR__, 3) . '/bin/matrix-nio-client', 'mastodon_visibility' => 'public', 'telegram_disable_link_preview' => 1, 'bluesky_detect_links' => 1]; }
+    if (!$this->id) { $protected=(string)\Civi::settings()->get('civineonotify_protected_transport_storage_directory'); $this->assign('canCreateSocialDefaultDestination', TRUE); return ['is_active' => 1, 'transport_type' => 'matrix_commander_rs', 'timeout_seconds' => 30, 'working_directory' => $protected ?: '/tmp', 'token_store_file' => $protected ? rtrim($protected, '/') . '/mattermost-tokens.json' : '', 'nio_client_path' => dirname(__DIR__, 3) . '/bin/matrix-nio-client', 'mastodon_visibility' => 'public', 'telegram_disable_link_preview' => 1, 'bluesky_detect_links' => 1, 'create_social_default_destination' => 1]; }
     $row = \Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? [];
     $config = is_array($row['config_json'] ?? NULL) ? $row['config_json'] : [];
     $defaults = array_merge($row, $config);
@@ -98,6 +101,9 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $existing = $this->id ? (\Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? []) : [];
     $existingConfig = is_array($existing['config_json'] ?? NULL) ? $existing['config_json'] : [];
     $type = (string) $v['transport_type'];
+    $createSocialDefaultDestination = in_array($type, ['mastodon', 'bluesky'], TRUE)
+      && !empty($v['create_social_default_destination'])
+      && (empty($existing['default_destination_id']));
     if (in_array($type, ['mattermost_webhook', 'mattermost_api', 'mastodon', 'telegram', 'bluesky'], TRUE) && empty($v['token_store_file'])) { $protected=(string)\Civi::settings()->get('civineonotify_protected_transport_storage_directory'); if ($protected !== '') $v['token_store_file']=rtrim($protected, '/') . ($type === 'mastodon' ? 'mastodon-tokens.json' : ($type === 'telegram' ? 'telegram-tokens.json' : ($type === 'bluesky' ? 'bluesky-tokens.json' : 'mattermost-tokens.json'))); }
     if (!in_array($type, ['matrix_commander_rs', 'matrix_nio', 'mattermost_webhook', 'mattermost_api', 'mastodon', 'telegram', 'bluesky'], TRUE)) { $this->setElementError('transport_type', E::ts('Choose a supported transport type.')); return; }
     if (in_array($type, ['matrix_commander_rs', 'matrix_nio'], TRUE)) {
@@ -151,6 +157,18 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     if ($type === 'mastodon' && trim((string)($v['mastodon_access_token']??'')) !== '') try { (new \Civi\Civineonotify\Transport\MattermostTokenStore((string)$config['token_store_file']))->put((string)$config['api_token_key'], trim((string)$v['mastodon_access_token'])); } catch (\Throwable) { throw new CRM_Core_Exception(E::ts('The Mastodon access token could not be stored.')); }
     if ($type === 'telegram' && trim((string)($v['telegram_bot_token']??'')) !== '') try { (new \Civi\Civineonotify\Transport\MattermostTokenStore((string)$config['token_store_file']))->put((string)$config['api_token_key'], trim((string)$v['telegram_bot_token'])); } catch (\Throwable) { throw new CRM_Core_Exception(E::ts('The Telegram bot token could not be stored.')); }
     if ($type === 'bluesky' && trim((string)($v['bluesky_app_password']??'')) !== '') try { (new \Civi\Civineonotify\Transport\MattermostTokenStore((string)$config['token_store_file']))->put((string)$config['api_token_key'], trim((string)$v['bluesky_app_password'])); } catch (\Throwable) { throw new CRM_Core_Exception(E::ts('The Bluesky App Password could not be stored.')); }
+    if ($createSocialDefaultDestination) {
+      $destinationName = trim((string) ($v['social_default_destination_name'] ?? ''));
+      if ($destinationName === '') $destinationName = trim((string) $v['name']) . ' — ' . E::ts('Default');
+      $destination = \Civi\Api4\CiviNeoNotifyDestination::create(FALSE)->setValues([
+        'transport_id' => $this->id,
+        'name' => $destinationName,
+        'destination_type' => $type === 'mastodon' ? 'mastodon_account' : 'bluesky_account',
+        'config_json' => [],
+        'is_active' => TRUE,
+      ])->execute()->first();
+      \Civi\Api4\CiviNeoNotifyTransport::update(FALSE)->setWhere([['id', '=', $this->id]])->setValues(['default_destination_id' => (int) $destination['id']])->execute();
+    }
     CRM_Core_Session::setStatus(E::ts('Transport saved.'), E::ts('Saved'), 'success'); CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/admin/civineonotify/transports', ['reset' => 1]));
   }
 }
