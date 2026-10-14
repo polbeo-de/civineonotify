@@ -1,16 +1,17 @@
 # CiviNeo Notify
 
 `de.polbeo.civicrm.civineonotify` is an AGPL-3.0-or-later CiviCRM extension for
-rule-based outbound notifications. Matrix and Mattermost Webhook/API transports are
-supported transports. It is currently an alpha and is disabled by default.
+rule-based outbound notifications. It turns CiviCRM events into durable delivery
+records and can send the same information independently through Matrix,
+Mattermost (Webhook or API), Mastodon, Telegram, and Bluesky. It is currently
+an alpha and is disabled by default.
 
 ## Why “CiviNeo Notify”?
 
-The first working transport was Matrix, and “Neo” is a small nod to that
-origin. It became clear very quickly, however, that CiviCRM needs a general
-outbound-notification capability rather than a Matrix-only feature. CiviNeo
-Notify therefore starts with Matrix as its reference transport, while its
-product direction is to support further destinations and messenger services.
+The first working transport was Matrix, and “Neo” is a nod to that origin.
+Today the name represents a general CiviCRM event broker: one event can be
+routed to several independently configured destinations and channels. Matrix
+is a supported transport, not the product boundary.
 
 ## What it does
 
@@ -23,25 +24,27 @@ product direction is to support further destinations and messenger services.
 - Provides a searchable event selector, JSON conditions, editable transport and
   destination records, delivery log, and an explicitly requested transport
   test.
-- Separates hooks from transports. Sending is reserved for a serial scheduled
-  worker and uses isolated transport implementations.
+- Separates hooks from transports. Sending is reserved for a scheduled worker
+  and isolated transport implementations.
 
-No Matrix message is sent at installation or activation. Stage 2 inbound Matrix
-commands are documented but intentionally not present.
+No external notification is sent at installation or activation. Inbound
+commands are documented as a future, transport-neutral capability but are not
+implemented.
 
 ## Requirements and installation
 
-Target runtime is CiviCRM 6.15+ and PHP 8.1+; development reference is Civix
+Target runtime is CiviCRM 6.16+ and PHP 8.1+; development reference is Civix
 format 25.10.2. Install the extension normally into CiviCRM's extension
 directory, install Composer development dependencies when running tests, enable
 it in CiviCRM, then configure it under **Administer → System Settings → CiviNeo
-Notify**. Keep it disabled until a transport, destination, and explicit rule
-are reviewed.
+Notify**. Keep it disabled until at least one transport, destination, and
+explicit rule are reviewed.
 
-`matrix-commander-rs` is an external deployment prerequisite. Its supported
-credentials/store, stdin-message, room, timeout, and JSON-output options have
-been verified against version 0.11.0. See
-[configuration](docs/configuration.md).
+Most transports use CiviCRM's PHP and cURL runtime only. A Matrix Commander
+transport additionally needs the external `matrix-commander-rs` client. Its
+supported credentials/store, stdin-message, room, timeout, and JSON-output
+options have been verified against version 0.11.0. See
+[configuration](docs/configuration.md) for all transport-specific setup.
 
 For encrypted Matrix transports, follow the dedicated
 [provisioning guide](docs/matrix-provisioning.md). It documents the bot account,

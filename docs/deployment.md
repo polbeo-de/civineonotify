@@ -7,11 +7,11 @@
 | Staging | Exact commit from the designated staging branch | Integration and release-candidate checks |
 | Production | Validated installation ZIP built from an annotated release tag | Live operation |
 
-`main` is the integration and release source. `staging` is advanced from an
-approved `main` commit and is the only branch that may be deployed to the
-staging environment. Production never receives a Git working tree, an `rsync` of a
-developer checkout, or an arbitrary branch. It receives the same ZIP that an
-external administrator downloads for installation.
+The designated staging branch is the integration and release-candidate source.
+The public repository may use a corresponding release branch before it is
+merged into its default branch. Production never receives a Git working tree,
+an `rsync` of a developer checkout, or an arbitrary branch. It receives the
+same ZIP that an external administrator downloads for installation.
 
 ## Staging deployment
 

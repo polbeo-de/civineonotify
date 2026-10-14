@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Reframe and harmonise the public documentation around multi-transport event
+  brokering, independent destinations, protected external credentials, and the
+  current delivery model.
+
 ## 0.0.3-alpha.5 — 2026-10-14
 
 - Offer to create and select the neutral default destination while saving a new
