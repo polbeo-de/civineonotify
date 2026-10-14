@@ -30,6 +30,22 @@ This repository implements the CiviCRM extension
 - Do not tag or publish without an approved release checklist and maintainer
   approval.
 
+## Public release workflow
+
+Use the same review trail for every public pre-release and stable release:
+
+1. Create `publish/<version>` from the approved staging commit and update the
+   version, changelog, documentation, and release checklist.
+2. Run the required validation and secret scan, build the installation ZIP from
+   the annotated tag, and verify the intended archive before publication.
+3. Push the release branch and open a pull request from `publish/<version>` to
+   `main`. A tag or GitHub Release never replaces this pull request.
+4. With maintainer approval, publish the GitHub Release and attach the
+   installation ZIP as a release **asset**. Mark testing builds as
+   pre-releases; do not put the sole archive link only in the release text.
+5. Merge the approved release pull request into `main`. Keep the branch and
+   tag references consistent with the published release.
+
 ## Deployment paths
 
 - The CiviCRM CLI is available as `~/bin/cv`.
