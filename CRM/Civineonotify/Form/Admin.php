@@ -52,7 +52,7 @@ final class CRM_Civineonotify_Form_Admin extends CRM_Core_Form {
     }
     if ($this->entity === 'CiviNeoNotifyDestination' && $action === 'test' && CRM_Core_Permission::check('send civineo notify test messages')) {
       $test = \Civi\Api4\CiviNeoNotifyDestination::testDestination(FALSE)->setId($id)->execute()->first();
-      CRM_Core_Session::setStatus(($test['success'] ?? FALSE) ? E::ts('Destination test message sent.') : E::ts('Destination test message failed: %1', [1 => $test['category'] ?? 'unknown']));
+      CRM_Core_Session::setStatus(($test['success'] ?? FALSE) ? E::ts('Destination test message sent.') : E::ts('Destination test message failed: %1', [1 => $test['category'] ?? 'unknown']), ($test['success'] ?? FALSE) ? E::ts('Test sent') : E::ts('Test failed'), ($test['success'] ?? FALSE) ? 'success' : 'error');
     }
     if ($this->entity === 'CiviNeoNotifyDelivery' && in_array($action, ['cancel', 'retry'], TRUE) && CRM_Core_Permission::check('retry civineo notify deliveries')) {
       call_user_func([\Civi\Api4\CiviNeoNotifyDelivery::class, $action], FALSE)->setId($id)->execute();
