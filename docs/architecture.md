@@ -11,9 +11,12 @@ flowchart TB
   Civi[CiviCRM events, templates, rules, and destinations]
   Hook[Short post-hook<br/>normalize and enqueue only]
   Outbox[(CiviNeoNotifyDelivery<br/>persistent outbox)]
-  Job[CiviNeoNotifyDelivery.runoutbox<br/>scheduled outbox worker]
+  Job[CiviNeoNotifyDelivery.runOutbox<br/>scheduled outbox worker]
   Factory[Transport factory]
   Store[(Protected external storage<br/>credentials, tokens, and E2EE stores)]
+
+  Civi --> Hook --> Outbox --> Job --> Factory
+  Store -. configuration and secrets .-> Factory
 
   Factory --> Matrix[Matrix<br/>Commander RS or Nio]
   Factory --> MMWebhook[Mattermost<br/>Incoming Webhook]
@@ -42,11 +45,11 @@ correlation and transaction IDs are persisted before sending. The worker records
 success, failure, retry timing, and `delivery_unknown` outcomes in the delivery
 log. A failed delivery does not block other queued deliveries.
 
-The CiviCRM Scheduled Jobs runner uses API v3.
-`CiviNeoNotifyDelivery.runoutbox` is therefore a narrow API v3 bridge to the
-worker; the administrative UI and manual tests use API v4 actions. Retrying an
-entry returns it to `pending`; the worker processes its selected batch
-sequentially.
+`CiviNeoNotifyDelivery.runOutbox` is a CiviCRM 6.16-compatible API v4
+scheduled-job Action. The managed job supplies its `version=4` parameter and
+the Action is a narrow entry point to the worker; the administrative UI and
+manual tests also use API v4 actions. Retrying an entry returns it to `pending`;
+the worker processes its selected batch sequentially.
 
 Secrets are never stored in CiviCRM transport or destination records. A global
 protected-storage-directory setting provides the default location for

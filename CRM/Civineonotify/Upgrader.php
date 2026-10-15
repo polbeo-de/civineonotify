@@ -25,6 +25,22 @@ final class CRM_Civineonotify_Upgrader extends CRM_Extension_Upgrader_Base {
     return TRUE;
   }
 
+  /** Move the managed outbox job to its APIv4 action without discarding settings. */
+  public function upgrade_1001(): bool {
+    $jobs = CRM_Core_DAO::executeQuery('SELECT id, parameters FROM civicrm_job WHERE api_entity = %1 AND api_action = %2', [
+      1 => ['CiviNeoNotifyDelivery', 'String'],
+      2 => ['runOutbox', 'String'],
+    ]);
+    while ($jobs->fetch()) {
+      $parameters = $this->withApiV4Version((string) ($jobs->parameters ?? ''));
+      CRM_Core_DAO::executeQuery('UPDATE civicrm_job SET parameters = %1 WHERE id = %2', [
+        1 => [$parameters, 'String'],
+        2 => [(int) $jobs->id, 'Integer'],
+      ]);
+    }
+    return TRUE;
+  }
+
   private function migrateMatrixConfiguration(): void {
     $transport = CRM_Core_DAO::executeQuery('SELECT id, binary_path, credentials_path, store_path, config_path, working_directory, timeout_seconds, options, config_json FROM civicrm_civineonotify_transport');
     while ($transport->fetch()) {
@@ -37,6 +53,13 @@ final class CRM_Civineonotify_Upgrader extends CRM_Extension_Upgrader_Base {
       if (!$destination->config_json) CRM_Core_DAO::executeQuery('UPDATE civicrm_civineonotify_destination SET config_json = %1 WHERE id = %2', [1 => [json_encode(['room_id' => $destination->room_id, 'room_alias' => $destination->room_alias], JSON_UNESCAPED_SLASHES), 'String'], 2 => [(int) $destination->id, 'Integer']]);
       if ($destination->is_default) CRM_Core_DAO::executeQuery('UPDATE civicrm_civineonotify_transport SET default_destination_id = COALESCE(default_destination_id, %1) WHERE id = %2', [1 => [(int) $destination->id, 'Integer'], 2 => [(int) $destination->transport_id, 'Integer']]);
     }
+  }
+  private function withApiV4Version(string $parameters): string {
+    $lines = preg_split('/\r?\n/', trim($parameters)) ?: [];
+    $withoutVersion = array_values(array_filter($lines, static fn(string $line): bool => preg_match('/^version\s*=/i', trim($line)) !== 1));
+    if ($withoutVersion === []) $withoutVersion[] = 'batchSize=25';
+    array_unshift($withoutVersion, 'version=4');
+    return implode("\n", $withoutVersion);
   }
   private function renameTable(string $old, string $new): void { if ($this->tableExists($old) && !$this->tableExists($new)) CRM_Core_DAO::executeQuery("RENAME TABLE `$old` TO `$new`"); }
   private function tableExists(string $table): bool { return (bool) CRM_Core_DAO::singleValueQuery('SHOW TABLES LIKE %1', [1 => [$table, 'String']]); }
