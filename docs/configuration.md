@@ -266,12 +266,28 @@ value; test such rules with representative records before activating them.
 
 ### Example: notify when a new case is created
 
-Create an active rule with these form values:
+This example announces each newly created case to an internal operations
+channel and a separate on-call channel. It illustrates the broker model: one
+CiviCRM event can create independent deliveries for more than one destination
+and transport.
 
-- **Rule name**: `New case`
+First, configure two active destinations. For example, an **Operations cases**
+destination can use a Mattermost transport while an **On-call cases**
+destination uses Telegram. The destinations may use any supported transports;
+the useful distinction here is the audience, not the provider.
+
+Then create two active rules. Both rules use the same event and message
+template, but each selects one of the two destinations:
+
+- **Rule name**: `New case — operations`
 - **Event name**: `civicrm.case.create`
-- **Destination**: the destination that should receive the notification
+- **Destination**: `Operations cases`
 - **Message template**: `New case #{case.id}: {case.contact.first_name} {case.contact.last_name}`
+
+For the second rule, use **Rule name** `New case — on-call` and select
+`On-call cases` as its destination. When CiviCRM creates a case, CiviNeo Notify
+queues one delivery for each matching rule. A failure or retry on one channel
+does not prevent the other notification from being sent.
 
 The event name already limits this rule to newly created cases, so conditions
 are optional. The following JSON is an explicit, equivalent filter and a useful
@@ -326,7 +342,7 @@ For case events, these additional tokens provide readable values:
 - `{case.status.old}` and `{case.status.new}`
 - `{case.contact.first_name}` and `{case.contact.last_name}`
 
-For example: `Fall #{case.id}: {case.status.old} → {case.status.new} ({case.contact.first_name} {case.contact.last_name})`.
+For example: `Case #{case.id}: {case.status.old} → {case.status.new} ({case.contact.first_name} {case.contact.last_name})`.
 
 ### Extending the token allowlist
 
