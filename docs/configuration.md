@@ -223,10 +223,10 @@ devices; it does not verify the bot device and must not be used to mask a
 failed or incomplete Matrix-Nio verification.
 
 Set global defaults, create inactive example rules, then enable both a specific
-rule and the extension. Configure the `CiviNeoNotifyDelivery.runoutbox`
-scheduled job so executions do not overlap. This is a CiviCRM API v3 bridge to
-the extension worker; scheduled jobs do not invoke custom API v4 actions
-directly. Back up credentials and the Matrix store together, separately from
+rule and the extension. Configure the `CiviNeoNotifyDelivery.runOutbox`
+scheduled job so executions do not overlap. It invokes the extension's
+CiviCRM 6.16-compatible API v4 scheduled-job Action, which delegates to the
+worker. Back up credentials and the Matrix store together, separately from
 the database, using protected backup storage.
 
 ## Rules and conditions
@@ -266,12 +266,28 @@ value; test such rules with representative records before activating them.
 
 ### Example: notify when a new case is created
 
-Create an active rule with these form values:
+This example announces each newly created case to an internal operations
+channel and a separate on-call channel. It illustrates the broker model: one
+CiviCRM event can create independent deliveries for more than one destination
+and transport.
 
-- **Rule name**: `New case`
+First, configure two active destinations. For example, an **Operations cases**
+destination can use a Mattermost transport while an **On-call cases**
+destination uses Telegram. The destinations may use any supported transports;
+the useful distinction here is the audience, not the provider.
+
+Then create two active rules. Both rules use the same event and message
+template, but each selects one of the two destinations:
+
+- **Rule name**: `New case — operations`
 - **Event name**: `civicrm.case.create`
-- **Destination**: the destination that should receive the notification
+- **Destination**: `Operations cases`
 - **Message template**: `New case #{case.id}: {case.contact.first_name} {case.contact.last_name}`
+
+For the second rule, use **Rule name** `New case — on-call` and select
+`On-call cases` as its destination. When CiviCRM creates a case, CiviNeo Notify
+queues one delivery for each matching rule. A failure or retry on one channel
+does not prevent the other notification from being sent.
 
 The event name already limits this rule to newly created cases, so conditions
 are optional. The following JSON is an explicit, equivalent filter and a useful
@@ -310,7 +326,7 @@ The selected destination determines its transport. When only a transport is
 set on the rule, CiviNeo Notify resolves that transport's default destination.
 The delivery is stored as `pending` before any external transport is called.
 The **CiviNeoNotify: Process outbox** scheduled job invokes
-`CiviNeoNotifyDelivery.runoutbox`; its worker selects due pending or retry
+`CiviNeoNotifyDelivery.runOutbox`; its worker selects due pending or retry
 deliveries, checks that both transport and destination are active, and then
 sends through the appropriate configured transport. Results, retry timing, and
 failures are recorded in the delivery log. A failed delivery does not block
@@ -326,7 +342,7 @@ For case events, these additional tokens provide readable values:
 - `{case.status.old}` and `{case.status.new}`
 - `{case.contact.first_name}` and `{case.contact.last_name}`
 
-For example: `Fall #{case.id}: {case.status.old} → {case.status.new} ({case.contact.first_name} {case.contact.last_name})`.
+For example: `Case #{case.id}: {case.status.old} → {case.status.new} ({case.contact.first_name} {case.contact.last_name})`.
 
 ### Extending the token allowlist
 
