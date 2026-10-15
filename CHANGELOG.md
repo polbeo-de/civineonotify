@@ -2,9 +2,14 @@
 
 ## Unreleased
 
+## 0.0.3-alpha.6 — 2026-10-15
+
+- Run the managed outbox job through the CiviCRM 6.16-compatible API v4
+  scheduled-job Action and remove its legacy API v3 bridge.
+
 - Reframe and harmonise the public documentation around multi-transport event
   brokering, independent destinations, protected external credentials, and the
-  current delivery model.
+  current delivery model; add a parallel case-created notification example.
 
 ## 0.0.3-alpha.5 — 2026-10-14
 
