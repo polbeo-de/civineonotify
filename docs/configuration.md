@@ -223,10 +223,10 @@ devices; it does not verify the bot device and must not be used to mask a
 failed or incomplete Matrix-Nio verification.
 
 Set global defaults, create inactive example rules, then enable both a specific
-rule and the extension. Configure the `CiviNeoNotifyDelivery.runoutbox`
-scheduled job so executions do not overlap. This is a CiviCRM API v3 bridge to
-the extension worker; scheduled jobs do not invoke custom API v4 actions
-directly. Back up credentials and the Matrix store together, separately from
+rule and the extension. Configure the `CiviNeoNotifyDelivery.runOutbox`
+scheduled job so executions do not overlap. It invokes the extension's
+CiviCRM 6.16-compatible API v4 scheduled-job Action, which delegates to the
+worker. Back up credentials and the Matrix store together, separately from
 the database, using protected backup storage.
 
 ## Rules and conditions
@@ -310,7 +310,7 @@ The selected destination determines its transport. When only a transport is
 set on the rule, CiviNeo Notify resolves that transport's default destination.
 The delivery is stored as `pending` before any external transport is called.
 The **CiviNeoNotify: Process outbox** scheduled job invokes
-`CiviNeoNotifyDelivery.runoutbox`; its worker selects due pending or retry
+`CiviNeoNotifyDelivery.runOutbox`; its worker selects due pending or retry
 deliveries, checks that both transport and destination are active, and then
 sends through the appropriate configured transport. Results, retry timing, and
 failures are recorded in the delivery log. A failed delivery does not block

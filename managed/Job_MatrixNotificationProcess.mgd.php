@@ -10,13 +10,14 @@ return [[
   'cleanup' => 'unused',
   'update' => 'never',
   'params' => [
+    // Managed-entity declaration API; the scheduled action version is below.
     'version' => 3,
     'name' => E::ts('CiviNeo Notify: Process outbox'),
-    'description' => E::ts('Processes pending CiviNeo Notify deliveries serially.'),
+    'description' => E::ts('Processes pending CiviNeo Notify deliveries.'),
     'run_frequency' => 'Always',
     'api_entity' => 'CiviNeoNotifyDelivery',
     'api_action' => 'runOutbox',
-    'parameters' => 'batchSize=25',
+    'parameters' => "version=4\nbatchSize=25",
     'is_active' => TRUE,
   ],
 ]];
