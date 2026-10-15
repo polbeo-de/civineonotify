@@ -39,6 +39,10 @@ release, switch with `gh auth switch --hostname github.com --user polbeo` and
 verify `gh api user --jq .login` returns `polbeo`; switch back to `hfcoma` for
 normal individual development work when needed.
 
+Submit upstream Matrix-Nio issues and pull requests as the `polbeo` account,
+after verifying the active GitHub CLI identity. Switch back to `hfcoma` after
+the upstream contribution is submitted unless another `polbeo` action follows.
+
 1. Create `publish/<version>` from the approved staging commit and update the
    version, changelog, documentation, and release checklist.
 2. Run the required validation and secret scan, build the installation ZIP from
