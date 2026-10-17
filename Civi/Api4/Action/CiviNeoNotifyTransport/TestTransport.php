@@ -14,16 +14,17 @@ use Civi\Civineonotify\Rule\MessageRenderer;
 use Civi\Civineonotify\Transport\NotificationDestination;
 use Civi\Civineonotify\Transport\NotificationMessage;
 use Civi\Civineonotify\Transport\TransportFactory;
+use CRM_Civineonotify_ExtensionUtil as E;
 
 final class TestTransport extends AbstractAction {
   protected int $id;
 
   public function _run(Result $result): void {
     $transport = CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first();
-    if (!$transport || empty($transport['is_active'])) throw new \CRM_Core_Exception('Transport not found or inactive.');
+    if (!$transport || empty($transport['is_active'])) throw new \CRM_Core_Exception(E::ts('Transport not found or inactive.'));
     $destinationId = (int) ($transport['default_destination_id'] ?? 0);
     if (!$destinationId) {
-      $result[] = ['success' => FALSE, 'category' => 'default_destination_missing', 'message' => 'Set an active default destination before sending a test.'];
+      $result[] = ['success' => FALSE, 'category' => 'default_destination_missing', 'message' => E::ts('Set an active default destination before sending a test.')];
       return;
     }
     $destination = CiviNeoNotifyDestination::get(FALSE)
@@ -32,7 +33,7 @@ final class TestTransport extends AbstractAction {
       ->addWhere('is_active', '=', TRUE)
       ->execute()->first();
     if (!$destination) {
-      $result[] = ['success' => FALSE, 'category' => 'default_destination_missing', 'message' => 'The configured default destination is unavailable.'];
+      $result[] = ['success' => FALSE, 'category' => 'default_destination_missing', 'message' => E::ts('The configured default destination is unavailable.')];
       return;
     }
 
@@ -42,7 +43,7 @@ final class TestTransport extends AbstractAction {
     $config = is_array($transport['config_json'] ?? NULL) ? $transport['config_json'] : [];
     $destinationConfig = is_array($destination['config_json'] ?? NULL) ? $destination['config_json'] : [];
     try { $client = TransportFactory::create((string) $transport['transport_type'], $config); }
-    catch (\Throwable) { throw new \CRM_Core_Exception('The transport type is unsupported.'); }
+    catch (\Throwable) { throw new \CRM_Core_Exception(E::ts('The transport type is unsupported.')); }
     $response = $client->send(
       new NotificationMessage($body, (string) \Civi::settings()->get('civineonotify_default_message_format')),
       new NotificationDestination($destinationConfig),

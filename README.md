@@ -31,6 +31,23 @@ No external notification is sent at installation or activation. Inbound
 commands are documented as a future, transport-neutral capability but are not
 implemented.
 
+## Quick start: announce a newly created case
+
+To route a case-created event to more than one audience, create the required
+transports and one active destination for each audience. Then create two active
+rules with the event name `civicrm.case.create`: for example, one rule for an
+operations destination and one for an on-call destination. Both rules can use
+the message template:
+
+```
+New case #{case.id}: {case.contact.first_name} {case.contact.last_name}
+```
+
+Each matching rule creates its own persistent delivery. A retry or failure for
+one destination therefore does not stop the other notification. The complete
+step-by-step example, including conditions and delivery behaviour, is in
+[Notify when a new case is created](docs/configuration.md#example-notify-when-a-new-case-is-created).
+
 ## Requirements and installation
 
 Target runtime is CiviCRM 6.16+ and PHP 8.1+; development reference is Civix
@@ -59,9 +76,9 @@ unencrypted verification room; it does not share room keys during verification.
 It remains an **internal alpha integration**: its pinned Python runtime and
 narrowly scoped interoperability patches are not bundled or published as an
 installable artifact. External installations should use Matrix Commander until
-a reproducible Matrix-Nio runtime bundle is released. Read the [Matrix-Nio
-status and design rationale](docs/matrix-nio-limitations.md) before selecting
-it.
+a reproducible Matrix-Nio runtime bundle is released. Read the
+[Matrix-Nio design rationale and alpha status](docs/matrix-nio-limitations.md#matrix-nio-design-rationale-and-alpha-status)
+before selecting it.
 
 Deployment responsibilities and the staging/release-artifact workflow are
 documented in [deployment](docs/deployment.md). Production installations must
@@ -70,9 +87,10 @@ use the validated release ZIP, not a source checkout.
 ## Documentation and support
 
 - [Architecture](docs/architecture.md)
+- [Translations](l10n/README.md)
 - [Configuration](docs/configuration.md)
 - [Initial transport provisioning](docs/provisioning.md)
-- [Matrix-Nio E2EE and device-verification status](docs/matrix-nio-limitations.md)
+- [Matrix-Nio design rationale and alpha status](docs/matrix-nio-limitations.md#matrix-nio-design-rationale-and-alpha-status)
 - [Security and privacy](docs/security.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [Inbound roadmap](docs/inbound-roadmap.md)

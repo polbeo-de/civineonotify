@@ -1,4 +1,4 @@
-# Matrix-Nio E2EE and device-verification status
+# Matrix-Nio design rationale and alpha status
 
 ## Verified alpha scope
 

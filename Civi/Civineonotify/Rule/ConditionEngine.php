@@ -5,16 +5,17 @@ declare(strict_types=1);
 namespace Civi\Civineonotify\Rule;
 
 use Civi\Civineonotify\Event\NormalizedEvent;
+use CRM_Civineonotify_ExtensionUtil as E;
 
 final class ConditionEngine {
   private const OPERATORS = ['=', '!=', 'in', 'not_in', 'contains', 'is_empty', 'is_not_empty', 'changed'];
   public function validate(array $condition): void {
     if (!$condition) { return; }
     $key = isset($condition['all']) ? 'all' : (isset($condition['any']) ? 'any' : NULL);
-    if (!$key || !is_array($condition[$key])) { throw new \InvalidArgumentException('Condition requires an all or any list.'); }
+    if (!$key || !is_array($condition[$key])) { throw new \InvalidArgumentException(E::ts('Condition requires an all or any list.')); }
     foreach ($condition[$key] as $clause) {
-      if (!is_array($clause) || !isset($clause['field'], $clause['operator']) || !in_array($clause['operator'], self::OPERATORS, TRUE)) { throw new \InvalidArgumentException('Condition contains an unsupported clause.'); }
-      if (!preg_match('/^(event|entity|data|previous)\\.[A-Za-z0-9_.:-]+$/', (string) $clause['field'])) { throw new \InvalidArgumentException('Condition field is not allowlisted.'); }
+      if (!is_array($clause) || !isset($clause['field'], $clause['operator']) || !in_array($clause['operator'], self::OPERATORS, TRUE)) { throw new \InvalidArgumentException(E::ts('Condition contains an unsupported clause.')); }
+      if (!preg_match('/^(event|entity|data|previous)\\.[A-Za-z0-9_.:-]+$/', (string) $clause['field'])) { throw new \InvalidArgumentException(E::ts('Condition field is not allowlisted.')); }
     }
   }
   public function matches(array $condition, NormalizedEvent $event): bool {

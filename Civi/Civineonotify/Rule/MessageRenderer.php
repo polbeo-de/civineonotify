@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Civi\Civineonotify\Rule;
 
 use Civi\Civineonotify\Event\NormalizedEvent;
+use CRM_Civineonotify_ExtensionUtil as E;
 
 final class MessageRenderer {
-  public function validate(string $template): void { preg_match_all('/\{([^}]+)\}/', $template, $m); foreach ($m[1] as $token) { if (!$this->tokenValue($token, NULL, FALSE)[0]) { throw new \InvalidArgumentException("Unknown CiviNeo Notify token: {$token}"); } } }
+  public function validate(string $template): void { preg_match_all('/\{([^}]+)\}/', $template, $m); foreach ($m[1] as $token) { if (!$this->tokenValue($token, NULL, FALSE)[0]) { throw new \InvalidArgumentException(E::ts('Unknown CiviNeo Notify token: %1', [1 => $token])); } } }
   public function render(string $template, NormalizedEvent $event): string {
     $this->validate($template); return preg_replace_callback('/\{([^}]+)\}/', fn(array $m): string => (string) $this->tokenValue($m[1], $event, TRUE)[1], $template) ?? $template;
   }
