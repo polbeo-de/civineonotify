@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.0.3-alpha.7 — 2026-10-17
+
+- Add standard Gettext catalogues for all user-facing administration and
+  transport-result strings.
+- Add the case-created quick-start example and clarify the Matrix-Nio design
+  rationale and alpha status.
+
 ## 0.0.3-alpha.6 — 2026-10-15
 
 - Run the managed outbox job through the CiviCRM 6.16-compatible API v4
