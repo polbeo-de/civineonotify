@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add standard Gettext catalogues for all user-facing administration and
+  transport-result strings.
+
 ## 0.0.3-alpha.6 — 2026-10-15
 
 - Run the managed outbox job through the CiviCRM 6.16-compatible API v4

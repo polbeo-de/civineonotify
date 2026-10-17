@@ -87,6 +87,7 @@ use the validated release ZIP, not a source checkout.
 ## Documentation and support
 
 - [Architecture](docs/architecture.md)
+- [Translations](l10n/README.md)
 - [Configuration](docs/configuration.md)
 - [Initial transport provisioning](docs/provisioning.md)
 - [Matrix-Nio design rationale and alpha status](docs/matrix-nio-limitations.md#matrix-nio-design-rationale-and-alpha-status)
