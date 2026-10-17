@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de.polbeo.civicrm.civineonotify 0.0.3-alpha.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-17 21:48+0200\n"
+"POT-Creation-Date: 2026-10-17 22:02+0200\n"
 "PO-Revision-Date: 2026-10-17 16:32+0200\n"
 "Last-Translator: polbeo <translations@polbeo.de>\n"
 "Language-Team: German <https://polbeo.de>\n"
@@ -16,553 +16,515 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-msgid "CiviNeo Notify"
-msgstr ""
-
-msgid "- Use destination transport -"
-msgstr ""
-
-msgid "- Select transport -"
-msgstr ""
-
-msgid "- Use transport default destination -"
-msgstr ""
-
-msgid "- Select an event -"
-msgstr ""
-
-msgid "Enable CiviNeo Notify"
-msgstr ""
-
-msgid "{event.name} Hello, world!"
-msgstr ""
-
-msgid "Default message template"
-msgstr ""
-
-msgid "{event.name} Hello, world. Testing! Testing! Do you read me?"
-msgstr ""
-
-msgid "Transport test message template"
-msgstr ""
-
-msgid "Default message format"
-msgstr ""
-
-msgid "Worker batch size"
-msgstr ""
-
-msgid "Maximum delivery attempts"
-msgstr ""
-
-msgid "Retry delays (seconds)"
-msgstr ""
-
-msgid "Delivery log retention (days)"
-msgstr ""
-
-msgid "Protected transport storage directory"
-msgstr ""
-
-msgid ""
-"Absolute path outside the web root for transport credentials, encrypted "
-"stores, and protected runtime files. The directory must be writable only by "
-"the CiviCRM service account."
-msgstr ""
-
-msgid "Example new contact"
-msgstr ""
-
-msgid ""
-"{event.name}\\n\\n{entity.type} #{entity.id} was changed in {site.name}."
-msgstr ""
-
-msgid "Example new activity"
-msgstr ""
-
-msgid "Example case changed"
-msgstr ""
-
-msgid "Example contribution created"
-msgstr ""
-
-msgid "Example event registration"
-msgstr ""
-
 msgid "CiviNeo Notify Delivery"
-msgstr ""
-
-msgid "CiviNeo Notify: Process outbox"
-msgstr ""
-
-msgid "Processes pending CiviNeo Notify deliveries."
-msgstr ""
-
-msgid "Operation timed out"
-msgstr ""
-
-msgid "CiviNeo Notify Transport"
-msgstr ""
-
-msgid "CiviNeo Notify Destination"
-msgstr ""
+msgstr "CiviNeo-Notify-Zustellung"
 
 msgid "CiviNeo Notify Rule"
-msgstr ""
+msgstr "CiviNeo-Notify-Regel"
+
+msgid "CiviNeo Notify Transport"
+msgstr "CiviNeo-Notify-Transport"
+
+msgid "CiviNeo Notify Destination"
+msgstr "CiviNeo-Notify-Destination"
 
 msgid "Matrix Nio transport not found."
-msgstr ""
+msgstr "Matrix-Nio-Transport nicht gefunden."
 
 msgid "Verify Matrix Nio device"
-msgstr ""
+msgstr "Matrix-Nio-Gerät verifizieren"
 
 msgid "Verification method"
-msgstr ""
+msgstr "Verifikationsmethode"
 
 msgid "Another device of this account"
-msgstr ""
+msgstr "Weiteres Gerät dieses Kontos"
 
 msgid "A member of the default destination"
-msgstr ""
+msgstr "Mitglied der Standarddestination"
 
 msgid "Element device"
-msgstr ""
+msgstr "Element-Gerät"
 
 msgid "Room member"
-msgstr ""
+msgstr "Raummitglied"
 
 msgid "Start verification"
-msgstr ""
+msgstr "Verifikation starten"
 
 msgid "Confirm matching SAS"
-msgstr ""
+msgstr "Übereinstimmende SAS bestätigen"
 
 msgid "Cancel verification"
-msgstr ""
+msgstr "Verifikation abbrechen"
 
 msgid "Close"
-msgstr ""
+msgstr "Schließen"
 
 msgid "Choose an Element device."
-msgstr ""
+msgstr "Wählen Sie ein Element-Gerät aus."
 
 msgid "Choose a room member."
-msgstr ""
+msgstr "Wählen Sie ein Raummitglied aus."
 
 msgid "Choose a verification method."
-msgstr ""
+msgstr "Wählen Sie eine Verifikationsmethode aus."
 
 msgid "Could not reset the previous verification."
-msgstr ""
+msgstr "Die vorherige Verifikation konnte nicht zurückgesetzt werden."
 
 msgid "No Element devices are available."
-msgstr ""
+msgstr "Keine Element-Geräte verfügbar."
 
 msgid "- choose an Element device -"
-msgstr ""
+msgstr "- Element-Gerät auswählen -"
 
 msgid "No active default Matrix room is configured."
-msgstr ""
+msgstr "Es ist kein aktiver Standard-Matrix-Raum konfiguriert."
 
 msgid "- choose a room member -"
-msgstr ""
+msgstr "- Raummitglied auswählen -"
 
 msgid "CiviNeo Notify: %1"
-msgstr ""
+msgstr "CiviNeo Notify: %1"
 
 msgid "Transport test message sent to its default destination."
-msgstr ""
+msgstr "Transport-Testnachricht wurde an die Standarddestination gesendet."
 
 msgid "Test sent"
-msgstr ""
+msgstr "Test gesendet"
 
 msgid ""
 "Set an active default destination for this transport before sending a test."
 msgstr ""
+"Legen Sie vor dem Senden eines Tests eine aktive Standarddestination für "
+"diesen Transport fest."
 
 msgid "No default destination"
-msgstr ""
+msgstr "Keine Standarddestination"
 
 msgid "Transport test failed: %1"
-msgstr ""
+msgstr "Transporttest fehlgeschlagen: %1"
 
 msgid "Test failed"
-msgstr ""
+msgstr "Test fehlgeschlagen"
 
 msgid "Destination test message sent."
-msgstr ""
+msgstr "Testnachricht für die Destination gesendet."
 
 msgid "Destination test message failed: %1"
-msgstr ""
+msgstr "Testnachricht für die Destination fehlgeschlagen: %1"
 
 msgid "Not applicable"
-msgstr ""
+msgstr "Nicht anwendbar"
 
 msgid "Not provisioned"
-msgstr ""
+msgstr "Nicht bereitgestellt"
 
 msgid "Provisioned"
-msgstr ""
+msgstr "Bereitgestellt"
 
 msgid "Provisioning in progress"
-msgstr ""
+msgstr "Bereitstellung läuft"
 
 msgid "Provisioning failed"
-msgstr ""
+msgstr "Bereitstellung fehlgeschlagen"
 
 msgid "Provisioning status unavailable"
-msgstr ""
+msgstr "Bereitstellungsstatus nicht verfügbar"
 
 msgid "Not verified"
-msgstr ""
+msgstr "Nicht verifiziert"
 
 msgid "Trusted"
-msgstr ""
+msgstr "Vertrauenswürdig"
 
 msgid "Verification in progress"
-msgstr ""
+msgstr "Verifikation läuft"
 
 msgid "Not trusted"
-msgstr ""
+msgstr "Nicht vertrauenswürdig"
 
 msgid "Matrix transport not found."
-msgstr ""
+msgstr "Matrix-Transport nicht gefunden."
 
 msgid "Provision Matrix transport"
-msgstr ""
+msgstr "Matrix-Transport bereitstellen"
 
 msgid "Matrix homeserver"
-msgstr ""
+msgstr "Matrix-Homeserver"
 
 msgid "Matrix bot user"
-msgstr ""
+msgstr "Matrix-Bot-Benutzer"
 
 msgid "Matrix internal room ID"
-msgstr ""
+msgstr "Interne Matrix-Raum-ID"
 
 msgid "Private storage directory"
-msgstr ""
+msgstr "Privates Speicherverzeichnis"
 
 msgid "One-time bot password"
-msgstr ""
+msgstr "Einmaliges Bot-Passwort"
 
 msgid "Provision securely"
-msgstr ""
+msgstr "Sicher bereitstellen"
 
 msgid "Cancel"
-msgstr ""
+msgstr "Abbrechen"
 
 msgid "Use an HTTPS homeserver URL."
-msgstr ""
+msgstr "Verwenden Sie eine HTTPS-Homeserver-URL."
 
 msgid "Use an internal Matrix room ID beginning with !."
-msgstr ""
+msgstr "Verwenden Sie eine interne Matrix-Raum-ID, die mit ! beginnt."
 
 msgid "Use an absolute path outside the web root."
-msgstr ""
+msgstr "Verwenden Sie einen absoluten Pfad außerhalb des Web-Roots."
 
 msgid "Provide the Matrix bot user."
-msgstr ""
+msgstr "Geben Sie den Matrix-Bot-Benutzer an."
 
 msgid "Provide the bot password."
-msgstr ""
+msgstr "Geben Sie das Bot-Passwort an."
 
 msgid "Private storage directory cannot be created."
-msgstr ""
+msgstr "Das private Speicherverzeichnis kann nicht erstellt werden."
 
 msgid "Private storage directory is not private and writable."
-msgstr ""
+msgstr "Das private Speicherverzeichnis ist nicht privat und beschreibbar."
 
 msgid "Bot password cannot be secured."
-msgstr ""
+msgstr "Das Bot-Passwort kann nicht geschützt werden."
 
 msgid "User systemd runtime cannot be determined."
 msgstr ""
+"Die systemd-Laufzeitumgebung des Benutzers kann nicht ermittelt werden."
 
 msgid "Matrix provisioning job cannot be started."
-msgstr ""
+msgstr "Der Matrix-Bereitstellungsjob kann nicht gestartet werden."
 
 msgid ""
 "Matrix provisioning has started in a protected background job. Reopen this "
 "page shortly to view its status before testing the transport."
 msgstr ""
+"Die Matrix-Bereitstellung wurde als geschützter Hintergrundjob gestartet. "
+"Öffnen Sie diese Seite in Kürze erneut, um vor dem Testen des Transports den "
+"Status zu prüfen."
 
 msgid "Provisioning started"
-msgstr ""
+msgstr "Bereitstellung gestartet"
 
 msgid ""
 "Provisioning failed. Verify the homeserver, bot password, room ID and "
 "private directory."
 msgstr ""
+"Bereitstellung fehlgeschlagen. Prüfen Sie Homeserver, Bot-Passwort, Raum-ID "
+"und privates Verzeichnis."
 
 msgid "running (preparing protected storage)"
-msgstr ""
+msgstr "läuft (geschützten Speicher vorbereiten)"
 
 msgid "running (creating Matrix device and encryption store)"
-msgstr ""
+msgstr "läuft (Matrix-Gerät und Verschlüsselungsspeicher werden erstellt)"
 
 msgid "running (checking Matrix identity)"
-msgstr ""
+msgstr "läuft (Matrix-Identität wird geprüft)"
 
 msgid "succeeded"
-msgstr ""
+msgstr "erfolgreich"
 
 msgid "failed while preparing protected storage"
-msgstr ""
+msgstr "beim Vorbereiten des geschützten Speichers fehlgeschlagen"
 
 msgid ""
 "failed or timed out while creating the Matrix device and encryption store"
 msgstr ""
+"beim Erstellen des Matrix-Geräts und Verschlüsselungsspeichers "
+"fehlgeschlagen oder Zeitüberschreitung"
 
 msgid "failed while checking the Matrix identity"
-msgstr ""
+msgstr "beim Prüfen der Matrix-Identität fehlgeschlagen"
 
 msgid "running"
-msgstr ""
+msgstr "läuft"
 
 msgid "failed"
-msgstr ""
+msgstr "fehlgeschlagen"
 
 msgid "Edit transport"
-msgstr ""
+msgstr "Transport bearbeiten"
 
 msgid "Transport name"
-msgstr ""
+msgstr "Transportname"
 
 msgid "Transport type"
-msgstr ""
+msgstr "Transporttyp"
 
 msgid "Matrix Commander"
-msgstr ""
+msgstr "Matrix Commander"
 
 msgid "Matrix Nio"
-msgstr ""
+msgstr "Matrix Nio"
 
 msgid "Mattermost (Webhook)"
-msgstr ""
+msgstr "Mattermost (Webhook)"
 
 msgid "Mattermost (API)"
-msgstr ""
+msgstr "Mattermost (API)"
 
 msgid "Mastodon"
-msgstr ""
+msgstr "Mastodon"
 
 msgid "Telegram"
-msgstr ""
+msgstr "Telegram"
 
 msgid "Bluesky"
-msgstr ""
+msgstr "Bluesky"
 
 msgid "Generic Webhook"
 msgstr "Generischer Webhook"
 
 msgid "Slack"
-msgstr ""
+msgstr "Slack"
 
 msgid "Rocket.Chat"
-msgstr ""
+msgstr "Rocket.Chat"
+
+msgid "Discord"
+msgstr "Discord"
+
+msgid "Microsoft Teams"
+msgstr "Microsoft Teams"
+
+msgid "ntfy"
+msgstr "ntfy"
+
+msgid "Gotify"
+msgstr "Gotify"
 
 msgid "Mattermost server URL"
-msgstr ""
+msgstr "Mattermost-Server-URL"
 
 msgid "Mattermost hooks path"
-msgstr ""
+msgstr "Mattermost-Hooks-Pfad"
 
 msgid "Protected token store file"
-msgstr ""
+msgstr "Geschützte Token-Speicherdatei"
 
 msgid "Mattermost API token"
-msgstr ""
+msgstr "Mattermost-API-Token"
 
 msgid "Mastodon instance URL"
-msgstr ""
+msgstr "Mastodon-Instanz-URL"
 
 msgid "Mastodon access token"
-msgstr ""
+msgstr "Mastodon-Zugriffs-Token"
 
 msgid "Default Mastodon visibility"
-msgstr ""
+msgstr "Standard-Sichtbarkeit für Mastodon"
 
 msgid "Public"
-msgstr ""
+msgstr "Öffentlich"
 
 msgid "Unlisted"
-msgstr ""
+msgstr "Nicht gelistet"
 
 msgid "Followers only"
-msgstr ""
+msgstr "Nur Follower"
 
 msgid "- No language -"
-msgstr ""
+msgstr "- Keine Sprache -"
 
 msgid "Default Mastodon language"
-msgstr ""
+msgstr "Standard-Sprache für Mastodon"
 
 msgid "Default Mastodon content warning"
-msgstr ""
+msgstr "Standard-Inhaltswarnung für Mastodon"
 
 msgid "Telegram bot token"
-msgstr ""
+msgstr "Telegram-Bot-Token"
 
 msgid "Telegram formatting"
-msgstr ""
+msgstr "Telegram-Formatierung"
 
 msgid "Plain text"
-msgstr ""
+msgstr "Klartext"
 
 msgid "HTML"
-msgstr ""
+msgstr "HTML"
 
 msgid "Disable Telegram link previews"
-msgstr ""
+msgstr "Telegram-Linkvorschauen deaktivieren"
 
 msgid "Send Telegram notifications silently"
-msgstr ""
+msgstr "Telegram-Benachrichtigungen lautlos senden"
 
 msgid "Protect Telegram content"
-msgstr ""
+msgstr "Telegram-Inhalte schützen"
 
 msgid "Bluesky account handle"
-msgstr ""
+msgstr "Bluesky-Konto-Handle"
 
 msgid "Bluesky App Password"
-msgstr ""
+msgstr "Bluesky-App-Passwort"
 
 msgid "Default Bluesky language"
-msgstr ""
+msgstr "Standard-Sprache für Bluesky"
 
 msgid "Detect Bluesky links automatically"
-msgstr ""
+msgstr "Bluesky-Links automatisch erkennen"
+
+msgid "Notification server URL"
+msgstr "URL des Benachrichtigungsservers"
+
+msgid "ntfy access token"
+msgstr "ntfy-Zugriffs-Token"
 
 msgid "Create and set a default destination"
-msgstr ""
+msgstr "Standarddestination erstellen und festlegen"
 
 msgid "Default destination name"
-msgstr ""
+msgstr "Name der Standarddestination"
 
 msgid "Allow unverified recipient devices"
-msgstr ""
+msgstr "Nicht verifizierte Empfängergeräte zulassen"
 
 msgid "- No default destination -"
-msgstr ""
+msgstr "- Keine Standarddestination -"
 
 msgid "- Save this transport, then add a destination -"
 msgstr ""
+"- Speichern Sie diesen Transport und fügen Sie dann eine Destination hinzu -"
 
 msgid "Default destination"
-msgstr ""
+msgstr "Standarddestination"
 
 msgid ""
 "Create a destination (for example, a Matrix room) before selecting a default."
 msgstr ""
+"Erstellen Sie eine Destination (etwa einen Matrix-Raum), bevor Sie einen "
+"Standard auswählen."
 
 msgid "Description"
-msgstr ""
+msgstr "Beschreibung"
 
 msgid "Active"
-msgstr ""
+msgstr "Aktiv"
 
 msgid "Save transport"
-msgstr ""
+msgstr "Transport speichern"
 
 msgid "Choose a supported transport type."
-msgstr ""
+msgstr "Wählen Sie einen unterstützten Transporttyp aus."
 
 msgid "Use an absolute path."
-msgstr ""
+msgstr "Verwenden Sie einen absoluten Pfad."
 
 msgid "Use an HTTPS Mattermost server URL."
-msgstr ""
+msgstr "Verwenden Sie eine HTTPS-Mattermost-Server-URL."
 
 msgid ""
 "Use an absolute path in a writable protected directory for the Mattermost "
 "token store."
 msgstr ""
+"Verwenden Sie einen absoluten Pfad in einem beschreibbaren geschützten "
+"Verzeichnis für den Mattermost-Token-Speicher."
 
 msgid "Enter a Mattermost API token."
-msgstr ""
+msgstr "Geben Sie einen Mattermost-API-Token ein."
 
 msgid "Use an HTTPS Mastodon instance URL."
-msgstr ""
+msgstr "Verwenden Sie eine HTTPS-Mastodon-Instanz-URL."
 
 msgid ""
 "Use an absolute path in a writable protected directory for the token store."
 msgstr ""
+"Verwenden Sie einen absoluten Pfad in einem beschreibbaren geschützten "
+"Verzeichnis für den Token-Speicher."
 
 msgid "Choose a supported Mastodon visibility."
-msgstr ""
+msgstr "Wählen Sie eine unterstützte Mastodon-Sichtbarkeit aus."
 
 msgid "Enter a Mastodon access token."
-msgstr ""
+msgstr "Geben Sie einen Mastodon-Zugriffs-Token ein."
 
 msgid "Enter a Telegram bot token."
-msgstr ""
+msgstr "Geben Sie einen Telegram-Bot-Token ein."
 
 msgid "Enter a valid Bluesky account handle."
-msgstr ""
+msgstr "Geben Sie ein gültiges Bluesky-Konto-Handle ein."
 
 msgid "Enter a Bluesky App Password."
-msgstr ""
+msgstr "Geben Sie ein Bluesky-App-Passwort ein."
+
+msgid "Use an HTTPS notification server URL."
+msgstr "Verwenden Sie eine HTTPS-URL für den Benachrichtigungsserver."
 
 msgid "The Matrix Commander binary does not exist or is not executable."
 msgstr ""
+"Die Matrix-Commander-Binärdatei existiert nicht oder ist nicht ausführbar."
 
 msgid "The Matrix Nio Python executable does not exist or is not executable."
 msgstr ""
+"Die ausführbare Python-Datei für Matrix Nio existiert nicht oder ist nicht "
+"ausführbar."
 
 msgid "The Matrix Nio client does not exist or is not readable."
-msgstr ""
+msgstr "Der Matrix-Nio-Client existiert nicht oder ist nicht lesbar."
 
 msgid "The Mattermost API token could not be stored."
-msgstr ""
+msgstr "Der Mattermost-API-Token konnte nicht gespeichert werden."
 
 msgid "The Mastodon access token could not be stored."
-msgstr ""
+msgstr "Der Mastodon-Zugriffs-Token konnte nicht gespeichert werden."
 
 msgid "The Telegram bot token could not be stored."
-msgstr ""
+msgstr "Der Telegram-Bot-Token konnte nicht gespeichert werden."
 
 msgid "The Bluesky App Password could not be stored."
-msgstr ""
+msgstr "Das Bluesky-App-Passwort konnte nicht gespeichert werden."
+
+msgid "The ntfy access token could not be stored."
+msgstr "Der ntfy-Zugriffs-Token konnte nicht gespeichert werden."
 
 msgid "Default"
-msgstr ""
+msgstr "Standard"
 
 msgid "Transport saved."
-msgstr ""
+msgstr "Transport gespeichert."
 
 msgid "Saved"
-msgstr ""
+msgstr "Gespeichert"
 
 msgid "Edit destination"
-msgstr ""
+msgstr "Destination bearbeiten"
 
 msgid "Transport"
-msgstr ""
+msgstr "Transport"
 
 msgid "- select a channel -"
-msgstr ""
+msgstr "- Kanal auswählen -"
 
 msgid "Destination name"
-msgstr ""
+msgstr "Name der Destination"
 
 msgid "Destination type"
-msgstr ""
+msgstr "Destinationstyp"
 
 msgid "Matrix room"
-msgstr ""
+msgstr "Matrix-Raum"
 
 msgid "Mattermost channel"
-msgstr ""
+msgstr "Mattermost-Kanal"
 
 msgid "Mastodon account"
-msgstr ""
+msgstr "Mastodon-Konto"
 
 msgid "Bluesky account"
-msgstr ""
+msgstr "Bluesky-Konto"
 
 msgid "Telegram chat"
-msgstr ""
+msgstr "Telegram-Chat"
 
 msgid "Webhook endpoint"
 msgstr "Webhook-Endpunkt"
@@ -573,20 +535,32 @@ msgstr "Slack-Kanal"
 msgid "Rocket.Chat channel"
 msgstr "Rocket.Chat-Kanal"
 
+msgid "Discord channel"
+msgstr "Discord-Kanal"
+
+msgid "Microsoft Teams channel"
+msgstr "Microsoft-Teams-Kanal"
+
+msgid "ntfy topic"
+msgstr "ntfy-Thema"
+
+msgid "Gotify application"
+msgstr "Gotify-Anwendung"
+
 msgid "Matrix room ID"
-msgstr ""
+msgstr "Matrix-Raum-ID"
 
 msgid "Matrix room alias"
-msgstr ""
+msgstr "Matrix-Raum-Alias"
 
 msgid "Mattermost channel override"
-msgstr ""
+msgstr "Mattermost-Kanal überschreiben"
 
 msgid "Mattermost hook token"
-msgstr ""
+msgstr "Mattermost-Hook-Token"
 
 msgid "Telegram chat ID"
-msgstr ""
+msgstr "Telegram-Chat-ID"
 
 msgid "Webhook endpoint URL"
 msgstr "URL des Webhook-Endpunkts"
@@ -600,32 +574,50 @@ msgstr "URL des eingehenden Slack-Webhooks"
 msgid "Rocket.Chat incoming webhook URL"
 msgstr "URL des eingehenden Rocket.Chat-Webhooks"
 
+msgid "Discord webhook URL"
+msgstr "Discord-Webhook-URL"
+
+msgid "Microsoft Teams workflow webhook URL"
+msgstr "Webhook-URL des Microsoft-Teams-Workflows"
+
+msgid "Gotify application token"
+msgstr "Gotify-Anwendungs-Token"
+
 msgid "Save destination"
-msgstr ""
+msgstr "Destination speichern"
 
 msgid "Choose a destination type supported by the selected transport."
 msgstr ""
+"Wählen Sie einen vom ausgewählten Transport unterstützten Destinationstyp "
+"aus."
 
 msgid "Provide a Matrix room ID or alias."
-msgstr ""
+msgstr "Geben Sie eine Matrix-Raum-ID oder einen Alias an."
 
 msgid ""
 "Enter a negative numeric Telegram group, supergroup, or channel chat ID."
 msgstr ""
+"Geben Sie eine negative numerische Chat-ID einer Telegram-Gruppe, "
+"Supergruppe oder eines Kanals ein."
+
+msgid "Enter a valid ntfy topic."
+msgstr "Geben Sie ein gültiges ntfy-Thema ein."
 
 msgid "Use a public HTTPS webhook endpoint URL."
-msgstr ""
+msgstr "Verwenden Sie eine öffentliche HTTPS-URL für den Webhook-Endpunkt."
 
 msgid "Choose a Mattermost channel."
-msgstr ""
+msgstr "Wählen Sie einen Mattermost-Kanal aus."
 
 msgid ""
 "The Mattermost channels could not be loaded. Check the API token and try "
 "again."
 msgstr ""
+"Die Mattermost-Kanäle konnten nicht geladen werden. Prüfen Sie den API-Token "
+"und versuchen Sie es erneut."
 
 msgid "Enter a Mattermost hook token."
-msgstr ""
+msgstr "Geben Sie einen Mattermost-Hook-Token ein."
 
 msgid "Enter an incoming webhook URL."
 msgstr "Geben Sie eine URL für einen eingehenden Webhook ein."
@@ -633,185 +625,352 @@ msgstr "Geben Sie eine URL für einen eingehenden Webhook ein."
 msgid "Use an HTTPS incoming webhook URL."
 msgstr "Verwenden Sie eine HTTPS-URL für einen eingehenden Webhook."
 
+msgid "Enter a Gotify application token."
+msgstr "Geben Sie einen Gotify-Anwendungs-Token ein."
+
 msgid "The Mattermost token could not be stored."
-msgstr ""
+msgstr "Der Mattermost-Token konnte nicht gespeichert werden."
 
 msgid "The webhook signing secret could not be stored."
-msgstr ""
+msgstr "Das Signatur-Secret des Webhooks konnte nicht gespeichert werden."
 
 msgid "The incoming webhook URL could not be stored."
 msgstr "Die URL des eingehenden Webhooks konnte nicht gespeichert werden."
 
+msgid "The Gotify application token could not be stored."
+msgstr "Der Gotify-Anwendungs-Token konnte nicht gespeichert werden."
+
 msgid "Destination saved."
-msgstr ""
+msgstr "Destination gespeichert."
 
 msgid "Transport not found."
-msgstr ""
+msgstr "Transport nicht gefunden."
 
 msgid "Delete transport"
-msgstr ""
+msgstr "Transport löschen"
 
 msgid "Transport deleted."
-msgstr ""
+msgstr "Transport gelöscht."
 
 msgid "Deleted"
-msgstr ""
+msgstr "Gelöscht"
 
 msgid "The transport could not be deleted."
-msgstr ""
+msgstr "Der Transport konnte nicht gelöscht werden."
 
 msgid "Delete failed"
-msgstr ""
+msgstr "Löschen fehlgeschlagen"
 
 msgid "Edit notification rule"
-msgstr ""
+msgstr "Benachrichtigungsregel bearbeiten"
 
 msgid "Rule name"
-msgstr ""
+msgstr "Regelname"
 
 msgid "Event name"
-msgstr ""
+msgstr "Ereignisname"
+
+msgid "- Select an event -"
+msgstr "- Ereignis auswählen -"
 
 msgid "Transport (optional)"
-msgstr ""
+msgstr "Transport (optional)"
 
 msgid "Destination (optional)"
-msgstr ""
+msgstr "Destination (optional)"
 
 msgid "Message template"
-msgstr ""
+msgstr "Nachrichtenvorlage"
 
 msgid "Conditions (JSON)"
-msgstr ""
+msgstr "Bedingungen (JSON)"
 
 msgid "Priority"
-msgstr ""
+msgstr "Priorität"
 
 msgid "Stop after match"
-msgstr ""
+msgstr "Nach Treffer stoppen"
 
 msgid "Save rule"
-msgstr ""
+msgstr "Regel speichern"
 
 msgid "Invalid conditions or message template: %1"
-msgstr ""
+msgstr "Ungültige Bedingungen oder Nachrichtenvorlage: %1"
 
 msgid "notification rule saved."
+msgstr "Benachrichtigungsregel gespeichert."
+
+msgid "Example new contact"
+msgstr "Beispiel: neuer Kontakt"
+
+msgid ""
+"{event.name}\\n\\n{entity.type} #{entity.id} was changed in {site.name}."
 msgstr ""
+"{event.name}\\n\\n{entity.type} #{entity.id} wurde in {site.name} geändert."
+
+msgid "Example new activity"
+msgstr "Beispiel: neue Aktivität"
+
+msgid "Example case changed"
+msgstr "Beispiel: Fall geändert"
+
+msgid "Example contribution created"
+msgstr "Beispiel: Zuwendung erstellt"
+
+msgid "Example event registration"
+msgstr "Beispiel: Veranstaltungsanmeldung"
+
+msgid "CiviNeo Notify: Process outbox"
+msgstr "CiviNeo Notify: Postausgang verarbeiten"
+
+msgid "Processes pending CiviNeo Notify deliveries."
+msgstr "Verarbeitet ausstehende CiviNeo-Notify-Zustellungen."
+
+msgid "Enable CiviNeo Notify"
+msgstr "CiviNeo Notify aktivieren"
+
+msgid "{event.name} Hello, world!"
+msgstr "{event.name} Hallo, Welt!"
+
+msgid "Default message template"
+msgstr "Standard-Nachrichtenvorlage"
+
+msgid "{event.name} Hello, world. Testing! Testing! Do you read me?"
+msgstr "{event.name} Hallo, Welt. Test! Test! Können Sie mich lesen?"
+
+msgid "Transport test message template"
+msgstr "Nachrichtenvorlage für Transporttests"
+
+msgid "Default message format"
+msgstr "Standard-Nachrichtenformat"
+
+msgid "Worker batch size"
+msgstr "Stapelgröße des Workers"
+
+msgid "Maximum delivery attempts"
+msgstr "Maximale Zustellversuche"
+
+msgid "Retry delays (seconds)"
+msgstr "Verzögerungen bei Wiederholungen (Sekunden)"
+
+msgid "Delivery log retention (days)"
+msgstr "Aufbewahrung des Zustellprotokolls (Tage)"
+
+msgid "Protected transport storage directory"
+msgstr "Geschütztes Speicherverzeichnis für Transporte"
+
+msgid ""
+"Absolute path outside the web root for transport credentials, encrypted "
+"stores, and protected runtime files. The directory must be writable only by "
+"the CiviCRM service account."
+msgstr ""
+"Absoluter Pfad außerhalb des Web-Roots für Transport-Zugangsdaten, "
+"verschlüsselte Speicher und geschützte Laufzeitdateien. Das Verzeichnis darf "
+"nur für das CiviCRM-Dienstkonto schreibbar sein."
+
+msgid "CiviNeo Notify"
+msgstr "CiviNeo Notify"
+
+msgid "- Use destination transport -"
+msgstr "- Transport der Destination verwenden -"
+
+msgid "- Select transport -"
+msgstr "- Transport auswählen -"
+
+msgid "- Use transport default destination -"
+msgstr "- Standarddestination des Transports verwenden -"
 
 msgid "Destination not found or inactive."
-msgstr ""
+msgstr "Destination nicht gefunden oder inaktiv."
 
 msgid "The destination has no active transport."
-msgstr ""
+msgstr "Die Destination hat keinen aktiven Transport."
 
 msgid "The destination transport is unsupported."
-msgstr ""
+msgstr "Der Transport der Destination wird nicht unterstützt."
 
 msgid "Transport not found or inactive."
-msgstr ""
+msgstr "Transport nicht gefunden oder inaktiv."
 
 msgid "Set an active default destination before sending a test."
 msgstr ""
+"Legen Sie vor dem Senden eines Tests eine aktive Standarddestination fest."
 
 msgid "The configured default destination is unavailable."
-msgstr ""
+msgstr "Die konfigurierte Standarddestination ist nicht verfügbar."
 
 msgid "The transport type is unsupported."
-msgstr ""
-
-msgid "Unknown CiviNeo Notify token: %1"
-msgstr ""
-
-msgid "Condition requires an all or any list."
-msgstr ""
-
-msgid "Condition contains an unsupported clause."
-msgstr ""
-
-msgid "Condition field is not allowlisted."
-msgstr ""
+msgstr "Der Transporttyp wird nicht unterstützt."
 
 msgid "A delivery needs a transport, destination, and message."
-msgstr ""
+msgstr "Eine Zustellung benötigt Transport, Destination und Nachricht."
+
+msgid "Unknown CiviNeo Notify token: %1"
+msgstr "Unbekannter CiviNeo-Notify-Token: %1"
+
+msgid "Condition requires an all or any list."
+msgstr "Die Bedingung benötigt eine Liste für all oder any."
+
+msgid "Condition contains an unsupported clause."
+msgstr "Die Bedingung enthält eine nicht unterstützte Klausel."
+
+msgid "Condition field is not allowlisted."
+msgstr "Das Bedingungsfeld ist nicht zugelassen."
 
 msgid "Destination has no Matrix room."
-msgstr ""
+msgstr "Die Destination hat keinen Matrix-Raum."
 
 msgid "Matrix command timed out."
-msgstr ""
+msgstr "Zeitüberschreitung des Matrix-Befehls."
 
 msgid "Configured Matrix store lock is not usable."
-msgstr ""
+msgstr "Die konfigurierte Sperre des Matrix-Speichers ist nicht verwendbar."
 
 msgid "Matrix encryption store is busy."
-msgstr ""
+msgstr "Der Matrix-Verschlüsselungsspeicher ist belegt."
 
 msgid "Configured Matrix path is not usable."
-msgstr ""
+msgstr "Der konfigurierte Matrix-Pfad ist nicht verwendbar."
 
 msgid "Configured Matrix store is not usable."
-msgstr ""
+msgstr "Der konfigurierte Matrix-Speicher ist nicht verwendbar."
 
 msgid "Mattermost channel unavailable."
-msgstr ""
+msgstr "Mattermost-Kanal nicht verfügbar."
 
 msgid "Mattermost API rejected the notification."
-msgstr ""
+msgstr "Die Mattermost-API hat die Benachrichtigung abgewiesen."
 
 msgid "The Mattermost notification payload could not be encoded."
 msgstr ""
+"Die Nutzdaten der Mattermost-Benachrichtigung konnten nicht kodiert werden."
 
 msgid "Mattermost API timed out."
-msgstr ""
+msgstr "Zeitüberschreitung der Mattermost-API."
 
 msgid "Mattermost API configuration is not usable."
-msgstr ""
+msgstr "Die Konfiguration der Mattermost-API ist nicht verwendbar."
 
 msgid "The cURL extension is unavailable."
-msgstr ""
+msgstr "Die cURL-Erweiterung ist nicht verfügbar."
 
 msgid "Could not initialise HTTP client."
-msgstr ""
+msgstr "HTTP-Client konnte nicht initialisiert werden."
 
 msgid "Mattermost API rejected channel discovery."
-msgstr ""
+msgstr "Die Mattermost-API hat die Kanalsuche abgewiesen."
 
 msgid "Mattermost API returned an invalid channel list."
-msgstr ""
+msgstr "Die Mattermost-API hat eine ungültige Kanalliste zurückgegeben."
 
 msgid "Mattermost server URL unavailable."
-msgstr ""
+msgstr "Mattermost-Server-URL nicht verfügbar."
 
 msgid "Mattermost token unavailable."
-msgstr ""
+msgstr "Mattermost-Token nicht verfügbar."
 
 msgid "Mattermost token is invalid."
-msgstr ""
+msgstr "Mattermost-Token ist ungültig."
 
 msgid "Mattermost token store is not writable."
-msgstr ""
+msgstr "Der Mattermost-Token-Speicher ist nicht beschreibbar."
 
 msgid "Mattermost token store lock is unavailable."
-msgstr ""
+msgstr "Die Sperre des Mattermost-Token-Speichers ist nicht verfügbar."
 
 msgid "Mattermost token store could not be saved."
-msgstr ""
+msgstr "Der Mattermost-Token-Speicher konnte nicht gespeichert werden."
 
 msgid "Mattermost token store is invalid."
-msgstr ""
+msgstr "Der Mattermost-Token-Speicher ist ungültig."
 
 msgid "Mattermost webhook rejected the notification."
-msgstr ""
+msgstr "Der Mattermost-Webhook hat die Benachrichtigung abgewiesen."
 
 msgid "Mattermost webhook timed out."
-msgstr ""
+msgstr "Zeitüberschreitung des Mattermost-Webhooks."
 
 msgid "Mattermost webhook configuration is not usable."
+msgstr "Die Mattermost-Webhook-Konfiguration ist nicht verwendbar."
+
+msgid "ntfy rejected the notification."
+msgstr "ntfy hat die Benachrichtigung abgewiesen."
+
+msgid "ntfy timed out; the delivery outcome is unknown."
 msgstr ""
+"Zeitüberschreitung bei ntfy; das Ergebnis der Zustellung ist unbekannt."
+
+msgid "ntfy configuration is not usable."
+msgstr "Die ntfy-Konfiguration ist nicht verwendbar."
+
+msgid "Bluesky timed out; the publication outcome is unknown."
+msgstr ""
+"Zeitüberschreitung bei Bluesky; das Ergebnis der Veröffentlichung ist "
+"unbekannt."
+
+msgid "Bluesky configuration is not usable."
+msgstr "Die Bluesky-Konfiguration ist nicht verwendbar."
+
+msgid "Bluesky rejected the account handle or app password."
+msgstr "Bluesky hat das Konto-Handle oder App-Passwort abgewiesen."
+
+msgid "Invalid session."
+msgstr "Ungültige Sitzung."
+
+msgid "Invalid refresh."
+msgstr "Ungültige Aktualisierung."
+
+msgid "Invalid response."
+msgstr "Ungültige Antwort."
+
+msgid "HTTP client unavailable."
+msgstr "HTTP-Client nicht verfügbar."
+
+msgid "The Mastodon post exceeds this instance's character limit."
+msgstr "Der Mastodon-Beitrag überschreitet das Zeichenlimit dieser Instanz."
+
+msgid "Mastodon returned an invalid status response."
+msgstr "Mastodon hat eine ungültige Statusantwort zurückgegeben."
+
+msgid "Mastodon returned an invalid response."
+msgstr "Mastodon hat eine ungültige Antwort zurückgegeben."
+
+msgid "Mastodon timed out; the publication outcome is unknown."
+msgstr ""
+"Zeitüberschreitung bei Mastodon; das Ergebnis der Veröffentlichung ist "
+"unbekannt."
+
+msgid "Mastodon configuration is not usable."
+msgstr "Die Mastodon-Konfiguration ist nicht verwendbar."
+
+msgid "Empty Mastodon post."
+msgstr "Leerer Mastodon-Beitrag."
+
+msgid "Invalid Mastodon visibility."
+msgstr "Ungültige Mastodon-Sichtbarkeit."
+
+msgid "Invalid Mastodon language."
+msgstr "Ungültige Mastodon-Sprache."
+
+msgid "Unsafe Mastodon instance URL."
+msgstr "Unsichere Mastodon-Instanz-URL."
+
+msgid "Discord webhook rejected the notification."
+msgstr "Der Discord-Webhook hat die Benachrichtigung abgewiesen."
+
+msgid "The Discord webhook payload could not be encoded."
+msgstr ""
+"Die Nutzdaten der Discord-Webhook-Benachrichtigung konnten nicht kodiert "
+"werden."
+
+msgid "Discord webhook timed out."
+msgstr "Zeitüberschreitung des Discord-Webhooks."
+
+msgid "Discord webhook configuration is not usable."
+msgstr "Die Discord-Webhook-Konfiguration ist nicht verwendbar."
 
 msgid "Destination has no room."
-msgstr ""
+msgstr "Die Destination hat keinen Raum."
 
 msgid "Webhook endpoint rejected the notification."
 msgstr "Der Webhook-Endpunkt hat die Benachrichtigung abgelehnt."
@@ -835,95 +994,78 @@ msgstr "Die Webhook-URL ist nicht verfügbar."
 msgid "Webhook token store is not writable."
 msgstr "Der Token-Speicher für Webhooks ist nicht beschreibbar."
 
-msgid "Bluesky timed out; the publication outcome is unknown."
-msgstr ""
-
-msgid "Bluesky configuration is not usable."
-msgstr ""
-
-msgid "Bluesky rejected the account handle or app password."
-msgstr ""
-
-msgid "Invalid session."
-msgstr ""
-
-msgid "Invalid refresh."
-msgstr ""
-
-msgid "Invalid response."
-msgstr ""
-
-msgid "HTTP client unavailable."
-msgstr ""
-
 msgid "Unsupported transport type."
-msgstr ""
+msgstr "Nicht unterstützter Transporttyp."
 
-msgid "The Mastodon post exceeds this instance's character limit."
-msgstr ""
+msgid "Teams webhook rejected the notification."
+msgstr "Der Teams-Webhook hat die Benachrichtigung abgewiesen."
 
-msgid "Mastodon returned an invalid status response."
+msgid "The Teams webhook payload could not be encoded."
 msgstr ""
+"Die Nutzdaten der Teams-Webhook-Benachrichtigung konnten nicht kodiert werden."
 
-msgid "Mastodon returned an invalid response."
-msgstr ""
+msgid "Teams webhook timed out."
+msgstr "Zeitüberschreitung des Teams-Webhooks."
 
-msgid "Mastodon timed out; the publication outcome is unknown."
-msgstr ""
-
-msgid "Mastodon configuration is not usable."
-msgstr ""
-
-msgid "Empty Mastodon post."
-msgstr ""
-
-msgid "Invalid Mastodon visibility."
-msgstr ""
-
-msgid "Invalid Mastodon language."
-msgstr ""
-
-msgid "Unsafe Mastodon instance URL."
-msgstr ""
+msgid "Teams webhook configuration is not usable."
+msgstr "Die Teams-Webhook-Konfiguration ist nicht verwendbar."
 
 msgid "Telegram returned an invalid response."
-msgstr ""
+msgstr "Telegram hat eine ungültige Antwort zurückgegeben."
 
 msgid "Telegram timed out; the delivery outcome is unknown."
 msgstr ""
+"Zeitüberschreitung bei Telegram; das Ergebnis der Zustellung ist unbekannt."
 
 msgid "Telegram configuration is not usable."
-msgstr ""
+msgstr "Die Telegram-Konfiguration ist nicht verwendbar."
 
 msgid "Telegram rejected the bot token."
+msgstr "Telegram hat den Bot-Token abgewiesen."
+
+msgid "Gotify rejected the notification."
+msgstr "Gotify hat die Benachrichtigung abgewiesen."
+
+msgid "The Gotify notification payload could not be encoded."
 msgstr ""
+"Die Nutzdaten der Gotify-Benachrichtigung konnten nicht kodiert werden."
+
+msgid "Gotify timed out; the delivery outcome is unknown."
+msgstr ""
+"Zeitüberschreitung bei Gotify; das Ergebnis der Zustellung ist unbekannt."
+
+msgid "Gotify configuration is not usable."
+msgstr "Die Gotify-Konfiguration ist nicht verwendbar."
 
 msgid "Matrix-Nio requires an internal room ID."
-msgstr ""
+msgstr "Matrix-Nio benötigt eine interne Raum-ID."
 
 msgid "Configured Matrix homeserver is not usable."
-msgstr ""
+msgstr "Der konfigurierte Matrix-Homeserver ist nicht verwendbar."
 
 msgid "Matrix-Nio returned no usable result."
-msgstr ""
+msgstr "Matrix-Nio hat kein verwendbares Ergebnis zurückgegeben."
 
 msgid "Matrix-Nio operation failed."
-msgstr ""
+msgstr "Matrix-Nio-Operation fehlgeschlagen."
 
 msgid "Matrix-Nio timed out."
-msgstr ""
+msgstr "Zeitüberschreitung bei Matrix-Nio."
 
 msgid "Configured Matrix-Nio store lock is not usable."
 msgstr ""
+"Die konfigurierte Sperre des Matrix-Nio-Speichers ist nicht verwendbar."
 
 msgid "Configured Matrix-Nio Python executable is not usable."
 msgstr ""
+"Die konfigurierte ausführbare Python-Datei für Matrix Nio ist nicht "
+"verwendbar."
 
 msgid "Configured Matrix-Nio path is not usable."
-msgstr ""
+msgstr "Der konfigurierte Matrix-Nio-Pfad ist nicht verwendbar."
 
 msgid "Configured Matrix-Nio store is not usable."
-msgstr ""
+msgstr "Der konfigurierte Matrix-Nio-Speicher ist nicht verwendbar."
 
 msgid "Incoming webhook endpoint rejected the notification."
 msgstr ""
@@ -942,197 +1084,264 @@ msgid "Incoming webhook configuration is not usable."
 msgstr "Die Konfiguration des eingehenden Webhooks ist nicht verwendbar."
 
 msgid "Add transport"
-msgstr ""
+msgstr "Transport hinzufügen"
 
 msgid "Name"
-msgstr ""
+msgstr "Name"
 
 msgid "Provisioning"
-msgstr ""
+msgstr "Bereitstellung"
 
 msgid "Trust"
-msgstr ""
+msgstr "Vertrauen"
 
 msgid "Actions"
-msgstr ""
+msgstr "Aktionen"
 
 msgid "Yes"
-msgstr ""
+msgstr "Ja"
 
 msgid "Edit"
-msgstr ""
+msgstr "Bearbeiten"
 
 msgid "Verify device"
-msgstr ""
+msgstr "Gerät verifizieren"
 
 msgid "Provision"
-msgstr ""
+msgstr "Bereitstellen"
 
 msgid "Test"
-msgstr ""
+msgstr "Testen"
 
 msgid "Delete"
-msgstr ""
+msgstr "Löschen"
 
 msgid "Add destination"
-msgstr ""
+msgstr "Destination hinzufügen"
 
 msgid "Type"
-msgstr ""
+msgstr "Typ"
 
 msgid "Add rule"
-msgstr ""
+msgstr "Regel hinzufügen"
 
 msgid "Event"
-msgstr ""
+msgstr "Ereignis"
 
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 msgid "Attempts"
-msgstr ""
+msgstr "Versuche"
 
 msgid "Retry"
-msgstr ""
+msgstr "Wiederholen"
 
 msgid "This permanently removes the following associated data:"
-msgstr ""
+msgstr "Dies entfernt die folgenden zugehörigen Daten dauerhaft:"
 
 msgid "Stored token:"
 msgstr "Gespeicherter Token:"
 
 msgid "Choose a channel the configured Mattermost account can access."
 msgstr ""
+"Wählen Sie einen Kanal, auf den das konfigurierte Mattermost-Konto zugreifen "
+"kann."
 
 msgid ""
 "The Mattermost channels could not be loaded. Check the API token and reload "
 "this page."
 msgstr ""
+"Die Mattermost-Kanäle konnten nicht geladen werden. Prüfen Sie den API-Token "
+"und laden Sie diese Seite neu."
 
 msgid "Optional; leave empty to use the webhook's default channel."
-msgstr ""
+msgstr "Optional; leer lassen, um den Standardkanal des Webhooks zu verwenden."
 
 msgid ""
 "Group, supergroup, or channel chat ID. Direct messages are not supported."
 msgstr ""
+"Chat-ID einer Gruppe, Supergruppe oder eines Kanals. Direktnachrichten "
+"werden nicht unterstützt."
 
 msgid "Public HTTPS URL. Requests are JSON POSTs and never follow redirects."
-msgstr "Öffentliche HTTPS-URL. Anfragen sind JSON-POSTs und folgen niemals Weiterleitungen."
+msgstr ""
+"Öffentliche HTTPS-URL. Anfragen sind JSON-POSTs und folgen niemals "
+"Weiterleitungen."
 
 msgid ""
 "Optional. When set, CiviNeo sends an HMAC-SHA-256 signature in X-CiviNeo-"
 "Signature."
-msgstr "Optional. Wenn gesetzt, sendet CiviNeo eine HMAC-SHA-256-Signatur in X-CiviNeo-Signature."
+msgstr ""
+"Optional. Wenn gesetzt, sendet CiviNeo eine HMAC-SHA-256-Signatur in X-"
+"CiviNeo-Signature."
 
 msgid "Stored outside CiviCRM in the protected token store."
 msgstr "Außerhalb von CiviCRM im geschützten Token-Speicher abgelegt."
 
 msgid ""
+"Create a Teams workflow that receives webhook requests, then paste its URL "
+"here. Stored outside CiviCRM in the protected token store."
+msgstr ""
+"Erstellen Sie einen Teams-Workflow, der Webhook-Anfragen empfängt, und fügen "
+"Sie dessen URL hier ein. Sie wird außerhalb von CiviCRM im geschützten Token-Speicher abgelegt."
+
+msgid "A topic is the destination on the configured ntfy server."
+msgstr "Ein Thema ist die Destination auf dem konfigurierten ntfy-Server."
+
+msgid ""
+"Create an application in Gotify and enter its token here. It is stored "
+"outside CiviCRM in the protected token store."
+msgstr ""
+"Erstellen Sie eine Anwendung in Gotify und geben Sie deren Token hier ein. "
+"Er wird außerhalb von CiviCRM im geschützten Token-Speicher abgelegt."
+
+msgid ""
 "Use a dedicated bot account and an internal room ID. The private directory "
 "must be outside the web root and writable by both PHP and the CiviCRM worker."
 msgstr ""
+"Verwenden Sie ein eigenes Bot-Konto und eine interne Raum-ID. Das private "
+"Verzeichnis muss außerhalb des Web-Roots liegen und sowohl für PHP als auch "
+"den CiviCRM-Worker beschreibbar sein."
 
 msgid "Last provisioning status:"
-msgstr ""
+msgstr "Letzter Bereitstellungsstatus:"
 
 msgid ""
 "Use a dedicated directory outside the web root that is readable and writable "
 "only by the CiviCRM service account."
 msgstr ""
+"Verwenden Sie ein eigenes Verzeichnis außerhalb des Web-Roots, das nur für "
+"das CiviCRM-Dienstkonto lesbar und beschreibbar ist."
 
 msgid ""
 "Used once to create a dedicated Matrix device. It is passed by standard "
 "input and is not stored."
 msgstr ""
+"Wird einmalig zum Erstellen eines eigenen Matrix-Geräts verwendet. Es wird "
+"über die Standardeingabe übergeben und nicht gespeichert."
 
 msgid ""
 "Leave empty when creating a new Matrix transport, then use Provision Matrix "
 "credentials. Do not store a token in CiviCRM."
 msgstr ""
+"Beim Erstellen eines neuen Matrix-Transports leer lassen und anschließend "
+"Matrix-Zugangsdaten bereitstellen. Speichern Sie keinen Token in CiviCRM."
 
 msgid ""
 "Leave empty during initial setup; provisioning creates a dedicated, writable "
 "E2EE store outside the web root."
 msgstr ""
+"Bei der Ersteinrichtung leer lassen; die Bereitstellung erstellt einen "
+"eigenen, beschreibbaren E2EE-Speicher außerhalb des Web-Roots."
 
 msgid "Defaults to hooks."
-msgstr ""
+msgstr "Standard ist hooks."
 
 msgid ""
 "Protected external JSON token store. Tokens are never stored in CiviCRM."
 msgstr ""
+"Geschützter externer JSON-Token-Speicher. Token werden niemals in CiviCRM "
+"gespeichert."
 
 msgid "The leading @ is optional."
-msgstr ""
+msgstr "Das einleitende @ ist optional."
 
 msgid ""
 "Stored outside CiviCRM in the protected token store. Use an App Password, "
 "never the account password."
 msgstr ""
+"Wird außerhalb von CiviCRM im geschützten Token-Speicher abgelegt. Verwenden "
+"Sie ein App-Passwort, niemals das Konto-Passwort."
+
+msgid "Use the HTTPS URL of your ntfy or Gotify server."
+msgstr "Verwenden Sie die HTTPS-URL Ihres ntfy- oder Gotify-Servers."
+
+msgid "Optional. Stored outside CiviCRM in the protected token store."
+msgstr ""
+"Optional. Wird außerhalb von CiviCRM im geschützten Token-Speicher abgelegt."
 
 msgid ""
 "Mastodon and Bluesky accounts do not require separate destination settings."
 msgstr ""
+"Mastodon- und Bluesky-Konten benötigen keine separaten "
+"Destinationseinstellungen."
 
 msgid "This destination will be used when a rule selects only this transport."
 msgstr ""
+"Diese Destination wird verwendet, wenn eine Regel nur diesen Transport "
+"auswählt."
 
 msgid ""
 "The bundled client script must run in a Python environment with matrix-"
 "nio[e2e] installed."
 msgstr ""
+"Das mitgelieferte Client-Skript muss in einer Python-Umgebung mit "
+"installiertem matrix-nio[e2e] ausgeführt werden."
 
 msgid ""
 "Private session JSON outside the web root. It contains an access token and "
 "must be mode 0600."
 msgstr ""
+"Private Sitzungs-JSON außerhalb des Web-Roots. Sie enthält einen Zugriffs-"
+"Token und muss den Modus 0600 haben."
 
 msgid ""
 "Off by default. Enabling it still encrypts messages but shares their session "
 "with recipient devices which have not been verified."
 msgstr ""
+"Standardmäßig deaktiviert. Beim Aktivieren werden Nachrichten weiterhin "
+"verschlüsselt, teilen ihre Sitzung jedoch mit nicht verifizierten "
+"Empfängergeräten."
 
 msgid "Provision Matrix credentials"
-msgstr ""
+msgstr "Matrix-Zugangsdaten bereitstellen"
 
 msgid "Verify Matrix device"
-msgstr ""
+msgstr "Matrix-Gerät verifizieren"
 
 msgid ""
 "Verify another device of this account, or invite a member of the default "
 "Matrix destination to the reusable unencrypted verification room. Compare "
 "the displayed SAS before confirming."
 msgstr ""
+"Verifizieren Sie ein weiteres Gerät dieses Kontos oder laden Sie ein "
+"Mitglied der Standard-Matrix-Destination in den wiederverwendbaren "
+"unverschlüsselten Verifikationsraum ein. Vergleichen Sie die angezeigte SAS "
+"vor der Bestätigung."
 
-msgid "CiviNeo Notify: Settings"
-msgstr ""
+#~ msgid "Operation timed out"
+#~ msgstr "Zeitüberschreitung der Operation"
 
-msgid "CiviNeo Notify: Transports"
-msgstr ""
+#~ msgid "CiviNeo Notify: Settings"
+#~ msgstr "CiviNeo Notify: Einstellungen"
 
-msgid "CiviNeo Notify: Transport"
-msgstr ""
+#~ msgid "CiviNeo Notify: Transports"
+#~ msgstr "CiviNeo Notify: Transporte"
 
-msgid "CiviNeo Notify: Provision Matrix transport"
-msgstr ""
+#~ msgid "CiviNeo Notify: Transport"
+#~ msgstr "CiviNeo Notify: Transport"
 
-msgid "CiviNeo Notify: Delete transport"
-msgstr ""
+#~ msgid "CiviNeo Notify: Provision Matrix transport"
+#~ msgstr "CiviNeo Notify: Matrix-Transport bereitstellen"
 
-msgid "CiviNeo Notify: Verify Matrix Nio device"
-msgstr ""
+#~ msgid "CiviNeo Notify: Delete transport"
+#~ msgstr "CiviNeo Notify: Transport löschen"
 
-msgid "CiviNeo Notify: Destinations"
-msgstr ""
+#~ msgid "CiviNeo Notify: Verify Matrix Nio device"
+#~ msgstr "CiviNeo Notify: Matrix-Nio-Gerät verifizieren"
 
-msgid "CiviNeo Notify: Destination"
-msgstr ""
+#~ msgid "CiviNeo Notify: Destinations"
+#~ msgstr "CiviNeo Notify: Destinationen"
 
-msgid "CiviNeo Notify: Rules"
-msgstr ""
+#~ msgid "CiviNeo Notify: Destination"
+#~ msgstr "CiviNeo Notify: Destination"
 
-msgid "CiviNeo Notify: Rule"
-msgstr ""
+#~ msgid "CiviNeo Notify: Rules"
+#~ msgstr "CiviNeo Notify: Regeln"
 
-msgid "CiviNeo Notify: Delivery log"
-msgstr ""
+#~ msgid "CiviNeo Notify: Rule"
+#~ msgstr "CiviNeo Notify: Regel"
+
+#~ msgid "CiviNeo Notify: Delivery log"
+#~ msgstr "CiviNeo Notify: Zustellprotokoll"

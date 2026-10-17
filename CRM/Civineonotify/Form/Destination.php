@@ -19,7 +19,7 @@ final class CRM_Civineonotify_Form_Destination extends CRM_Core_Form {
     $transportDestinationTypes = [];
     $channelOptions = ['' => E::ts('- select a channel -')];
     foreach (\Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('is_active', '=', TRUE)->execute() as $transport) {
-      $transportDestinationTypes[(string) $transport['id']] = in_array($transport['transport_type'], ['mattermost_webhook', 'mattermost_api'], TRUE) ? 'mattermost_channel' : ($transport['transport_type'] === 'mastodon' ? 'mastodon_account' : ($transport['transport_type'] === 'bluesky' ? 'bluesky_account' : ($transport['transport_type'] === 'telegram' ? 'telegram_chat' : ($transport['transport_type'] === 'generic_webhook' ? 'webhook_endpoint' : ($transport['transport_type'] === 'slack' ? 'slack_channel' : ($transport['transport_type'] === 'rocketchat' ? 'rocketchat_channel' : 'matrix_room'))))));
+      $transportDestinationTypes[(string) $transport['id']] = $this->destinationTypeForTransport((string) $transport['transport_type']);
       if ($transport['transport_type'] === 'mattermost_api') {
         try {
           $config = is_array($transport['config_json'] ?? NULL) ? $transport['config_json'] : [];
@@ -33,7 +33,7 @@ final class CRM_Civineonotify_Form_Destination extends CRM_Core_Form {
     $this->assign('mattermostApiChannelsJson', json_encode($this->mattermostApiChannels, JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
     $this->assign('mattermostApiChannelErrorsJson', json_encode($this->mattermostApiChannelErrors, JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
     $this->add('text', 'name', E::ts('Destination name'), ['size' => 70], TRUE);
-    $this->add('select', 'destination_type', E::ts('Destination type'), ['matrix_room' => E::ts('Matrix room'), 'mattermost_channel' => E::ts('Mattermost channel'), 'mastodon_account' => E::ts('Mastodon account'), 'bluesky_account' => E::ts('Bluesky account'), 'telegram_chat' => E::ts('Telegram chat'), 'webhook_endpoint' => E::ts('Webhook endpoint'), 'slack_channel' => E::ts('Slack channel'), 'rocketchat_channel' => E::ts('Rocket.Chat channel')], TRUE);
+    $this->add('select', 'destination_type', E::ts('Destination type'), ['matrix_room' => E::ts('Matrix room'), 'mattermost_channel' => E::ts('Mattermost channel'), 'mastodon_account' => E::ts('Mastodon account'), 'bluesky_account' => E::ts('Bluesky account'), 'telegram_chat' => E::ts('Telegram chat'), 'webhook_endpoint' => E::ts('Webhook endpoint'), 'slack_channel' => E::ts('Slack channel'), 'rocketchat_channel' => E::ts('Rocket.Chat channel'), 'discord_channel' => E::ts('Discord channel'), 'teams_channel' => E::ts('Microsoft Teams channel'), 'ntfy_topic' => E::ts('ntfy topic'), 'gotify_application' => E::ts('Gotify application')], TRUE);
     $this->add('text', 'room_id', E::ts('Matrix room ID'), ['size' => 70]); $this->add('text', 'room_alias', E::ts('Matrix room alias'), ['size' => 70]);
     $this->add('select', 'mattermost_channel_id', E::ts('Mattermost channel'), $channelOptions);
     $this->add('text', 'channel_override', E::ts('Mattermost channel override'), ['size' => 70]);
@@ -43,6 +43,10 @@ final class CRM_Civineonotify_Form_Destination extends CRM_Core_Form {
     $this->add('password', 'webhook_signing_secret', E::ts('Webhook signing secret'), ['size' => 70]);
     $this->add('password', 'slack_webhook_url', E::ts('Slack incoming webhook URL'), ['size' => 70]);
     $this->add('password', 'rocketchat_webhook_url', E::ts('Rocket.Chat incoming webhook URL'), ['size' => 70]);
+    $this->add('password', 'discord_webhook_url', E::ts('Discord webhook URL'), ['size' => 70]);
+    $this->add('password', 'teams_webhook_url', E::ts('Microsoft Teams workflow webhook URL'), ['size' => 70]);
+    $this->add('text', 'ntfy_topic', E::ts('ntfy topic'), ['size' => 70]);
+    $this->add('password', 'gotify_application_token', E::ts('Gotify application token'), ['size' => 70]);
     $this->add('textarea', 'description', E::ts('Description'), ['rows' => 3, 'cols' => 70]); $this->add('checkbox', 'is_active', E::ts('Active'));
     $this->addButtons([['type' => 'submit', 'name' => E::ts('Save destination'), 'isDefault' => TRUE], ['type' => 'cancel', 'name' => E::ts('Cancel')]]);
   }
@@ -61,17 +65,24 @@ final class CRM_Civineonotify_Form_Destination extends CRM_Core_Form {
       $transportConfig = is_array($transport['config_json'] ?? NULL) ? $transport['config_json'] : [];
       $this->assign('webhookSigningSecretSuffix', !empty($config['signing_key']) && !empty($transportConfig['token_store_file']) ? (new MattermostTokenStore((string) $transportConfig['token_store_file']))->suffix((string) $config['signing_key']) : '');
     }
-    if (in_array($row['destination_type'] ?? NULL, ['slack_channel', 'rocketchat_channel'], TRUE)) {
+    if (in_array($row['destination_type'] ?? NULL, ['slack_channel', 'rocketchat_channel', 'discord_channel', 'teams_channel'], TRUE)) {
       $transport = \Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $row['transport_id'])->execute()->first() ?? [];
       $transportConfig = is_array($transport['config_json'] ?? NULL) ? $transport['config_json'] : [];
       $suffix = !empty($config['webhook_key']) && !empty($transportConfig['token_store_file']) ? (new MattermostTokenStore((string) $transportConfig['token_store_file']))->suffix((string) $config['webhook_key']) : '';
-      $this->assign(($row['destination_type'] ?? NULL) === 'slack_channel' ? 'slackWebhookSuffix' : 'rocketchatWebhookSuffix', $suffix);
+      $suffixVariable = match ($row['destination_type']) { 'slack_channel' => 'slackWebhookSuffix', 'rocketchat_channel' => 'rocketchatWebhookSuffix', 'discord_channel' => 'discordWebhookSuffix', default => 'teamsWebhookSuffix' };
+      $this->assign($suffixVariable, $suffix);
+    }
+    if (($row['destination_type'] ?? NULL) === 'gotify_application') {
+      $transport = \Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $row['transport_id'])->execute()->first() ?? [];
+      $transportConfig = is_array($transport['config_json'] ?? NULL) ? $transport['config_json'] : [];
+      $this->assign('gotifyApplicationTokenSuffix', !empty($config['application_token_key']) && !empty($transportConfig['token_store_file']) ? (new MattermostTokenStore((string) $transportConfig['token_store_file']))->suffix((string) $config['application_token_key']) : '');
     }
     $defaults = array_merge($row, $config);
     if (($row['destination_type'] ?? NULL) === 'mattermost_channel') {
       $transport = \Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $row['transport_id'])->execute()->first() ?? [];
       $defaults[($transport['transport_type'] ?? '') === 'mattermost_api' ? 'mattermost_channel_id' : 'channel_override'] = $config['channel'] ?? NULL;
     }
+    if (($row['destination_type'] ?? NULL) === 'ntfy_topic') $defaults['ntfy_topic'] = $config['topic'] ?? '';
     return $defaults;
   }
   public function postProcess(): void {
@@ -80,10 +91,11 @@ final class CRM_Civineonotify_Form_Destination extends CRM_Core_Form {
     $type = (string) ($v['destination_type'] ?? '');
     $transportType = (string) ($transport['transport_type'] ?? '');
     $mattermost = in_array($transportType, ['mattermost_webhook', 'mattermost_api'], TRUE);
-    $supportedType = $mattermost ? 'mattermost_channel' : ($transportType === 'mastodon' ? 'mastodon_account' : ($transportType === 'bluesky' ? 'bluesky_account' : ($transportType === 'telegram' ? 'telegram_chat' : ($transportType === 'generic_webhook' ? 'webhook_endpoint' : ($transportType === 'slack' ? 'slack_channel' : ($transportType === 'rocketchat' ? 'rocketchat_channel' : 'matrix_room'))))));
+    $supportedType = $this->destinationTypeForTransport($transportType);
     if (!$transport || $type !== $supportedType) { $this->setElementError('destination_type', E::ts('Choose a destination type supported by the selected transport.')); return; }
     if ($type === 'matrix_room' && empty($v['room_id']) && empty($v['room_alias'])) { $this->setElementError('room_id', E::ts('Provide a Matrix room ID or alias.')); return; }
     if ($type === 'telegram_chat' && !preg_match('/^-[0-9]{1,20}$/', trim((string) ($v['telegram_chat_id'] ?? '')))) { $this->setElementError('telegram_chat_id', E::ts('Enter a negative numeric Telegram group, supergroup, or channel chat ID.')); return; }
+    if ($type === 'ntfy_topic' && !preg_match('/^[A-Za-z0-9_-]{1,64}$/', trim((string) ($v['ntfy_topic'] ?? '')))) { $this->setElementError('ntfy_topic', E::ts('Enter a valid ntfy topic.')); return; }
     $endpointParts = parse_url(trim((string) ($v['webhook_endpoint_url'] ?? '')));
     $endpointHost = is_array($endpointParts) ? strtolower((string) ($endpointParts['host'] ?? '')) : '';
     if ($type === 'webhook_endpoint' && (!is_array($endpointParts) || ($endpointParts['scheme'] ?? '') !== 'https' || $endpointHost === '' || isset($endpointParts['user']) || isset($endpointParts['pass']) || $endpointHost === 'localhost' || str_ends_with($endpointHost, '.localhost') || str_ends_with($endpointHost, '.local') || (filter_var($endpointHost, FILTER_VALIDATE_IP) !== FALSE && filter_var($endpointHost, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === FALSE))) { $this->setElementError('webhook_endpoint_url', E::ts('Use a public HTTPS webhook endpoint URL.')); return; }
@@ -95,10 +107,13 @@ final class CRM_Civineonotify_Form_Destination extends CRM_Core_Form {
     if ($type === 'mattermost_channel' && $api && $channel === '') { $this->setElementError('mattermost_channel_id', E::ts('Choose a Mattermost channel.')); return; }
     if ($type === 'mattermost_channel' && $api && (isset($this->mattermostApiChannelErrors[(string) $transport['id']]) || !isset($this->mattermostApiChannels[(string) $transport['id']][$channel]))) { $this->setElementError('mattermost_channel_id', E::ts('The Mattermost channels could not be loaded. Check the API token and try again.')); return; }
     if ($type === 'mattermost_channel' && $webhook && empty($existingConfig['token_key']) && trim((string) ($v['webhook_token'] ?? '')) === '') { $this->setElementError('webhook_token', E::ts('Enter a Mattermost hook token.')); return; }
-    $incomingWebhookUrl = $type === 'slack_channel' ? trim((string) ($v['slack_webhook_url'] ?? '')) : trim((string) ($v['rocketchat_webhook_url'] ?? ''));
-    if (in_array($type, ['slack_channel', 'rocketchat_channel'], TRUE) && empty($existingConfig['webhook_key']) && $incomingWebhookUrl === '') { $this->setElementError($type === 'slack_channel' ? 'slack_webhook_url' : 'rocketchat_webhook_url', E::ts('Enter an incoming webhook URL.')); return; }
-    if (in_array($type, ['slack_channel', 'rocketchat_channel'], TRUE) && $incomingWebhookUrl !== '' && !preg_match('#^https://[^\s]+$#', $incomingWebhookUrl)) { $this->setElementError($type === 'slack_channel' ? 'slack_webhook_url' : 'rocketchat_webhook_url', E::ts('Use an HTTPS incoming webhook URL.')); return; }
-    $config = $type === 'mattermost_channel' ? array_filter(['channel' => $channel ?: NULL, 'token_key' => $webhook ? ($existingConfig['token_key'] ?? bin2hex(random_bytes(16))) : NULL], static fn($value) => $value !== NULL) : ($type === 'telegram_chat' ? ['chat_id' => trim((string) $v['telegram_chat_id'])] : ($type === 'webhook_endpoint' ? array_filter(['endpoint_url' => trim((string) $v['webhook_endpoint_url']), 'signing_key' => trim((string) ($v['webhook_signing_secret'] ?? '')) !== '' ? ($existingConfig['signing_key'] ?? bin2hex(random_bytes(16))) : ($existingConfig['signing_key'] ?? NULL)], static fn($value) => $value !== NULL) : (in_array($type, ['slack_channel', 'rocketchat_channel'], TRUE) ? ['webhook_key' => $existingConfig['webhook_key'] ?? bin2hex(random_bytes(16))] : (in_array($type, ['mastodon_account', 'bluesky_account'], TRUE) ? [] : ['room_id' => trim((string) ($v['room_id'] ?? '')) ?: NULL, 'room_alias' => trim((string) ($v['room_alias'] ?? '')) ?: NULL]))));
+    $webhookFields = ['slack_channel' => 'slack_webhook_url', 'rocketchat_channel' => 'rocketchat_webhook_url', 'discord_channel' => 'discord_webhook_url', 'teams_channel' => 'teams_webhook_url'];
+    $webhookField = $webhookFields[$type] ?? '';
+    $incomingWebhookUrl = $webhookField === '' ? '' : trim((string) ($v[$webhookField] ?? ''));
+    if ($webhookField !== '' && empty($existingConfig['webhook_key']) && $incomingWebhookUrl === '') { $this->setElementError($webhookField, E::ts('Enter an incoming webhook URL.')); return; }
+    if ($webhookField !== '' && $incomingWebhookUrl !== '' && !preg_match('#^https://[^\s]+$#', $incomingWebhookUrl)) { $this->setElementError($webhookField, E::ts('Use an HTTPS incoming webhook URL.')); return; }
+    if ($type === 'gotify_application' && empty($existingConfig['application_token_key']) && trim((string) ($v['gotify_application_token'] ?? '')) === '') { $this->setElementError('gotify_application_token', E::ts('Enter a Gotify application token.')); return; }
+    $config = $type === 'mattermost_channel' ? array_filter(['channel' => $channel ?: NULL, 'token_key' => $webhook ? ($existingConfig['token_key'] ?? bin2hex(random_bytes(16))) : NULL], static fn($value) => $value !== NULL) : ($type === 'telegram_chat' ? ['chat_id' => trim((string) $v['telegram_chat_id'])] : ($type === 'ntfy_topic' ? ['topic' => trim((string) $v['ntfy_topic'])] : ($type === 'gotify_application' ? ['application_token_key' => $existingConfig['application_token_key'] ?? bin2hex(random_bytes(16))] : ($type === 'webhook_endpoint' ? array_filter(['endpoint_url' => trim((string) $v['webhook_endpoint_url']), 'signing_key' => trim((string) ($v['webhook_signing_secret'] ?? '')) !== '' ? ($existingConfig['signing_key'] ?? bin2hex(random_bytes(16))) : ($existingConfig['signing_key'] ?? NULL)], static fn($value) => $value !== NULL) : ($webhookField !== '' ? ['webhook_key' => $existingConfig['webhook_key'] ?? bin2hex(random_bytes(16))] : (in_array($type, ['mastodon_account', 'bluesky_account'], TRUE) ? [] : ['room_id' => trim((string) ($v['room_id'] ?? '')) ?: NULL, 'room_alias' => trim((string) ($v['room_alias'] ?? '')) ?: NULL]))))));
     $record = ['transport_id' => (int) $v['transport_id'], 'name' => trim((string) $v['name']), 'description' => trim((string) ($v['description'] ?? '')), 'destination_type' => $type, 'config_json' => $config, 'is_active' => !empty($v['is_active'])];
     if ($this->id) \Civi\Api4\CiviNeoNotifyDestination::update(FALSE)->setWhere([['id', '=', $this->id]])->setValues($record)->execute(); else { $created = \Civi\Api4\CiviNeoNotifyDestination::create(FALSE)->setValues($record)->execute()->first(); $this->id = (int) $created['id']; }
     if ($type === 'mattermost_channel' && $webhook && trim((string) ($v['webhook_token'] ?? '')) !== '') {
@@ -111,11 +126,28 @@ final class CRM_Civineonotify_Form_Destination extends CRM_Core_Form {
       try { (new MattermostTokenStore((string) ($transportConfig['token_store_file'] ?? '')))->put((string) $config['signing_key'], trim((string) $v['webhook_signing_secret'])); }
       catch (\Throwable) { $this->setElementError('webhook_signing_secret', E::ts('The webhook signing secret could not be stored.')); return; }
     }
-    if (in_array($type, ['slack_channel', 'rocketchat_channel'], TRUE) && $incomingWebhookUrl !== '') {
+    if ($webhookField !== '' && $incomingWebhookUrl !== '') {
       $transportConfig = is_array($transport['config_json'] ?? NULL) ? $transport['config_json'] : [];
       try { (new MattermostTokenStore((string) ($transportConfig['token_store_file'] ?? '')))->put((string) $config['webhook_key'], $incomingWebhookUrl); }
-      catch (\Throwable) { $this->setElementError($type === 'slack_channel' ? 'slack_webhook_url' : 'rocketchat_webhook_url', E::ts('The incoming webhook URL could not be stored.')); return; }
+      catch (\Throwable) { $this->setElementError($webhookField, E::ts('The incoming webhook URL could not be stored.')); return; }
+    }
+    if ($type === 'gotify_application' && trim((string) ($v['gotify_application_token'] ?? '')) !== '') {
+      $transportConfig = is_array($transport['config_json'] ?? NULL) ? $transport['config_json'] : [];
+      try { (new MattermostTokenStore((string) ($transportConfig['token_store_file'] ?? '')))->put((string) $config['application_token_key'], trim((string) $v['gotify_application_token'])); }
+      catch (\Throwable) { $this->setElementError('gotify_application_token', E::ts('The Gotify application token could not be stored.')); return; }
     }
     CRM_Core_Session::setStatus(E::ts('Destination saved.'), E::ts('Saved'), 'success'); CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/admin/civineonotify/destinations', ['reset' => 1]));
+  }
+
+  private function destinationTypeForTransport(string $transportType): string {
+    return match ($transportType) {
+      'mattermost_webhook', 'mattermost_api' => 'mattermost_channel',
+      'mastodon' => 'mastodon_account', 'bluesky' => 'bluesky_account',
+      'telegram' => 'telegram_chat', 'generic_webhook' => 'webhook_endpoint',
+      'slack' => 'slack_channel', 'rocketchat' => 'rocketchat_channel',
+      'discord' => 'discord_channel', 'teams' => 'teams_channel',
+      'ntfy' => 'ntfy_topic', 'gotify' => 'gotify_application',
+      default => 'matrix_room',
+    };
   }
 }

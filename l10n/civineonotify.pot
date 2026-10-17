@@ -6,107 +6,25 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de.polbeo.civicrm.civineonotify 0.0.3-alpha.6\n"
 "Report-Msgid-Bugs-To: https://github.com/polbeo-de/civineonotify/issues\n"
-"POT-Creation-Date: 2026-10-17 21:48+0200\n"
-"PO-Revision-Date: 2026-10-17 21:48+0200\n"
+"POT-Creation-Date: 2026-10-17 22:02+0200\n"
+"PO-Revision-Date: 2026-10-17 22:02+0200\n"
 "Last-Translator: polbeo <translations@polbeo.de>\n"
 "Language-Team: CiviNeo Notify translators <translations@polbeo.de>\n"
-"Language: \n"
+"Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "CiviNeo Notify"
-msgstr ""
-
-msgid "- Use destination transport -"
-msgstr ""
-
-msgid "- Select transport -"
-msgstr ""
-
-msgid "- Use transport default destination -"
-msgstr ""
-
-msgid "- Select an event -"
-msgstr ""
-
-msgid "Enable CiviNeo Notify"
-msgstr ""
-
-msgid "{event.name} Hello, world!"
-msgstr ""
-
-msgid "Default message template"
-msgstr ""
-
-msgid "{event.name} Hello, world. Testing! Testing! Do you read me?"
-msgstr ""
-
-msgid "Transport test message template"
-msgstr ""
-
-msgid "Default message format"
-msgstr ""
-
-msgid "Worker batch size"
-msgstr ""
-
-msgid "Maximum delivery attempts"
-msgstr ""
-
-msgid "Retry delays (seconds)"
-msgstr ""
-
-msgid "Delivery log retention (days)"
-msgstr ""
-
-msgid "Protected transport storage directory"
-msgstr ""
-
-msgid ""
-"Absolute path outside the web root for transport credentials, encrypted "
-"stores, and protected runtime files. The directory must be writable only by "
-"the CiviCRM service account."
-msgstr ""
-
-msgid "Example new contact"
-msgstr ""
-
-msgid ""
-"{event.name}\\n\\n{entity.type} #{entity.id} was changed in {site.name}."
-msgstr ""
-
-msgid "Example new activity"
-msgstr ""
-
-msgid "Example case changed"
-msgstr ""
-
-msgid "Example contribution created"
-msgstr ""
-
-msgid "Example event registration"
-msgstr ""
-
 msgid "CiviNeo Notify Delivery"
 msgstr ""
 
-msgid "CiviNeo Notify: Process outbox"
-msgstr ""
-
-msgid "Processes pending CiviNeo Notify deliveries."
-msgstr ""
-
-msgid "Operation timed out"
+msgid "CiviNeo Notify Rule"
 msgstr ""
 
 msgid "CiviNeo Notify Transport"
 msgstr ""
 
 msgid "CiviNeo Notify Destination"
-msgstr ""
-
-msgid "CiviNeo Notify Rule"
 msgstr ""
 
 msgid "Matrix Nio transport not found."
@@ -361,6 +279,18 @@ msgstr ""
 msgid "Rocket.Chat"
 msgstr ""
 
+msgid "Discord"
+msgstr ""
+
+msgid "Microsoft Teams"
+msgstr ""
+
+msgid "ntfy"
+msgstr ""
+
+msgid "Gotify"
+msgstr ""
+
 msgid "Mattermost server URL"
 msgstr ""
 
@@ -433,6 +363,12 @@ msgstr ""
 msgid "Detect Bluesky links automatically"
 msgstr ""
 
+msgid "Notification server URL"
+msgstr ""
+
+msgid "ntfy access token"
+msgstr ""
+
 msgid "Create and set a default destination"
 msgstr ""
 
@@ -503,6 +439,9 @@ msgstr ""
 msgid "Enter a Bluesky App Password."
 msgstr ""
 
+msgid "Use an HTTPS notification server URL."
+msgstr ""
+
 msgid "The Matrix Commander binary does not exist or is not executable."
 msgstr ""
 
@@ -522,6 +461,9 @@ msgid "The Telegram bot token could not be stored."
 msgstr ""
 
 msgid "The Bluesky App Password could not be stored."
+msgstr ""
+
+msgid "The ntfy access token could not be stored."
 msgstr ""
 
 msgid "Default"
@@ -572,6 +514,18 @@ msgstr ""
 msgid "Rocket.Chat channel"
 msgstr ""
 
+msgid "Discord channel"
+msgstr ""
+
+msgid "Microsoft Teams channel"
+msgstr ""
+
+msgid "ntfy topic"
+msgstr ""
+
+msgid "Gotify application"
+msgstr ""
+
 msgid "Matrix room ID"
 msgstr ""
 
@@ -599,6 +553,15 @@ msgstr ""
 msgid "Rocket.Chat incoming webhook URL"
 msgstr ""
 
+msgid "Discord webhook URL"
+msgstr ""
+
+msgid "Microsoft Teams workflow webhook URL"
+msgstr ""
+
+msgid "Gotify application token"
+msgstr ""
+
 msgid "Save destination"
 msgstr ""
 
@@ -610,6 +573,9 @@ msgstr ""
 
 msgid ""
 "Enter a negative numeric Telegram group, supergroup, or channel chat ID."
+msgstr ""
+
+msgid "Enter a valid ntfy topic."
 msgstr ""
 
 msgid "Use a public HTTPS webhook endpoint URL."
@@ -632,6 +598,9 @@ msgstr ""
 msgid "Use an HTTPS incoming webhook URL."
 msgstr ""
 
+msgid "Enter a Gotify application token."
+msgstr ""
+
 msgid "The Mattermost token could not be stored."
 msgstr ""
 
@@ -639,6 +608,9 @@ msgid "The webhook signing secret could not be stored."
 msgstr ""
 
 msgid "The incoming webhook URL could not be stored."
+msgstr ""
+
+msgid "The Gotify application token could not be stored."
 msgstr ""
 
 msgid "Destination saved."
@@ -671,6 +643,9 @@ msgstr ""
 msgid "Event name"
 msgstr ""
 
+msgid "- Select an event -"
+msgstr ""
+
 msgid "Transport (optional)"
 msgstr ""
 
@@ -698,6 +673,82 @@ msgstr ""
 msgid "notification rule saved."
 msgstr ""
 
+msgid "Example new contact"
+msgstr ""
+
+msgid ""
+"{event.name}\\n\\n{entity.type} #{entity.id} was changed in {site.name}."
+msgstr ""
+
+msgid "Example new activity"
+msgstr ""
+
+msgid "Example case changed"
+msgstr ""
+
+msgid "Example contribution created"
+msgstr ""
+
+msgid "Example event registration"
+msgstr ""
+
+msgid "CiviNeo Notify: Process outbox"
+msgstr ""
+
+msgid "Processes pending CiviNeo Notify deliveries."
+msgstr ""
+
+msgid "Enable CiviNeo Notify"
+msgstr ""
+
+msgid "{event.name} Hello, world!"
+msgstr ""
+
+msgid "Default message template"
+msgstr ""
+
+msgid "{event.name} Hello, world. Testing! Testing! Do you read me?"
+msgstr ""
+
+msgid "Transport test message template"
+msgstr ""
+
+msgid "Default message format"
+msgstr ""
+
+msgid "Worker batch size"
+msgstr ""
+
+msgid "Maximum delivery attempts"
+msgstr ""
+
+msgid "Retry delays (seconds)"
+msgstr ""
+
+msgid "Delivery log retention (days)"
+msgstr ""
+
+msgid "Protected transport storage directory"
+msgstr ""
+
+msgid ""
+"Absolute path outside the web root for transport credentials, encrypted "
+"stores, and protected runtime files. The directory must be writable only by "
+"the CiviCRM service account."
+msgstr ""
+
+msgid "CiviNeo Notify"
+msgstr ""
+
+msgid "- Use destination transport -"
+msgstr ""
+
+msgid "- Select transport -"
+msgstr ""
+
+msgid "- Use transport default destination -"
+msgstr ""
+
 msgid "Destination not found or inactive."
 msgstr ""
 
@@ -719,6 +770,9 @@ msgstr ""
 msgid "The transport type is unsupported."
 msgstr ""
 
+msgid "A delivery needs a transport, destination, and message."
+msgstr ""
+
 msgid "Unknown CiviNeo Notify token: %1"
 msgstr ""
 
@@ -729,9 +783,6 @@ msgid "Condition contains an unsupported clause."
 msgstr ""
 
 msgid "Condition field is not allowlisted."
-msgstr ""
-
-msgid "A delivery needs a transport, destination, and message."
 msgstr ""
 
 msgid "Destination has no Matrix room."
@@ -809,28 +860,13 @@ msgstr ""
 msgid "Mattermost webhook configuration is not usable."
 msgstr ""
 
-msgid "Destination has no room."
+msgid "ntfy rejected the notification."
 msgstr ""
 
-msgid "Webhook endpoint rejected the notification."
+msgid "ntfy timed out; the delivery outcome is unknown."
 msgstr ""
 
-msgid "The webhook notification payload could not be encoded."
-msgstr ""
-
-msgid "Webhook endpoint timed out."
-msgstr ""
-
-msgid "Webhook configuration is not usable."
-msgstr ""
-
-msgid "Webhook endpoint must be a public HTTPS URL."
-msgstr ""
-
-msgid "Webhook URL is unavailable."
-msgstr ""
-
-msgid "Webhook token store is not writable."
+msgid "ntfy configuration is not usable."
 msgstr ""
 
 msgid "Bluesky timed out; the publication outcome is unknown."
@@ -852,9 +888,6 @@ msgid "Invalid response."
 msgstr ""
 
 msgid "HTTP client unavailable."
-msgstr ""
-
-msgid "Unsupported transport type."
 msgstr ""
 
 msgid "The Mastodon post exceeds this instance's character limit."
@@ -884,6 +917,57 @@ msgstr ""
 msgid "Unsafe Mastodon instance URL."
 msgstr ""
 
+msgid "Discord webhook rejected the notification."
+msgstr ""
+
+msgid "The Discord webhook payload could not be encoded."
+msgstr ""
+
+msgid "Discord webhook timed out."
+msgstr ""
+
+msgid "Discord webhook configuration is not usable."
+msgstr ""
+
+msgid "Destination has no room."
+msgstr ""
+
+msgid "Webhook endpoint rejected the notification."
+msgstr ""
+
+msgid "The webhook notification payload could not be encoded."
+msgstr ""
+
+msgid "Webhook endpoint timed out."
+msgstr ""
+
+msgid "Webhook configuration is not usable."
+msgstr ""
+
+msgid "Webhook endpoint must be a public HTTPS URL."
+msgstr ""
+
+msgid "Webhook URL is unavailable."
+msgstr ""
+
+msgid "Webhook token store is not writable."
+msgstr ""
+
+msgid "Unsupported transport type."
+msgstr ""
+
+msgid "Teams webhook rejected the notification."
+msgstr ""
+
+msgid "The Teams webhook payload could not be encoded."
+msgstr ""
+
+msgid "Teams webhook timed out."
+msgstr ""
+
+msgid "Teams webhook configuration is not usable."
+msgstr ""
+
 msgid "Telegram returned an invalid response."
 msgstr ""
 
@@ -894,6 +978,18 @@ msgid "Telegram configuration is not usable."
 msgstr ""
 
 msgid "Telegram rejected the bot token."
+msgstr ""
+
+msgid "Gotify rejected the notification."
+msgstr ""
+
+msgid "The Gotify notification payload could not be encoded."
+msgstr ""
+
+msgid "Gotify timed out; the delivery outcome is unknown."
+msgstr ""
+
+msgid "Gotify configuration is not usable."
 msgstr ""
 
 msgid "Matrix-Nio requires an internal room ID."
@@ -1022,6 +1118,19 @@ msgid "Stored outside CiviCRM in the protected token store."
 msgstr ""
 
 msgid ""
+"Create a Teams workflow that receives webhook requests, then paste its URL "
+"here. Stored outside CiviCRM in the protected token store."
+msgstr ""
+
+msgid "A topic is the destination on the configured ntfy server."
+msgstr ""
+
+msgid ""
+"Create an application in Gotify and enter its token here. It is stored "
+"outside CiviCRM in the protected token store."
+msgstr ""
+
+msgid ""
 "Use a dedicated bot account and an internal room ID. The private directory "
 "must be outside the web root and writable by both PHP and the CiviCRM worker."
 msgstr ""
@@ -1064,6 +1173,12 @@ msgid ""
 "never the account password."
 msgstr ""
 
+msgid "Use the HTTPS URL of your ntfy or Gotify server."
+msgstr ""
+
+msgid "Optional. Stored outside CiviCRM in the protected token store."
+msgstr ""
+
 msgid ""
 "Mastodon and Bluesky accounts do not require separate destination settings."
 msgstr ""
@@ -1096,37 +1211,4 @@ msgid ""
 "Verify another device of this account, or invite a member of the default "
 "Matrix destination to the reusable unencrypted verification room. Compare "
 "the displayed SAS before confirming."
-msgstr ""
-
-msgid "CiviNeo Notify: Settings"
-msgstr ""
-
-msgid "CiviNeo Notify: Transports"
-msgstr ""
-
-msgid "CiviNeo Notify: Transport"
-msgstr ""
-
-msgid "CiviNeo Notify: Provision Matrix transport"
-msgstr ""
-
-msgid "CiviNeo Notify: Delete transport"
-msgstr ""
-
-msgid "CiviNeo Notify: Verify Matrix Nio device"
-msgstr ""
-
-msgid "CiviNeo Notify: Destinations"
-msgstr ""
-
-msgid "CiviNeo Notify: Destination"
-msgstr ""
-
-msgid "CiviNeo Notify: Rules"
-msgstr ""
-
-msgid "CiviNeo Notify: Rule"
-msgstr ""
-
-msgid "CiviNeo Notify: Delivery log"
 msgstr ""
