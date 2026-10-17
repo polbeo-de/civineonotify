@@ -1,0 +1,1174 @@
+# CiviNeo Notify translation template.
+# Copyright (C) 2026 polbeo
+# This file is distributed under the same license as CiviNeo Notify.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: de.polbeo.civicrm.civineonotify 0.0.3-alpha.6\n"
+"Report-Msgid-Bugs-To: https://github.com/polbeo-de/civineonotify/issues\n"
+"POT-Creation-Date: 2026-10-17 16:34+0200\n"
+"PO-Revision-Date: 2026-10-17 16:34+0200\n"
+"Last-Translator: polbeo <translations@polbeo.de>\n"
+"Language-Team: CiviNeo Notify translators <translations@polbeo.de>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: schema/CiviNeoNotifyDelivery.entityType.php:14
+msgid "CiviNeo Notify Delivery"
+msgstr ""
+
+#: schema/CiviNeoNotifyRule.entityType.php:14
+msgid "CiviNeo Notify Rule"
+msgstr ""
+
+#: schema/CiviNeoNotifyTransport.entityType.php:14
+msgid "CiviNeo Notify Transport"
+msgstr ""
+
+#: schema/CiviNeoNotifyDestination.entityType.php:14
+msgid "CiviNeo Notify Destination"
+msgstr ""
+
+#: tests/phpunit/Transport/MattermostWebhookTransportTest.php:32
+#: tests/phpunit/Transport/TelegramTransportTest.php:41
+msgid "Operation timed out"
+msgstr ""
+
+#: settings/Civineonotify.setting.php:8
+msgid "Enable CiviNeo Notify"
+msgstr ""
+
+#: settings/Civineonotify.setting.php:9
+msgid "{event.name} Hello, world!"
+msgstr ""
+
+#: settings/Civineonotify.setting.php:9
+msgid "Default message template"
+msgstr ""
+
+#: settings/Civineonotify.setting.php:10
+msgid "{event.name} Hello, world. Testing! Testing! Do you read me?"
+msgstr ""
+
+#: settings/Civineonotify.setting.php:10
+msgid "Transport test message template"
+msgstr ""
+
+#: settings/Civineonotify.setting.php:11
+msgid "Default message format"
+msgstr ""
+
+#: settings/Civineonotify.setting.php:12
+msgid "Worker batch size"
+msgstr ""
+
+#: settings/Civineonotify.setting.php:13
+msgid "Maximum delivery attempts"
+msgstr ""
+
+#: settings/Civineonotify.setting.php:14
+msgid "Retry delays (seconds)"
+msgstr ""
+
+#: settings/Civineonotify.setting.php:15
+msgid "Delivery log retention (days)"
+msgstr ""
+
+#: settings/Civineonotify.setting.php:16
+msgid "Protected transport storage directory"
+msgstr ""
+
+#: settings/Civineonotify.setting.php:16
+msgid ""
+"Absolute path outside the web root for transport credentials, encrypted "
+"stores, and protected runtime files. The directory must be writable only by "
+"the CiviCRM service account."
+msgstr ""
+
+#: civineonotify.php:86 civineonotify.php:94
+msgid "CiviNeo Notify"
+msgstr ""
+
+#: civineonotify.php:106
+msgid "- Use destination transport -"
+msgstr ""
+
+#: civineonotify.php:106
+msgid "- Select transport -"
+msgstr ""
+
+#: civineonotify.php:112
+msgid "- Use transport default destination -"
+msgstr ""
+
+#: civineonotify.php:125 CRM/Civineonotify/Form/Rule.php:21
+msgid "- Select an event -"
+msgstr ""
+
+#: managed/MatrixNotificationRuleExamples.mgd.php:6
+msgid "Example new contact"
+msgstr ""
+
+#: managed/MatrixNotificationRuleExamples.mgd.php:6
+#: managed/MatrixNotificationRuleExamples.mgd.php:7
+#: managed/MatrixNotificationRuleExamples.mgd.php:8
+#: managed/MatrixNotificationRuleExamples.mgd.php:9
+#: managed/MatrixNotificationRuleExamples.mgd.php:10
+msgid ""
+"{event.name}\\n\\n{entity.type} #{entity.id} was changed in {site.name}."
+msgstr ""
+
+#: managed/MatrixNotificationRuleExamples.mgd.php:7
+msgid "Example new activity"
+msgstr ""
+
+#: managed/MatrixNotificationRuleExamples.mgd.php:8
+msgid "Example case changed"
+msgstr ""
+
+#: managed/MatrixNotificationRuleExamples.mgd.php:9
+msgid "Example contribution created"
+msgstr ""
+
+#: managed/MatrixNotificationRuleExamples.mgd.php:10
+msgid "Example event registration"
+msgstr ""
+
+#: managed/Job_MatrixNotificationProcess.mgd.php:15
+msgid "CiviNeo Notify: Process outbox"
+msgstr ""
+
+#: managed/Job_MatrixNotificationProcess.mgd.php:16
+msgid "Processes pending CiviNeo Notify deliveries."
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:11
+msgid "Matrix Nio transport not found."
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:17
+msgid "Verify Matrix Nio device"
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:21
+msgid "Verification method"
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:21
+msgid "Another device of this account"
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:21
+msgid "A member of the default destination"
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:22
+msgid "Element device"
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:23
+msgid "Room member"
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:31
+msgid "Start verification"
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:32
+msgid "Confirm matching SAS"
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:33
+msgid "Cancel verification"
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:34
+msgid "Close"
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:51
+msgid "Choose an Element device."
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:52
+msgid "Choose a room member."
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:53
+msgid "Choose a verification method."
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:56
+msgid "Could not reset the previous verification."
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:78
+msgid "No Element devices are available."
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:82
+msgid "- choose an Element device -"
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:89
+msgid "No active default Matrix room is configured."
+msgstr ""
+
+#: CRM/Civineonotify/Form/VerifyMatrixNio.php:93
+msgid "- choose a room member -"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:19
+msgid "CiviNeo Notify: %1"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:44
+msgid "Transport test message sent to its default destination."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:44 CRM/Civineonotify/Form/Admin.php:55
+msgid "Test sent"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:47
+msgid ""
+"Set an active default destination for this transport before sending a test."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:47
+msgid "No default destination"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:50
+msgid "Transport test failed: %1"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:50 CRM/Civineonotify/Form/Admin.php:55
+msgid "Test failed"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:55
+msgid "Destination test message sent."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:55
+msgid "Destination test message failed: %1"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:66 CRM/Civineonotify/Form/Admin.php:72
+msgid "Not applicable"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:70
+msgid "Not provisioned"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:82
+msgid "Provisioned"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:83 CRM/Civineonotify/Form/Admin.php:84
+#: CRM/Civineonotify/Form/Admin.php:85 CRM/Civineonotify/Form/Admin.php:86
+msgid "Provisioning in progress"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:87 CRM/Civineonotify/Form/Admin.php:88
+#: CRM/Civineonotify/Form/Admin.php:89 CRM/Civineonotify/Form/Admin.php:90
+msgid "Provisioning failed"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:92
+msgid "Provisioning status unavailable"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:96 CRM/Civineonotify/Form/Admin.php:103
+msgid "Not verified"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:100
+msgid "Trusted"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:101
+msgid "Verification in progress"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Admin.php:102
+msgid "Not trusted"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:16
+msgid "Matrix transport not found."
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:24
+msgid "Provision Matrix transport"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:27
+msgid "Matrix homeserver"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:28
+msgid "Matrix bot user"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:29
+msgid "Matrix internal room ID"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:30
+msgid "Private storage directory"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:31
+msgid "One-time bot password"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:32
+msgid "Provision securely"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:32
+#: CRM/Civineonotify/Form/Transport.php:47
+#: CRM/Civineonotify/Form/Destination.php:43
+#: CRM/Civineonotify/Form/DeleteTransport.php:26
+#: CRM/Civineonotify/Form/Rule.php:30
+msgid "Cancel"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:48
+#: CRM/Civineonotify/Form/Transport.php:142
+msgid "Use an HTTPS homeserver URL."
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:49
+msgid "Use an internal Matrix room ID beginning with !."
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:50
+msgid "Use an absolute path outside the web root."
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:51
+msgid "Provide the Matrix bot user."
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:53
+msgid "Provide the bot password."
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:57
+msgid "Private storage directory cannot be created."
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:59
+msgid "Private storage directory is not private and writable."
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:63
+msgid "Bot password cannot be secured."
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:81
+msgid "User systemd runtime cannot be determined."
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:90
+msgid "Matrix provisioning job cannot be started."
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:92
+msgid ""
+"Matrix provisioning has started in a protected background job. Reopen this "
+"page shortly to view its status before testing the transport."
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:92
+msgid "Provisioning started"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:97
+msgid ""
+"Provisioning failed. Verify the homeserver, bot password, room ID and "
+"private directory."
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:111
+msgid "running (preparing protected storage)"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:112
+msgid "running (creating Matrix device and encryption store)"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:113
+msgid "running (checking Matrix identity)"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:114
+msgid "succeeded"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:115
+msgid "failed while preparing protected storage"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:116
+msgid ""
+"failed or timed out while creating the Matrix device and encryption store"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:117
+msgid "failed while checking the Matrix identity"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:119
+msgid "running"
+msgstr ""
+
+#: CRM/Civineonotify/Form/ProvisionMatrix.php:120
+msgid "failed"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:11
+msgid "Edit transport"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:12
+msgid "Transport name"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:13
+msgid "Transport type"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:13
+msgid "Matrix Commander"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:13
+msgid "Matrix Nio"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:13
+msgid "Mattermost (Webhook)"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:13
+msgid "Mattermost (API)"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:13
+msgid "Mastodon"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:13
+msgid "Telegram"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:13
+msgid "Bluesky"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:15
+msgid "Mattermost server URL"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:16
+msgid "Mattermost hooks path"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:17
+msgid "Protected token store file"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:18
+msgid "Mattermost API token"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:19
+msgid "Mastodon instance URL"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:20
+msgid "Mastodon access token"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:21
+msgid "Default Mastodon visibility"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:21
+msgid "Public"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:21
+msgid "Unlisted"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:21
+msgid "Followers only"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:22
+msgid "- No language -"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:24
+msgid "Default Mastodon language"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:25
+msgid "Default Mastodon content warning"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:26
+msgid "Telegram bot token"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:27
+msgid "Telegram formatting"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:27
+msgid "Plain text"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:27
+msgid "HTML"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:28
+msgid "Disable Telegram link previews"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:29
+msgid "Send Telegram notifications silently"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:30
+msgid "Protect Telegram content"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:31
+msgid "Bluesky account handle"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:32
+msgid "Bluesky App Password"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:33
+msgid "Default Bluesky language"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:34
+msgid "Detect Bluesky links automatically"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:35
+msgid "Create and set a default destination"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:36
+msgid "Default destination name"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:37
+msgid "Allow unverified recipient devices"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:39
+msgid "- No default destination -"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:40
+msgid "- Save this transport, then add a destination -"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:41
+msgid "Default destination"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:43
+msgid ""
+"Create a destination (for example, a Matrix room) before selecting a default."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:45
+#: CRM/Civineonotify/Form/Destination.php:42
+msgid "Description"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:46
+#: CRM/Civineonotify/Form/Destination.php:42
+#: CRM/Civineonotify/Form/Rule.php:28
+msgid "Active"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:47
+msgid "Save transport"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:108
+msgid "Choose a supported transport type."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:110
+#: CRM/Civineonotify/Form/Transport.php:143
+#: CRM/Civineonotify/Form/Transport.php:144
+msgid "Use an absolute path."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:113
+msgid "Use an HTTPS Mattermost server URL."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:114
+msgid ""
+"Use an absolute path in a writable protected directory for the Mattermost "
+"token store."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:117
+msgid "Enter a Mattermost API token."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:120
+msgid "Use an HTTPS Mastodon instance URL."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:121
+#: CRM/Civineonotify/Form/Transport.php:127
+#: CRM/Civineonotify/Form/Transport.php:133
+msgid ""
+"Use an absolute path in a writable protected directory for the token store."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:122
+msgid "Choose a supported Mastodon visibility."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:124
+msgid "Enter a Mastodon access token."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:129
+msgid "Enter a Telegram bot token."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:132
+msgid "Enter a valid Bluesky account handle."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:135
+msgid "Enter a Bluesky App Password."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:138
+msgid "The Matrix Commander binary does not exist or is not executable."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:145
+msgid "The Matrix Nio Python executable does not exist or is not executable."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:146
+msgid "The Matrix Nio client does not exist or is not readable."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:156
+msgid "The Mattermost API token could not be stored."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:157
+msgid "The Mastodon access token could not be stored."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:158
+msgid "The Telegram bot token could not be stored."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:159
+msgid "The Bluesky App Password could not be stored."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:162
+msgid "Default"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:172
+msgid "Transport saved."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Transport.php:172
+#: CRM/Civineonotify/Form/Destination.php:88
+#: CRM/Civineonotify/Form/Rule.php:54
+msgid "Saved"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:17
+msgid "Edit destination"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:18
+msgid "Transport"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:20
+msgid "- select a channel -"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:35
+msgid "Destination name"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:36
+msgid "Destination type"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:36
+msgid "Matrix room"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:36
+#: CRM/Civineonotify/Form/Destination.php:38
+msgid "Mattermost channel"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:36
+msgid "Mastodon account"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:36
+msgid "Bluesky account"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:36
+msgid "Telegram chat"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:37
+msgid "Matrix room ID"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:37
+msgid "Matrix room alias"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:39
+msgid "Mattermost channel override"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:40
+msgid "Mattermost hook token"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:41
+msgid "Telegram chat ID"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:43
+msgid "Save destination"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:69
+msgid "Choose a destination type supported by the selected transport."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:70
+msgid "Provide a Matrix room ID or alias."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:71
+msgid ""
+"Enter a negative numeric Telegram group, supergroup, or channel chat ID."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:77
+msgid "Choose a Mattermost channel."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:78
+msgid ""
+"The Mattermost channels could not be loaded. Check the API token and try "
+"again."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:79
+msgid "Enter a Mattermost hook token."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:86
+msgid "The Mattermost token could not be stored."
+msgstr ""
+
+#: CRM/Civineonotify/Form/Destination.php:88
+msgid "Destination saved."
+msgstr ""
+
+#: CRM/Civineonotify/Form/DeleteTransport.php:15
+msgid "Transport not found."
+msgstr ""
+
+#: CRM/Civineonotify/Form/DeleteTransport.php:21
+#: CRM/Civineonotify/Form/DeleteTransport.php:25
+msgid "Delete transport"
+msgstr ""
+
+#: CRM/Civineonotify/Form/DeleteTransport.php:38
+msgid "Transport deleted."
+msgstr ""
+
+#: CRM/Civineonotify/Form/DeleteTransport.php:38
+msgid "Deleted"
+msgstr ""
+
+#: CRM/Civineonotify/Form/DeleteTransport.php:43
+msgid "The transport could not be deleted."
+msgstr ""
+
+#: CRM/Civineonotify/Form/DeleteTransport.php:43
+msgid "Delete failed"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Rule.php:17
+msgid "Edit notification rule"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Rule.php:18
+msgid "Rule name"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Rule.php:19
+msgid "Event name"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Rule.php:23
+msgid "Transport (optional)"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Rule.php:24
+msgid "Destination (optional)"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Rule.php:25
+msgid "Message template"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Rule.php:26
+msgid "Conditions (JSON)"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Rule.php:27
+msgid "Priority"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Rule.php:29
+msgid "Stop after match"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Rule.php:30
+msgid "Save rule"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Rule.php:48
+msgid "Invalid conditions or message template: %1"
+msgstr ""
+
+#: CRM/Civineonotify/Form/Rule.php:54
+msgid "notification rule saved."
+msgstr ""
+
+#: Civi/Civineonotify/Rule/MessageRenderer.php:11
+msgid "Unknown CiviNeo Notify token: %1"
+msgstr ""
+
+#: Civi/Civineonotify/Rule/ConditionEngine.php:15
+msgid "Condition requires an all or any list."
+msgstr ""
+
+#: Civi/Civineonotify/Rule/ConditionEngine.php:17
+msgid "Condition contains an unsupported clause."
+msgstr ""
+
+#: Civi/Civineonotify/Rule/ConditionEngine.php:18
+msgid "Condition field is not allowlisted."
+msgstr ""
+
+#: Civi/Api4/Action/CiviNeoNotifyDestination/TestDestination.php:22
+msgid "Destination not found or inactive."
+msgstr ""
+
+#: Civi/Api4/Action/CiviNeoNotifyDestination/TestDestination.php:24
+msgid "The destination has no active transport."
+msgstr ""
+
+#: Civi/Api4/Action/CiviNeoNotifyDestination/TestDestination.php:30
+msgid "The destination transport is unsupported."
+msgstr ""
+
+#: Civi/Api4/Action/CiviNeoNotifyTransport/TestTransport.php:24
+msgid "Transport not found or inactive."
+msgstr ""
+
+#: Civi/Api4/Action/CiviNeoNotifyTransport/TestTransport.php:27
+msgid "Set an active default destination before sending a test."
+msgstr ""
+
+#: Civi/Api4/Action/CiviNeoNotifyTransport/TestTransport.php:36
+msgid "The configured default destination is unavailable."
+msgstr ""
+
+#: Civi/Api4/Action/CiviNeoNotifyTransport/TestTransport.php:46
+msgid "The transport type is unsupported."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/TransportFactory.php:17
+msgid "Unsupported transport type."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/TelegramTransport.php:17
+msgid "Telegram returned an invalid response."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/TelegramTransport.php:18
+msgid "Telegram timed out; the delivery outcome is unknown."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/TelegramTransport.php:19
+#: Civi/Civineonotify/Transport/TelegramTransport.php:21
+msgid "Telegram configuration is not usable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/TelegramTransport.php:21
+msgid "Telegram rejected the bot token."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/TelegramTransport.php:37
+#: Civi/Civineonotify/Transport/MattermostApiTransport.php:28
+#: Civi/Civineonotify/Transport/MattermostApiClient.php:34
+#: Civi/Civineonotify/Transport/MattermostWebhookTransport.php:41
+#: Civi/Civineonotify/Transport/MastodonTransport.php:85
+msgid "Could not initialise HTTP client."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MatrixNioTransport.php:16
+msgid "Matrix-Nio requires an internal room ID."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MatrixNioTransport.php:37
+msgid "Configured Matrix homeserver is not usable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MatrixNioTransport.php:52
+msgid "Matrix-Nio returned no usable result."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MatrixNioTransport.php:54
+msgid "Matrix-Nio operation failed."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MatrixNioTransport.php:56
+msgid "Matrix-Nio timed out."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MatrixNioTransport.php:63
+msgid "Configured Matrix-Nio store lock is not usable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MatrixNioTransport.php:65
+#: Civi/Civineonotify/Transport/MatrixCommanderRsTransport.php:68
+msgid "Matrix encryption store is busy."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MatrixNioTransport.php:73
+msgid "Configured Matrix-Nio Python executable is not usable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MatrixNioTransport.php:74
+msgid "Configured Matrix-Nio path is not usable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MatrixNioTransport.php:75
+msgid "Configured Matrix-Nio store is not usable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MatrixCommanderRsTransport.php:30
+msgid "Destination has no Matrix room."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MatrixCommanderRsTransport.php:54
+msgid "Matrix command timed out."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MatrixCommanderRsTransport.php:66
+msgid "Configured Matrix store lock is not usable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MatrixCommanderRsTransport.php:78
+msgid "Configured Matrix path is not usable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MatrixCommanderRsTransport.php:84
+msgid "Configured Matrix store is not usable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostApiTransport.php:14
+msgid "Mattermost channel unavailable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostApiTransport.php:18
+msgid "Mattermost API rejected the notification."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostApiTransport.php:19
+#: Civi/Civineonotify/Transport/MattermostWebhookTransport.php:22
+msgid "The Mattermost notification payload could not be encoded."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostApiTransport.php:20
+msgid "Mattermost API timed out."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostApiTransport.php:21
+#: Civi/Civineonotify/Transport/MattermostApiTransport.php:23
+msgid "Mattermost API configuration is not usable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostApiTransport.php:28
+#: Civi/Civineonotify/Transport/MattermostApiClient.php:32
+#: Civi/Civineonotify/Transport/MattermostWebhookTransport.php:39
+#: Civi/Civineonotify/Transport/MastodonTransport.php:84
+msgid "The cURL extension is unavailable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostApiClient.php:40
+msgid "Mattermost API rejected channel discovery."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostApiClient.php:42
+msgid "Mattermost API returned an invalid channel list."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostApiClient.php:50
+#: Civi/Civineonotify/Transport/MattermostWebhookTransport.php:60
+msgid "Mattermost server URL unavailable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostApiClient.php:57
+#: Civi/Civineonotify/Transport/MattermostTokenStore.php:14
+#: Civi/Civineonotify/Transport/MattermostWebhookTransport.php:53
+msgid "Mattermost token unavailable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostTokenStore.php:24
+msgid "Mattermost token is invalid."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostTokenStore.php:26
+#: Civi/Civineonotify/Transport/MattermostTokenStore.php:34
+msgid "Mattermost token store is not writable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostTokenStore.php:28
+#: Civi/Civineonotify/Transport/MattermostTokenStore.php:30
+msgid "Mattermost token store lock is unavailable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostTokenStore.php:37
+msgid "Mattermost token store could not be saved."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostTokenStore.php:47
+msgid "Mattermost token store is invalid."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostWebhookTransport.php:20
+msgid "Mattermost webhook rejected the notification."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostWebhookTransport.php:25
+msgid "Mattermost webhook timed out."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MattermostWebhookTransport.php:27
+#: Civi/Civineonotify/Transport/MattermostWebhookTransport.php:32
+msgid "Mattermost webhook configuration is not usable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/BlueskyTransport.php:23
+msgid "Bluesky timed out; the publication outcome is unknown."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/BlueskyTransport.php:24
+msgid "Bluesky configuration is not usable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/BlueskyTransport.php:27
+msgid "Bluesky rejected the account handle or app password."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/BlueskyTransport.php:48
+msgid "Invalid session."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/BlueskyTransport.php:54
+msgid "Invalid refresh."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/BlueskyTransport.php:71
+msgid "Invalid response."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/BlueskyTransport.php:73
+msgid "HTTP client unavailable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MastodonTransport.php:19
+msgid "The Mastodon post exceeds this instance's character limit."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MastodonTransport.php:23
+msgid "Mastodon returned an invalid status response."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MastodonTransport.php:28
+msgid "Mastodon returned an invalid response."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MastodonTransport.php:29
+msgid "Mastodon timed out; the publication outcome is unknown."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MastodonTransport.php:30
+#: Civi/Civineonotify/Transport/MastodonTransport.php:38
+msgid "Mastodon configuration is not usable."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MastodonTransport.php:55
+msgid "Empty Mastodon post."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MastodonTransport.php:57
+msgid "Invalid Mastodon visibility."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MastodonTransport.php:63
+msgid "Invalid Mastodon language."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MastodonTransport.php:97
+msgid "Unsafe Mastodon instance URL."
+msgstr ""
+
+#: Civi/Civineonotify/Transport/MatrixDestination.php:7
+msgid "Destination has no room."
+msgstr ""
+
+#: Civi/Civineonotify/Outbox/OutboxRepository.php:12
+msgid "A delivery needs a transport, destination, and message."
+msgstr ""
