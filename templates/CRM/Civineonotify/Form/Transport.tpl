@@ -51,7 +51,8 @@ CRM.$(function($) {
     var bluesky = type === 'bluesky';
     $('.nio-field').toggle(nio);
     $('.mattermost-field').toggle(mattermost);
-    $('.external-token-field').toggle(mattermost || mastodon || telegram || bluesky);
+    var genericWebhook = type === 'generic_webhook';
+    $('.external-token-field').toggle(mattermost || mastodon || telegram || bluesky || genericWebhook);
     $('.mattermost-api-field').toggle(mattermostApi);
     $('.mastodon-field').toggle(mastodon);
     $('.telegram-field').toggle(telegram);
@@ -59,7 +60,7 @@ CRM.$(function($) {
     $('.social-default-destination-field').toggle((mastodon || bluesky) && $('#create_social_default_destination').is(':checked'));
     $('.default-destination-field').toggle(!(mastodon || bluesky) || !$('#create_social_default_destination').is(':checked'));
     $('#hooks_path').closest('tr').toggle(type === 'mattermost_webhook');
-    $('#binary_path, #credentials_path, #store_path, #working_directory').closest('tr').toggle(!nio && !mattermost && !mastodon && !telegram && !bluesky);
+    $('#binary_path, #credentials_path, #store_path, #working_directory').closest('tr').toggle(!nio && !mattermost && !mastodon && !telegram && !bluesky && !genericWebhook);
   }
   $('#transport_type').on('change', chooseTransport);
   $('#create_social_default_destination').on('change', chooseTransport);

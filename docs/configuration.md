@@ -16,9 +16,45 @@ message template** setting.
 
 Set **Protected transport storage directory** in CiviNeo Notify settings to an
 absolute, protected directory outside the web root. Matrix provisioning uses it
-as its default. Mattermost, Mastodon, Telegram, and Bluesky transports create
-separate token-store files in this directory by default. Existing explicit
-transport paths remain valid.
+as its default. Mattermost, Mastodon, Telegram, Bluesky, and Generic Webhook
+transports use separate token-store files in this directory by default.
+Existing explicit transport paths remain valid.
+
+## Generic Webhook
+
+The **Generic Webhook** transport sends a fixed JSON envelope with an HTTPS
+`POST` request to each **Webhook endpoint** destination. One transport can
+therefore serve multiple independent endpoints. Configure the transport with a
+protected token-store file and timeout, then configure one destination with its
+public HTTPS endpoint URL. The endpoint URL is normal addressing data; an
+optional signing secret is stored outside CiviCRM in the protected token store
+and is subsequently shown only by its final four characters.
+
+The request body is deliberately not administrator-programmable:
+
+```json
+{
+  "version": 1,
+  "transaction_id": "…",
+  "message": {
+    "body": "Rendered CiviNeo message",
+    "format": "plain"
+  }
+}
+```
+
+Every request includes `Idempotency-Key` and `X-CiviNeo-Transaction-Id` with
+the durable delivery transaction ID. When a signing secret is configured, the
+`X-CiviNeo-Signature` header is `sha256=` followed by the HMAC-SHA-256 of the
+exact request body. Receivers should verify that signature before processing
+the payload and should treat repeated idempotency keys as the same delivery.
+
+Only public HTTPS endpoint URLs are accepted: direct private, loopback,
+link-local, reserved, and `localhost`/`.local` targets are rejected; hostname
+resolution must not yield such an address. Redirects are disabled. A 2xx
+response is successful; 429, timeout, and 5xx responses follow the normal
+retry policy. No response body or signing secret is written to the delivery
+error log.
 
 ## Mattermost (Webhook)
 

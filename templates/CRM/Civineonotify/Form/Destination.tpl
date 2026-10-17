@@ -10,6 +10,8 @@
     <tr class="mattermost-api-field"><td class="label">{$form.mattermost_channel_id.label}</td><td>{$form.mattermost_channel_id.html}<div class="description mattermost-api-channel-description">{ts}Choose a channel the configured Mattermost account can access.{/ts}</div><div class="description mattermost-api-channel-error">{ts}The Mattermost channels could not be loaded. Check the API token and reload this page.{/ts}</div></td></tr>
     <tr class="mattermost-webhook-field"><td class="label">{$form.channel_override.label}</td><td>{$form.channel_override.html}<div class="description">{ts}Optional; leave empty to use the webhook's default channel.{/ts}</div></td></tr>
     <tr class="telegram-field"><td class="label">{$form.telegram_chat_id.label}</td><td>{$form.telegram_chat_id.html}<div class="description">{ts}Group, supergroup, or channel chat ID. Direct messages are not supported.{/ts}</div></td></tr>
+    <tr class="webhook-field"><td class="label">{$form.webhook_endpoint_url.label}</td><td>{$form.webhook_endpoint_url.html}<div class="description">{ts}Public HTTPS URL. Requests are JSON POSTs and never follow redirects.{/ts}</div></td></tr>
+    <tr class="webhook-field"><td class="label">{$form.webhook_signing_secret.label}</td><td>{$form.webhook_signing_secret.html}<div class="description">{ts}Optional. When set, CiviNeo sends an HMAC-SHA-256 signature in X-CiviNeo-Signature.{/ts}</div>{if $webhookSigningSecretSuffix}<div class="description">{ts}Stored token:{/ts} ••••{$webhookSigningSecretSuffix|escape}</div>{/if}</td></tr>
     <tr><td class="label">{$form.is_active.label}</td><td>{$form.is_active.html}</td></tr>
     <tr><td></td><td>{$form.buttons.html}</td></tr>
   </table>
@@ -27,12 +29,14 @@ CRM.$(function($) {
     var mastodon = $('#destination_type').val() === 'mastodon_account';
     var telegram = $('#destination_type').val() === 'telegram_chat';
     var bluesky = $('#destination_type').val() === 'bluesky_account';
+    var genericWebhook = $('#destination_type').val() === 'webhook_endpoint';
     var transportId = $('#transport_id').val();
     var api = Object.prototype.hasOwnProperty.call(civineonotifyMattermostApiChannels, transportId) || Object.prototype.hasOwnProperty.call(civineonotifyMattermostApiChannelErrors, transportId);
-    $('.matrix-field').toggle(!mattermost && !mastodon && !telegram && !bluesky);
+    $('.matrix-field').toggle(!mattermost && !mastodon && !telegram && !bluesky && !genericWebhook);
     $('.mattermost-webhook-field').toggle(mattermost && !api);
     $('.mattermost-api-field').toggle(mattermost && api);
     $('.telegram-field').toggle(telegram);
+    $('.webhook-field').toggle(genericWebhook);
     if (mattermost && api) {
       $('.mattermost-api-channel-description').toggle(!civineonotifyMattermostApiChannelErrors[transportId]);
       $('.mattermost-api-channel-error').toggle(!!civineonotifyMattermostApiChannelErrors[transportId]);

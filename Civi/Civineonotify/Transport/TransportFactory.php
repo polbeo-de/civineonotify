@@ -14,6 +14,7 @@ final class TransportFactory {
       'mastodon' => new MastodonTransport($config),
       'telegram' => new TelegramTransport($config),
       'bluesky' => new BlueskyTransport($config),
+      'generic_webhook' => new GenericWebhookTransport($config),
       default => throw new \InvalidArgumentException('Unsupported transport type.'),
     };
   }

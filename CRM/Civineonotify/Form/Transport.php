@@ -10,7 +10,7 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
   public function buildQuickForm(): void {
     CRM_Utils_System::setTitle(E::ts($this->id ? 'Edit transport' : 'Add transport'));
     $this->add('text', 'name', E::ts('Transport name'), ['size' => 70], TRUE);
-    $this->add('select', 'transport_type', E::ts('Transport type'), ['matrix_commander_rs' => E::ts('Matrix Commander'), 'matrix_nio' => E::ts('Matrix Nio'), 'mattermost_webhook' => E::ts('Mattermost (Webhook)'), 'mattermost_api' => E::ts('Mattermost (API)'), 'mastodon' => E::ts('Mastodon'), 'telegram' => E::ts('Telegram'), 'bluesky' => E::ts('Bluesky')], TRUE);
+    $this->add('select', 'transport_type', E::ts('Transport type'), ['matrix_commander_rs' => E::ts('Matrix Commander'), 'matrix_nio' => E::ts('Matrix Nio'), 'mattermost_webhook' => E::ts('Mattermost (Webhook)'), 'mattermost_api' => E::ts('Mattermost (API)'), 'mastodon' => E::ts('Mastodon'), 'telegram' => E::ts('Telegram'), 'bluesky' => E::ts('Bluesky'), 'generic_webhook' => E::ts('Generic Webhook')], TRUE);
     foreach (['binary_path' => 'Matrix Commander binary', 'credentials_path' => 'Credentials file', 'store_path' => 'Encryption store', 'working_directory' => 'Working directory', 'timeout_seconds' => 'Timeout (seconds)', 'homeserver' => 'Matrix homeserver', 'python_path' => 'Python executable', 'nio_client_path' => 'Matrix Nio client', 'session_path' => 'Protected Matrix Nio session'] as $field => $label) $this->add('text', $field, E::ts($label), ['size' => 70]);
     $this->add('text', 'server_url', E::ts('Mattermost server URL'), ['size' => 70]);
     $this->add('text', 'hooks_path', E::ts('Mattermost hooks path'), ['size' => 70]);
@@ -101,11 +101,13 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $existing = $this->id ? (\Civi\Api4\CiviNeoNotifyTransport::get(FALSE)->addWhere('id', '=', $this->id)->execute()->first() ?? []) : [];
     $existingConfig = is_array($existing['config_json'] ?? NULL) ? $existing['config_json'] : [];
     $type = (string) $v['transport_type'];
+    $protectedStorage = rtrim((string) \Civi::settings()->get('civineonotify_protected_transport_storage_directory'), '/');
+    if ($type === 'generic_webhook' && $protectedStorage !== '' && (string) ($v['token_store_file'] ?? '') === $protectedStorage . '/mattermost-tokens.json') $v['token_store_file'] = $protectedStorage . '/webhook-tokens.json';
     $createSocialDefaultDestination = in_array($type, ['mastodon', 'bluesky'], TRUE)
       && !empty($v['create_social_default_destination'])
       && (empty($existing['default_destination_id']));
-    if (in_array($type, ['mattermost_webhook', 'mattermost_api', 'mastodon', 'telegram', 'bluesky'], TRUE) && empty($v['token_store_file'])) { $protected=(string)\Civi::settings()->get('civineonotify_protected_transport_storage_directory'); if ($protected !== '') $v['token_store_file']=rtrim($protected, '/') . ($type === 'mastodon' ? 'mastodon-tokens.json' : ($type === 'telegram' ? 'telegram-tokens.json' : ($type === 'bluesky' ? 'bluesky-tokens.json' : 'mattermost-tokens.json'))); }
-    if (!in_array($type, ['matrix_commander_rs', 'matrix_nio', 'mattermost_webhook', 'mattermost_api', 'mastodon', 'telegram', 'bluesky'], TRUE)) { $this->setElementError('transport_type', E::ts('Choose a supported transport type.')); return; }
+    if (in_array($type, ['mattermost_webhook', 'mattermost_api', 'mastodon', 'telegram', 'bluesky', 'generic_webhook'], TRUE) && empty($v['token_store_file'])) { $protected=(string)\Civi::settings()->get('civineonotify_protected_transport_storage_directory'); if ($protected !== '') $v['token_store_file']=rtrim($protected, '/') . ($type === 'mastodon' ? 'mastodon-tokens.json' : ($type === 'telegram' ? 'telegram-tokens.json' : ($type === 'bluesky' ? 'bluesky-tokens.json' : ($type === 'generic_webhook' ? 'webhook-tokens.json' : 'mattermost-tokens.json')))); }
+    if (!in_array($type, ['matrix_commander_rs', 'matrix_nio', 'mattermost_webhook', 'mattermost_api', 'mastodon', 'telegram', 'bluesky', 'generic_webhook'], TRUE)) { $this->setElementError('transport_type', E::ts('Choose a supported transport type.')); return; }
     if (in_array($type, ['matrix_commander_rs', 'matrix_nio'], TRUE)) {
       foreach (['working_directory'] as $path) if (empty($v[$path]) || !str_starts_with((string) $v[$path], '/')) { $this->setElementError($path, E::ts('Use an absolute path.')); return; }
     }
@@ -133,6 +135,10 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
       if (empty($v['token_store_file']) || !str_starts_with((string) $v['token_store_file'], '/') || !is_dir(dirname((string) $v['token_store_file'])) || !is_writable(dirname((string) $v['token_store_file']))) { $this->setElementError('token_store_file', E::ts('Use an absolute path in a writable protected directory for the token store.')); return; }
       $config = ['handle' => strtolower(ltrim(trim((string) $v['bluesky_handle']), '@')), 'token_store_file' => (string) $v['token_store_file'], 'api_token_key' => $existingConfig['api_token_key'] ?? bin2hex(random_bytes(16)), 'language' => trim((string) $v['bluesky_language']), 'detect_links' => !empty($v['bluesky_detect_links']), 'timeout_seconds' => (int) $v['timeout_seconds']];
       if (trim((string) ($v['bluesky_app_password'] ?? '')) === '' && empty($existingConfig['api_token_key'])) { $this->setElementError('bluesky_app_password', E::ts('Enter a Bluesky App Password.')); return; }
+    }
+    elseif ($type === 'generic_webhook') {
+      if (empty($v['token_store_file']) || !str_starts_with((string) $v['token_store_file'], '/') || !is_dir(dirname((string) $v['token_store_file'])) || !is_writable(dirname((string) $v['token_store_file']))) { $this->setElementError('token_store_file', E::ts('Use an absolute path in a writable protected directory for the token store.')); return; }
+      $config = ['token_store_file' => (string) $v['token_store_file'], 'timeout_seconds' => (int) $v['timeout_seconds']];
     }
     elseif ($type === 'matrix_commander_rs') {
       if (!is_file((string) $v['binary_path']) || !is_executable((string) $v['binary_path'])) { $this->setElementError('binary_path', E::ts('The Matrix Commander binary does not exist or is not executable.')); return; }
