@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Civi\Civineonotify\Transport;
 
 /** Sends a fixed, signed JSON envelope to a destination-specific HTTPS endpoint. */
-final class GenericWebhookTransport implements NotificationTransportInterface {
+class GenericWebhookTransport implements NotificationTransportInterface {
   /** @param null|\Closure(string, string, int, array<string,string>):array{status:int,error:string} $sender */
   public function __construct(private readonly array $connection, private readonly ?\Closure $sender = NULL) {}
 
@@ -36,7 +36,7 @@ final class GenericWebhookTransport implements NotificationTransportInterface {
   public function capabilities(): array { return ['transport' => 'generic_webhook', 'destination_endpoint' => TRUE, 'hmac_sha256' => TRUE]; }
 
   /** @return array{status:int,error:string} */
-  private function post(string $url, string $payload, int $timeout, array $headers): array {
+  protected function post(string $url, string $payload, int $timeout, array $headers): array {
     if ($this->sender) return ($this->sender)($url, $payload, $timeout, $headers);
     if (!function_exists('curl_init')) throw new \RuntimeException('The cURL extension is unavailable.');
     $handle = curl_init($url);
@@ -50,7 +50,7 @@ final class GenericWebhookTransport implements NotificationTransportInterface {
     finally { curl_close($handle); }
   }
 
-  private function endpoint(string $url): string {
+  protected function endpoint(string $url): string {
     $parts = parse_url($url);
     $host = is_array($parts) ? strtolower((string) ($parts['host'] ?? '')) : '';
     if (!is_array($parts) || ($parts['scheme'] ?? '') !== 'https' || $host === '' || isset($parts['user']) || isset($parts['pass']) || $this->isPrivateHost($host)) throw new \InvalidArgumentException('Webhook endpoint must be a public HTTPS URL.');
@@ -74,13 +74,19 @@ final class GenericWebhookTransport implements NotificationTransportInterface {
     return $key === '' ? '' : (new MattermostTokenStore($this->storePath()))->get($key);
   }
 
-  private function storePath(): string {
+  protected function storedDestinationUrl(NotificationDestination $destination): string {
+    $key = (string) ($destination->config['webhook_key'] ?? '');
+    if ($key === '') throw new \InvalidArgumentException('Webhook URL is unavailable.');
+    return (new MattermostTokenStore($this->storePath()))->get($key);
+  }
+
+  protected function storePath(): string {
     $path = (string) ($this->connection['token_store_file'] ?? '');
     if ($path === '' || !str_starts_with($path, '/') || !is_dir(dirname($path)) || !is_writable(dirname($path))) throw new \InvalidArgumentException('Webhook token store is not writable.');
     return $path;
   }
 
-  private function timeout(): int { return max(1, min(300, (int) ($this->connection['timeout_seconds'] ?? 30))); }
+  protected function timeout(): int { return max(1, min(300, (int) ($this->connection['timeout_seconds'] ?? 30))); }
 
-  private function category(int $status): string { return match (TRUE) { $status === 401 || $status === 403 => 'authentication_error', $status === 404 => 'configuration_error', $status === 408 || $status === 429 || $status >= 500 => 'temporary_transport_error', default => 'configuration_error' }; }
+  protected function category(int $status): string { return match (TRUE) { $status === 401 || $status === 403 => 'authentication_error', $status === 404 => 'configuration_error', $status === 408 || $status === 429 || $status >= 500 => 'temporary_transport_error', default => 'configuration_error' }; }
 }

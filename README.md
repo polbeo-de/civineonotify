@@ -3,8 +3,9 @@
 `de.polbeo.civicrm.civineonotify` is an AGPL-3.0-or-later CiviCRM extension for
 rule-based outbound notifications. It turns CiviCRM events into durable delivery
 records and can send the same information independently through Matrix,
-Mattermost (Webhook or API), Mastodon, Telegram, Bluesky, and generic HTTPS
-webhooks. It is currently an alpha and is disabled by default.
+Mattermost (Webhook or API), Slack, Rocket.Chat, Mastodon, Telegram, Bluesky,
+and generic HTTPS webhooks. It is currently an alpha and is disabled by
+default.
 
 ## Why “CiviNeo Notify”?
 

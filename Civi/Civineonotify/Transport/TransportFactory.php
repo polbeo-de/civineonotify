@@ -15,6 +15,8 @@ final class TransportFactory {
       'telegram' => new TelegramTransport($config),
       'bluesky' => new BlueskyTransport($config),
       'generic_webhook' => new GenericWebhookTransport($config),
+      'slack' => new SlackWebhookTransport($config),
+      'rocketchat' => new RocketChatWebhookTransport($config),
       default => throw new \InvalidArgumentException('Unsupported transport type.'),
     };
   }

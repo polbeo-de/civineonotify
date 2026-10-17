@@ -12,6 +12,8 @@
     <tr class="telegram-field"><td class="label">{$form.telegram_chat_id.label}</td><td>{$form.telegram_chat_id.html}<div class="description">{ts}Group, supergroup, or channel chat ID. Direct messages are not supported.{/ts}</div></td></tr>
     <tr class="webhook-field"><td class="label">{$form.webhook_endpoint_url.label}</td><td>{$form.webhook_endpoint_url.html}<div class="description">{ts}Public HTTPS URL. Requests are JSON POSTs and never follow redirects.{/ts}</div></td></tr>
     <tr class="webhook-field"><td class="label">{$form.webhook_signing_secret.label}</td><td>{$form.webhook_signing_secret.html}<div class="description">{ts}Optional. When set, CiviNeo sends an HMAC-SHA-256 signature in X-CiviNeo-Signature.{/ts}</div>{if $webhookSigningSecretSuffix}<div class="description">{ts}Stored token:{/ts} ••••{$webhookSigningSecretSuffix|escape}</div>{/if}</td></tr>
+    <tr class="slack-field"><td class="label">{$form.slack_webhook_url.label}</td><td>{$form.slack_webhook_url.html}<div class="description">{ts}Stored outside CiviCRM in the protected token store.{/ts}</div>{if $slackWebhookSuffix}<div class="description">{ts}Stored token:{/ts} ••••{$slackWebhookSuffix|escape}</div>{/if}</td></tr>
+    <tr class="rocketchat-field"><td class="label">{$form.rocketchat_webhook_url.label}</td><td>{$form.rocketchat_webhook_url.html}<div class="description">{ts}Stored outside CiviCRM in the protected token store.{/ts}</div>{if $rocketchatWebhookSuffix}<div class="description">{ts}Stored token:{/ts} ••••{$rocketchatWebhookSuffix|escape}</div>{/if}</td></tr>
     <tr><td class="label">{$form.is_active.label}</td><td>{$form.is_active.html}</td></tr>
     <tr><td></td><td>{$form.buttons.html}</td></tr>
   </table>
@@ -30,13 +32,17 @@ CRM.$(function($) {
     var telegram = $('#destination_type').val() === 'telegram_chat';
     var bluesky = $('#destination_type').val() === 'bluesky_account';
     var genericWebhook = $('#destination_type').val() === 'webhook_endpoint';
+    var slack = $('#destination_type').val() === 'slack_channel';
+    var rocketchat = $('#destination_type').val() === 'rocketchat_channel';
     var transportId = $('#transport_id').val();
     var api = Object.prototype.hasOwnProperty.call(civineonotifyMattermostApiChannels, transportId) || Object.prototype.hasOwnProperty.call(civineonotifyMattermostApiChannelErrors, transportId);
-    $('.matrix-field').toggle(!mattermost && !mastodon && !telegram && !bluesky && !genericWebhook);
+    $('.matrix-field').toggle(!mattermost && !mastodon && !telegram && !bluesky && !genericWebhook && !slack && !rocketchat);
     $('.mattermost-webhook-field').toggle(mattermost && !api);
     $('.mattermost-api-field').toggle(mattermost && api);
     $('.telegram-field').toggle(telegram);
     $('.webhook-field').toggle(genericWebhook);
+    $('.slack-field').toggle(slack);
+    $('.rocketchat-field').toggle(rocketchat);
     if (mattermost && api) {
       $('.mattermost-api-channel-description').toggle(!civineonotifyMattermostApiChannelErrors[transportId]);
       $('.mattermost-api-channel-error').toggle(!!civineonotifyMattermostApiChannelErrors[transportId]);

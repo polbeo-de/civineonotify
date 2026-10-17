@@ -16,8 +16,9 @@ message template** setting.
 
 Set **Protected transport storage directory** in CiviNeo Notify settings to an
 absolute, protected directory outside the web root. Matrix provisioning uses it
-as its default. Mattermost, Mastodon, Telegram, Bluesky, and Generic Webhook
-transports use separate token-store files in this directory by default.
+as its default. Mattermost, Slack, Rocket.Chat, Mastodon, Telegram, Bluesky,
+and Generic Webhook transports use separate token-store files in this directory
+by default.
 Existing explicit transport paths remain valid.
 
 ## Generic Webhook
@@ -55,6 +56,34 @@ resolution must not yield such an address. Redirects are disabled. A 2xx
 response is successful; 429, timeout, and 5xx responses follow the normal
 retry policy. No response body or signing secret is written to the delivery
 error log.
+
+## Slack and Rocket.Chat
+
+The **Slack** and **Rocket.Chat** transports are named outbound transports for
+their respective incoming-webhook integrations. In both cases CiviCRM sends a
+JSON `POST` to the target service; neither transport accepts commands from the
+service or creates an inbound CiviCRM endpoint.
+
+Create an incoming webhook in Slack or Rocket.Chat for each target channel,
+then create the matching CiviNeo transport and destination. Enter the complete
+incoming-webhook URL on the **Slack channel** or **Rocket.Chat channel**
+destination. These URLs often contain bearer-like secrets, so CiviNeo stores
+them only in the protected external token store and subsequently displays only
+their last four characters. A single named transport can serve several
+destinations, each with its own webhook URL.
+
+The services receive their standard minimal incoming-webhook payload:
+
+```json
+{"text":"Rendered CiviNeo message"}
+```
+
+Each request is HTTPS-only, carries the delivery transaction ID as `Idempotency-Key` and
+`X-CiviNeo-Transaction-Id`, and never follows redirects. A 2xx response is a
+success; timeout, 429, and 5xx responses use the standard delivery retry
+handling. Slack blocks and Rocket.Chat integrations may offer richer payload
+features, but those deliberately remain out of scope for this first named
+transport version.
 
 ## Mattermost (Webhook)
 

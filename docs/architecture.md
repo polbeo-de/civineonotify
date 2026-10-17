@@ -25,6 +25,8 @@ flowchart TB
   Factory --> Telegram[Telegram<br/>Bot API]
   Factory --> Bluesky[Bluesky<br/>AT Protocol / PDS]
   Factory --> Webhook[Generic Webhook<br/>HTTPS JSON POST]
+  Factory --> Slack[Slack<br/>Incoming Webhook]
+  Factory --> RocketChat[Rocket.Chat<br/>Incoming Webhook]
 
   Matrix --> MatrixTarget[Matrix room]
   MMWebhook --> MMTarget[Mattermost channel]
@@ -33,6 +35,8 @@ flowchart TB
   Telegram --> TelegramTarget[Group, supergroup, or channel]
   Bluesky --> BlueskyTarget[Configured public account]
   Webhook --> WebhookTarget[HTTPS endpoint]
+  Slack --> SlackTarget[Slack channel]
+  RocketChat --> RocketChatTarget[Rocket.Chat channel]
 ```
 
 `hook_civicrm_post` is deliberately narrow: it normalizes a CiviCRM change,

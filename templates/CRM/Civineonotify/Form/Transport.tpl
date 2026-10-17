@@ -51,7 +51,7 @@ CRM.$(function($) {
     var bluesky = type === 'bluesky';
     $('.nio-field').toggle(nio);
     $('.mattermost-field').toggle(mattermost);
-    var genericWebhook = type === 'generic_webhook';
+    var genericWebhook = type === 'generic_webhook' || type === 'slack' || type === 'rocketchat';
     $('.external-token-field').toggle(mattermost || mastodon || telegram || bluesky || genericWebhook);
     $('.mattermost-api-field').toggle(mattermostApi);
     $('.mastodon-field').toggle(mastodon);
