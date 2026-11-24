@@ -9,6 +9,8 @@
   transport-result strings.
 - Add an optional CiviNeo notification image for ntfy on supported Android
   clients; clarify that browser notifications use the ntfy web-app icon.
+- Make tagged installation ZIP builds reproducible for byte-for-byte archive
+  verification.
 
 ## 0.0.3-alpha.6 — 2026-10-15
 
