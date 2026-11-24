@@ -1,6 +1,14 @@
 # Changelog
 
-## Unreleased
+## 0.0.3-alpha.8 — 2026-11-25
+
+- Add Generic Webhook, Slack, Rocket.Chat, Discord, Microsoft Teams, ntfy, and
+  Gotify outbound transports with protected credential storage.
+- Document transport configuration and expand the German translations.
+- Add an optional CiviNeo notification image for ntfy on supported Android
+  clients; clarify that browser notifications use the ntfy web-app icon.
+- Make tagged installation ZIP builds reproducible for byte-for-byte archive
+  verification.
 
 ## 0.0.3-alpha.7 — 2026-10-17
 
