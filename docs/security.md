@@ -1,8 +1,9 @@
 # Security and privacy
 
 Transport credentials remain outside CiviCRM. Matrix credentials and E2EE
-stores are referenced by filesystem path; Mattermost, Mastodon, Telegram, and
-Bluesky secrets are held in protected external token-store files and are
+stores are referenced by filesystem path; Mattermost, Mastodon, Telegram,
+Bluesky, ntfy, Gotify and webhook credentials, including Slack, Rocket.Chat,
+Discord and Teams webhook URLs, are held in protected external token-store files and are
 displayed only by their final four characters where a form needs to confirm
 their presence. Never put access tokens, passwords, credential contents,
 encrypted stores, webhook tokens, or real destination identifiers in this

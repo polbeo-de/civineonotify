@@ -103,6 +103,12 @@ Deployment responsibilities and the staging/release-artifact workflow are
 documented in [deployment](docs/deployment.md). Production installations must
 use the validated release ZIP, not a source checkout.
 
+## AI-assisted development
+
+This module is developed with the assistance of AI tools. All generated or
+AI-assisted contributions are reviewed, tested, and remain the responsibility
+of the project maintainers.
+
 ## Documentation and support
 
 - [Architecture](docs/architecture.md)

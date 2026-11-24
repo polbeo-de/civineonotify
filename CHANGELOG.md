@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add Generic Webhook, Slack, Rocket.Chat, Discord, Microsoft Teams, ntfy, and
+  Gotify outbound transports with protected credential storage.
+- Document transport configuration and expand the German translations.
 - Add standard Gettext catalogues for all user-facing administration and
   transport-result strings.
 
