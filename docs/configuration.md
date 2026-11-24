@@ -16,9 +16,154 @@ message template** setting.
 
 Set **Protected transport storage directory** in CiviNeo Notify settings to an
 absolute, protected directory outside the web root. Matrix provisioning uses it
-as its default. Mattermost, Mastodon, Telegram, and Bluesky transports create
-separate token-store files in this directory by default. Existing explicit
-transport paths remain valid.
+as its default. Mattermost, Slack, Rocket.Chat, Discord, Microsoft Teams,
+Mastodon, Telegram, Bluesky, ntfy, Gotify, and Generic Webhook transports use separate token-store files in this directory
+by default.
+Existing explicit transport paths remain valid.
+
+## Generic Webhook
+
+The **Generic Webhook** transport sends a fixed JSON envelope with an HTTPS
+`POST` request to each **Webhook endpoint** destination. One transport can
+therefore serve multiple independent endpoints. Configure the transport with a
+protected token-store file and timeout, then configure one destination with its
+public HTTPS endpoint URL. The endpoint URL is normal addressing data; an
+optional signing secret is stored outside CiviCRM in the protected token store
+and is subsequently shown only by its final four characters.
+
+The request body is deliberately not administrator-programmable:
+
+```json
+{
+  "version": 1,
+  "transaction_id": "…",
+  "message": {
+    "body": "Rendered CiviNeo message",
+    "format": "plain"
+  }
+}
+```
+
+Every request includes `Idempotency-Key` and `X-CiviNeo-Transaction-Id` with
+the durable delivery transaction ID. When a signing secret is configured, the
+`X-CiviNeo-Signature` header is `sha256=` followed by the HMAC-SHA-256 of the
+exact request body. Receivers should verify that signature before processing
+the payload and should treat repeated idempotency keys as the same delivery.
+
+Only public HTTPS endpoint URLs are accepted: direct private, loopback,
+link-local, reserved, and `localhost`/`.local` targets are rejected; hostname
+resolution must not yield such an address. Redirects are disabled. A 2xx
+response is successful; 429, timeout, and 5xx responses follow the normal
+retry policy. No response body or signing secret is written to the delivery
+error log.
+
+## Slack and Rocket.Chat
+
+The **Slack** and **Rocket.Chat** transports are named outbound transports for
+their respective incoming-webhook integrations. In both cases CiviCRM sends a
+JSON `POST` to the target service; neither transport accepts commands from the
+service or creates an inbound CiviCRM endpoint.
+
+Create an incoming webhook in Slack or Rocket.Chat for each target channel,
+then create the matching CiviNeo transport and destination. Enter the complete
+incoming-webhook URL on the **Slack channel** or **Rocket.Chat channel**
+destination. These URLs often contain bearer-like secrets, so CiviNeo stores
+them only in the protected external token store and subsequently displays only
+their last four characters. A single named transport can serve several
+destinations, each with its own webhook URL.
+
+The services receive their standard minimal incoming-webhook payload:
+
+```json
+{"text":"Rendered CiviNeo message"}
+```
+
+Each request is HTTPS-only, carries the delivery transaction ID as `Idempotency-Key` and
+`X-CiviNeo-Transaction-Id`, and never follows redirects. A 2xx response is a
+success; timeout, 429, and 5xx responses use the standard delivery retry
+handling. Slack blocks and Rocket.Chat integrations may offer richer payload
+features, but those deliberately remain out of scope for this first named
+transport version.
+
+## Discord
+
+The **Discord** transport sends an outbound plain-text notification through a
+Discord webhook. Create a Discord webhook for every channel that should receive
+notifications, then create a matching **Discord channel** destination in
+CiviNeo Notify. Enter the complete webhook URL in the destination form.
+
+Discord webhook URLs contain bearer-like credentials. CiviNeo stores each URL
+only in the protected external token store and later shows only its final four
+characters. The message payload is deliberately the minimal Discord form:
+
+```json
+{"content":"Rendered CiviNeo message"}
+```
+
+The request is HTTPS-only, never follows redirects, and carries the durable
+delivery transaction ID in `Idempotency-Key` and `X-CiviNeo-Transaction-Id`.
+A 2xx response is successful; rate limits, timeouts, and 5xx responses follow
+the standard retry policy. Embeds, attachments, mentions, and inbound Discord
+commands are intentionally out of scope for this first version.
+
+## Microsoft Teams
+
+The **Microsoft Teams** transport targets the current Teams workflow-webhook
+model. Do not create a legacy Microsoft 365 Connector: create a Teams workflow
+that receives an HTTP webhook request and posts the received text to the
+intended channel or chat. The workflow URL is the credential for one **Microsoft
+Teams channel** destination.
+
+Enter that URL in the destination form. CiviNeo stores it only in the protected
+external token store and later shows only its final four characters. It sends
+the documented minimal workflow payload:
+
+```json
+{"text":"Rendered CiviNeo message"}
+```
+
+Each request is HTTPS-only, does not follow redirects, and carries the durable
+delivery transaction ID in `Idempotency-Key` and `X-CiviNeo-Transaction-Id`.
+Teams workflows should have at least one additional owner: workflow ownership
+is user-scoped and otherwise can become orphaned when its owner leaves. Adaptive
+Cards, bot registration, and inbound Teams commands are deliberately outside
+this transport's first version.
+
+## ntfy
+
+The **ntfy** transport sends outbound plain-text notifications to a topic on an
+HTTPS ntfy server. Configure the server URL and protected token-store file on
+the transport. An access token is optional: it is needed only when the server
+protects publishing to the selected topic, and is stored outside CiviCRM.
+
+Create one **ntfy topic** destination per topic. Topics are deliberately
+limited to letters, digits, underscores, and hyphens so that the destination
+can safely form one URL path segment. CiviNeo posts the rendered message as
+plain text and its durable transaction ID in ntfy's `X-Id` header. The
+transport also supplies the bundled CiviNeo icon to ntfy's Android client; an
+administrator may override it with a public HTTPS PNG or JPEG URL. Firefox and
+other ntfy web clients use the ntfy web-app icon and cannot change it per
+message. The CiviCRM site must therefore make the bundled static extension
+asset reachable from the ntfy server and Android clients. The first named
+version keeps priorities, tags, attachments, actions, and scheduled publishing
+out of scope.
+
+## Gotify
+
+The **Gotify** transport sends outbound plain-text notifications to a Gotify
+application. Configure the HTTPS Gotify server URL and protected token-store
+file on the transport, then create a **Gotify application** destination.
+Create an application in Gotify for each independently targeted audience and
+enter its application token in that destination. Application tokens identify
+the destination, so CiviNeo keeps each token in the protected external store
+and subsequently shows only its final four characters.
+
+CiviNeo submits Gotify's standard JSON message with a fixed title, normal
+priority, and the durable delivery transaction ID as metadata. The optional
+transport-level **Gotify notification image URL** sets Gotify's `bigImageUrl`
+extra; it is a large image supported by the Gotify Android client, not a
+replacement for that client's fixed small Gotify icon. It does not use the
+Gotify client API, nor does it receive messages from Gotify.
 
 ## Mattermost (Webhook)
 
@@ -190,6 +335,22 @@ Every delivery derives a stable protocol-valid record key from its transaction
 identifier. On a record-key conflict, CiviNeo Notify reads the record and only
 treats an identical post as delivered. A timeout remains an unknown delivery
 outcome and is not retried automatically, avoiding duplicate public posts.
+
+## Message templates and images
+
+Message templates render text. A URL in a template remains a URL; CiviNeo does
+not download, upload, or attach that URL as media. A receiving client may
+unfurl it, but that is controlled by the receiving platform and must not be
+relied on for delivery.
+
+This distinction matters for publishing transports: Mastodon needs a separate
+media-upload request followed by attachment IDs on the status, Bluesky needs
+an uploaded blob embedded in the post record, and Telegram needs a media
+method such as `sendPhoto`. Those workflows are intentionally not part of the
+current text transports. Telegram link previews may be enabled by the
+transport setting, but they are previews rather than sent media. ntfy is the
+exception for a small per-notification icon, and Gotify can optionally show a
+large Android notification image as documented above.
 
 ## Matrix
 
