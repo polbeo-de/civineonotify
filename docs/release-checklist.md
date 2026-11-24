@@ -3,6 +3,22 @@
 Record the version, candidate commit, test environment, results and any accepted
 limitations for each release. An unchecked item is not evidence of completion.
 
+## Candidate record — 0.0.3-alpha.8
+
+- **Scope:** Generic Webhook, Slack, Rocket.Chat, Discord, Microsoft Teams,
+  ntfy, and Gotify outbound transports; transport setup documentation;
+  expanded German administration translations; optional ntfy Android
+  notification imagery; reproducible installation archives.
+- **Candidate:** Annotated tag `0.0.3-alpha.8`, built as a reproducible
+  installation ZIP from its tagged commit.
+- **Validation environment:** CiviCRM 6.20.1 on an isolated test installation.
+  The extension was installed from a tagged ZIP and upgraded from the previous
+  tagged alpha release. The APIv4 outbox job configuration and worker action
+  were verified.
+- **Accepted limitation:** Matrix-Nio remains an experimental integration. Its
+  external runtime bundle and upstream interoperability status remain subject
+  to [the documented Matrix-Nio limitations](matrix-nio-limitations.md).
+
 ## Candidate validation
 
 - [ ] Agree the release scope and document experimental features and limitations.
