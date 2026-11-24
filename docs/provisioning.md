@@ -26,3 +26,10 @@ tokens or App Passwords entered directly into their transport forms. They do
 not run a provisioning job. If a future transport needs a stateful credential
 exchange or device setup, it must use an equally isolated background workflow
 rather than performing it in PHP-FPM.
+
+Slack, Rocket.Chat, Discord and Microsoft Teams use destination-specific webhook
+URLs; Gotify uses destination-specific application tokens, while ntfy can use
+an optional transport-wide access token. The generic webhook can use a
+destination-specific signing secret. These credentials are entered by an
+administrator and held in protected external token-store files; they do not
+run a provisioning job.

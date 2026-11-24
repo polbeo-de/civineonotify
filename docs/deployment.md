@@ -24,7 +24,7 @@ automation.
 ## Release artifact and production deployment
 
 Only an annotated tag matching the extension version is eligible. After the
-release checks required by PEW-003, build the asset from the tag:
+checks in the [release checklist](release-checklist.md), build the asset from the tag:
 
 ```bash
 VERSION=0.1.0

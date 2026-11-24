@@ -3,8 +3,27 @@
 `de.polbeo.civicrm.civineonotify` is an AGPL-3.0-or-later CiviCRM extension for
 rule-based outbound notifications. It turns CiviCRM events into durable delivery
 records and can send the same information independently through Matrix,
-Mattermost (Webhook or API), Mastodon, Telegram, and Bluesky. It is currently
-an alpha and is disabled by default.
+Mattermost (Webhook or API), Slack, Rocket.Chat, Discord, Microsoft Teams,
+Mastodon, Telegram, Bluesky, ntfy, Gotify, and generic HTTPS webhooks. It is
+currently an alpha and is disabled by default.
+
+## Supported outbound transports
+
+- **Matrix** — Matrix Commander and experimental Matrix-Nio clients, including
+  encrypted-room delivery.
+- **Mattermost** — incoming webhook and API/bot transports.
+- **Slack**, **Rocket.Chat**, and **Discord** — named incoming-webhook
+  transports.
+- **Microsoft Teams** — Teams Workflow webhook transport; no legacy Connector
+  is required.
+- **Telegram** — Bot API delivery to groups, supergroups, and channels.
+- **Mastodon** and **Bluesky** — public publishing through a configured account.
+- **ntfy** — topic-based HTTPS notifications, optionally authenticated.
+- **Gotify** — application-based HTTPS notifications.
+- **Generic Webhook** — a signed, fixed JSON envelope for HTTPS endpoints.
+
+See the [transport configuration guide](docs/configuration.md) for setup,
+credentials, destination models, retries, and test messages.
 
 ## Why “CiviNeo Notify”?
 
@@ -84,6 +103,12 @@ Deployment responsibilities and the staging/release-artifact workflow are
 documented in [deployment](docs/deployment.md). Production installations must
 use the validated release ZIP, not a source checkout.
 
+## AI-assisted development
+
+This module is developed with the assistance of AI tools. All generated or
+AI-assisted contributions are reviewed, tested, and remain the responsibility
+of the project maintainers.
+
 ## Documentation and support
 
 - [Architecture](docs/architecture.md)
@@ -93,6 +118,7 @@ use the validated release ZIP, not a source checkout.
 - [Matrix-Nio design rationale and alpha status](docs/matrix-nio-limitations.md#matrix-nio-design-rationale-and-alpha-status)
 - [Security and privacy](docs/security.md)
 - [Troubleshooting](docs/troubleshooting.md)
+- [Roadmap](docs/roadmap.md)
 - [Inbound roadmap](docs/inbound-roadmap.md)
 
 Report security vulnerabilities privately to the maintainer; do not include
