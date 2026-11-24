@@ -5,12 +5,17 @@
 - Add Generic Webhook, Slack, Rocket.Chat, Discord, Microsoft Teams, ntfy, and
   Gotify outbound transports with protected credential storage.
 - Document transport configuration and expand the German translations.
-- Add standard Gettext catalogues for all user-facing administration and
-  transport-result strings.
 - Add an optional CiviNeo notification image for ntfy on supported Android
   clients; clarify that browser notifications use the ntfy web-app icon.
 - Make tagged installation ZIP builds reproducible for byte-for-byte archive
   verification.
+
+## 0.0.3-alpha.7 — 2026-10-17
+
+- Add standard Gettext catalogues for all user-facing administration and
+  transport-result strings.
+- Add the case-created quick-start example and clarify the Matrix-Nio design
+  rationale and alpha status.
 
 ## 0.0.3-alpha.6 — 2026-10-15
 
