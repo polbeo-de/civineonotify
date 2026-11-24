@@ -118,6 +118,7 @@ of the project maintainers.
 - [Matrix-Nio design rationale and alpha status](docs/matrix-nio-limitations.md#matrix-nio-design-rationale-and-alpha-status)
 - [Security and privacy](docs/security.md)
 - [Troubleshooting](docs/troubleshooting.md)
+- [Roadmap](docs/roadmap.md)
 - [Inbound roadmap](docs/inbound-roadmap.md)
 
 Report security vulnerabilities privately to the maintainer; do not include

@@ -34,6 +34,8 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     $this->add('checkbox', 'bluesky_detect_links', E::ts('Detect Bluesky links automatically'));
     $this->add('text', 'notification_server_url', E::ts('Notification server URL'), ['size' => 70]);
     $this->add('password', 'ntfy_access_token', E::ts('ntfy access token'), ['size' => 70]);
+    $this->add('text', 'ntfy_icon_url', E::ts('ntfy notification icon URL'), ['size' => 70]);
+    $this->add('text', 'gotify_image_url', E::ts('Gotify notification image URL'), ['size' => 70]);
     $this->add('checkbox', 'create_social_default_destination', E::ts('Create and set a default destination'));
     $this->add('text', 'social_default_destination_name', E::ts('Default destination name'), ['size' => 70]);
     $this->add('checkbox', 'allow_unverified_recipient_devices', E::ts('Allow unverified recipient devices'));
@@ -98,6 +100,8 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
     }
     if (($row['transport_type'] ?? NULL) === 'bluesky') { $defaults['bluesky_handle']=$config['handle']??''; $defaults['bluesky_language']=$config['language']??''; $defaults['bluesky_detect_links']=!empty($config['detect_links']); }
     if (in_array($row['transport_type'] ?? NULL, ['ntfy', 'gotify'], TRUE)) $defaults['notification_server_url'] = $config['server_url'] ?? '';
+    if (($row['transport_type'] ?? NULL) === 'ntfy') $defaults['ntfy_icon_url'] = $config['icon_url'] ?? E::url('images/civineo-notify.png');
+    if (($row['transport_type'] ?? NULL) === 'gotify') $defaults['gotify_image_url'] = $config['image_url'] ?? '';
     return $defaults;
   }
   public function postProcess(): void {
@@ -149,7 +153,18 @@ final class CRM_Civineonotify_Form_Transport extends CRM_Core_Form {
       if (!preg_match('#^https://[^\s]+$#', (string) ($v['notification_server_url'] ?? ''))) { $this->setElementError('notification_server_url', E::ts('Use an HTTPS notification server URL.')); return; }
       if (empty($v['token_store_file']) || !str_starts_with((string) $v['token_store_file'], '/') || !is_dir(dirname((string) $v['token_store_file'])) || !is_writable(dirname((string) $v['token_store_file']))) { $this->setElementError('token_store_file', E::ts('Use an absolute path in a writable protected directory for the token store.')); return; }
       $config = ['server_url' => rtrim((string) $v['notification_server_url'], '/'), 'token_store_file' => (string) $v['token_store_file'], 'timeout_seconds' => (int) $v['timeout_seconds']];
-      if ($type === 'ntfy' && (trim((string) ($v['ntfy_access_token'] ?? '')) !== '' || !empty($existingConfig['api_token_key']))) $config['api_token_key'] = $existingConfig['api_token_key'] ?? bin2hex(random_bytes(16));
+      if ($type === 'ntfy') {
+        $iconUrl = trim((string) ($v['ntfy_icon_url'] ?? ''));
+        if ($iconUrl === '') $iconUrl = E::url('images/civineo-notify.png');
+        if (!filter_var($iconUrl, FILTER_VALIDATE_URL) || !str_starts_with($iconUrl, 'https://')) { $this->setElementError('ntfy_icon_url', E::ts('Use a public HTTPS PNG or JPEG URL for the ntfy notification icon.')); return; }
+        $config['icon_url'] = $iconUrl;
+        if (trim((string) ($v['ntfy_access_token'] ?? '')) !== '' || !empty($existingConfig['api_token_key'])) $config['api_token_key'] = $existingConfig['api_token_key'] ?? bin2hex(random_bytes(16));
+      }
+      if ($type === 'gotify') {
+        $imageUrl = trim((string) ($v['gotify_image_url'] ?? ''));
+        if ($imageUrl !== '' && (!filter_var($imageUrl, FILTER_VALIDATE_URL) || !str_starts_with($imageUrl, 'https://'))) { $this->setElementError('gotify_image_url', E::ts('Use a public HTTPS image URL for the Gotify notification image.')); return; }
+        if ($imageUrl !== '') $config['image_url'] = $imageUrl;
+      }
     }
     elseif ($type === 'matrix_commander_rs') {
       if (!is_file((string) $v['binary_path']) || !is_executable((string) $v['binary_path'])) { $this->setElementError('binary_path', E::ts('The Matrix Commander binary does not exist or is not executable.')); return; }

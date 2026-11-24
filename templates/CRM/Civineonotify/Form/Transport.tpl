@@ -28,6 +28,8 @@
     <tr class="bluesky-field"><td class="label">{$form.bluesky_detect_links.label}</td><td>{$form.bluesky_detect_links.html}</td></tr>
     <tr class="notification-server-field"><td class="label">{$form.notification_server_url.label}</td><td>{$form.notification_server_url.html}<div class="description">{ts}Use the HTTPS URL of your ntfy or Gotify server.{/ts}</div></td></tr>
     <tr class="ntfy-field"><td class="label">{$form.ntfy_access_token.label}</td><td>{$form.ntfy_access_token.html}<div class="description">{ts}Optional. Stored outside CiviCRM in the protected token store.{/ts}</div>{if $ntfyTokenSuffix}<div class="description">{ts}Stored token:{/ts} ••••{$ntfyTokenSuffix|escape}</div>{/if}</td></tr>
+    <tr class="ntfy-field"><td class="label">{$form.ntfy_icon_url.label}</td><td>{$form.ntfy_icon_url.html}<div class="description">{ts}The bundled CiviNeo icon is used by default. Use a public HTTPS PNG or JPEG URL to override it.{/ts}</div></td></tr>
+    <tr class="gotify-field"><td class="label">{$form.gotify_image_url.label}</td><td>{$form.gotify_image_url.html}<div class="description">{ts}Optional public HTTPS image URL. Supported by the Gotify Android client as a large notification image.{/ts}</div></td></tr>
     {if $canCreateSocialDefaultDestination}<tr class="social-default-destination-field"><td class="label">{$form.create_social_default_destination.label}</td><td>{$form.create_social_default_destination.html}<div class="description">{ts}Mastodon and Bluesky accounts do not require separate destination settings.{/ts}</div></td></tr>
     <tr class="social-default-destination-field"><td class="label">{$form.social_default_destination_name.label}</td><td>{$form.social_default_destination_name.html}<div class="description">{ts}This destination will be used when a rule selects only this transport.{/ts}</div></td></tr>{/if}
     <tr class="nio-field"><td class="label">{$form.homeserver.label}</td><td>{$form.homeserver.html}</td></tr>
@@ -63,6 +65,7 @@ CRM.$(function($) {
     $('.bluesky-field').toggle(bluesky);
     $('.notification-server-field').toggle(ntfy || gotify);
     $('.ntfy-field').toggle(ntfy);
+    $('.gotify-field').toggle(gotify);
     $('.social-default-destination-field').toggle((mastodon || bluesky) && $('#create_social_default_destination').is(':checked'));
     $('.default-destination-field').toggle(!(mastodon || bluesky) || !$('#create_social_default_destination').is(':checked'));
     $('#hooks_path').closest('tr').toggle(type === 'mattermost_webhook');

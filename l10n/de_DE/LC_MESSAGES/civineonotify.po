@@ -380,6 +380,12 @@ msgstr "URL des Benachrichtigungsservers"
 msgid "ntfy access token"
 msgstr "ntfy-Zugriffs-Token"
 
+msgid "ntfy notification icon URL"
+msgstr "URL des ntfy-Benachrichtigungssymbols"
+
+msgid "Gotify notification image URL"
+msgstr "URL des Gotify-Benachrichtigungsbildes"
+
 msgid "Create and set a default destination"
 msgstr "Standarddestination erstellen und festlegen"
 
@@ -416,6 +422,12 @@ msgstr "Transport speichern"
 
 msgid "Choose a supported transport type."
 msgstr "Wählen Sie einen unterstützten Transporttyp aus."
+
+msgid "Use a public HTTPS PNG or JPEG URL for the ntfy notification icon."
+msgstr "Verwenden Sie eine öffentliche HTTPS-URL zu einem PNG- oder JPEG-Bild für das ntfy-Benachrichtigungssymbol."
+
+msgid "Use a public HTTPS image URL for the Gotify notification image."
+msgstr "Verwenden Sie eine öffentliche HTTPS-Bild-URL für das Gotify-Benachrichtigungsbild."
 
 msgid "Use an absolute path."
 msgstr "Verwenden Sie einen absoluten Pfad."
@@ -1260,6 +1272,12 @@ msgstr "Verwenden Sie die HTTPS-URL Ihres ntfy- oder Gotify-Servers."
 msgid "Optional. Stored outside CiviCRM in the protected token store."
 msgstr ""
 "Optional. Wird außerhalb von CiviCRM im geschützten Token-Speicher abgelegt."
+
+msgid "The bundled CiviNeo icon is used by default. Use a public HTTPS PNG or JPEG URL to override it."
+msgstr "Das mitgelieferte CiviNeo-Symbol wird standardmäßig verwendet. Verwenden Sie zum Überschreiben eine öffentliche HTTPS-URL zu einem PNG- oder JPEG-Bild."
+
+msgid "Optional public HTTPS image URL. Supported by the Gotify Android client as a large notification image."
+msgstr "Optionale öffentliche HTTPS-Bild-URL. Wird vom Gotify-Android-Client als großes Benachrichtigungsbild unterstützt."
 
 msgid ""
 "Mastodon and Bluesky accounts do not require separate destination settings."

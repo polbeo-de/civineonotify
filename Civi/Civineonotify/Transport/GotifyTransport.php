@@ -13,7 +13,13 @@ final class GotifyTransport implements NotificationTransportInterface {
     try {
       if ($message->body === '') throw new \InvalidArgumentException();
       $token = $this->applicationToken($destination);
-      $payload = json_encode(['title' => 'CiviNeo Notify', 'message' => $message->body, 'priority' => 5, 'extras' => ['client::transaction_id' => $transactionId]], JSON_THROW_ON_ERROR);
+      $extras = ['client::transaction_id' => $transactionId];
+      $imageUrl = trim((string) ($this->connection['image_url'] ?? ''));
+      if ($imageUrl !== '') {
+        if (!filter_var($imageUrl, FILTER_VALIDATE_URL) || !str_starts_with($imageUrl, 'https://')) throw new \InvalidArgumentException();
+        $extras['client::notification'] = ['bigImageUrl' => $imageUrl];
+      }
+      $payload = json_encode(['title' => 'CiviNeo Notify', 'message' => $message->body, 'priority' => 5, 'extras' => $extras], JSON_THROW_ON_ERROR);
       $response = $this->request($this->serverUrl() . '/message?token=' . rawurlencode($token), $payload);
       if ($response['status'] >= 200 && $response['status'] < 300) return new MatrixTransportResult(TRUE, 'success', NULL, $response['status']);
       return new MatrixTransportResult(FALSE, $this->category($response['status']), NULL, $response['status'], 'Gotify rejected the notification.');

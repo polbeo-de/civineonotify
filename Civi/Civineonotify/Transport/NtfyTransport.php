@@ -13,7 +13,7 @@ final class NtfyTransport implements NotificationTransportInterface {
     try {
       $topic = trim((string) ($destination->config['topic'] ?? ''));
       if (!preg_match('/^[A-Za-z0-9_-]{1,64}$/', $topic) || $message->body === '') throw new \InvalidArgumentException();
-      $response = $this->request($this->serverUrl() . '/' . rawurlencode($topic), $message->body, ['Title' => 'CiviNeo Notify', 'X-Id' => $transactionId, 'Content-Type' => 'text/plain; charset=utf-8']);
+      $response = $this->request($this->serverUrl() . '/' . rawurlencode($topic), $message->body, ['Title' => 'CiviNeo Notify', 'Icon' => $this->iconUrl(), 'X-Id' => $transactionId, 'Content-Type' => 'text/plain; charset=utf-8']);
       if ($response['status'] >= 200 && $response['status'] < 300) return new MatrixTransportResult(TRUE, 'success', NULL, $response['status']);
       return new MatrixTransportResult(FALSE, $this->category($response['status']), NULL, $response['status'], 'ntfy rejected the notification.');
     }
@@ -34,6 +34,12 @@ final class NtfyTransport implements NotificationTransportInterface {
   }
 
   private function serverUrl(): string { $url = rtrim((string) ($this->connection['server_url'] ?? ''), '/'); if (!preg_match('#^https://[^\s]+$#', $url)) throw new \InvalidArgumentException(); return $url; }
+  private function iconUrl(): string {
+    $url = trim((string) ($this->connection['icon_url'] ?? ''));
+    if ($url === '') $url = \CRM_Civineonotify_ExtensionUtil::url('images/civineo-notify.png');
+    if (!filter_var($url, FILTER_VALIDATE_URL) || !str_starts_with($url, 'https://')) throw new \InvalidArgumentException();
+    return $url;
+  }
   private function token(): string { $key = (string) ($this->connection['api_token_key'] ?? ''); if ($key === '') return ''; $store = (string) ($this->connection['token_store_file'] ?? ''); if ($store === '') throw new \InvalidArgumentException(); return (new MattermostTokenStore($store))->get($key); }
   private function timeout(): int { return max(1, min(300, (int) ($this->connection['timeout_seconds'] ?? 30))); }
   private function category(int $status): string { return match (TRUE) { $status === 401 || $status === 403 => 'authentication_error', $status === 429 || $status >= 500 => 'temporary_transport_error', default => 'configuration_error' }; }

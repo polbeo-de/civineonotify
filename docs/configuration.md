@@ -139,9 +139,12 @@ protects publishing to the selected topic, and is stored outside CiviCRM.
 Create one **ntfy topic** destination per topic. Topics are deliberately
 limited to letters, digits, underscores, and hyphens so that the destination
 can safely form one URL path segment. CiviNeo posts the rendered message as
-plain text and includes the durable transaction ID in ntfy's `X-Id` header.
-The first named version keeps priorities, tags, attachments, actions, and
-scheduled publishing out of scope.
+plain text, its durable transaction ID in ntfy's `X-Id` header, and a CiviNeo
+notification icon. The bundled icon is the default; an administrator may set a
+different public HTTPS PNG or JPEG URL on the transport. The CiviCRM site must
+therefore make the bundled static extension asset reachable from the ntfy
+server and clients. The first named version keeps priorities, tags,
+attachments, actions, and scheduled publishing out of scope.
 
 ## Gotify
 
@@ -154,8 +157,11 @@ the destination, so CiviNeo keeps each token in the protected external store
 and subsequently shows only its final four characters.
 
 CiviNeo submits Gotify's standard JSON message with a fixed title, normal
-priority, and the durable delivery transaction ID as metadata. It does not use
-the Gotify client API, nor does it receive messages from Gotify.
+priority, and the durable delivery transaction ID as metadata. The optional
+transport-level **Gotify notification image URL** sets Gotify's `bigImageUrl`
+extra; it is a large image supported by the Gotify Android client, not a
+replacement for that client's fixed small Gotify icon. It does not use the
+Gotify client API, nor does it receive messages from Gotify.
 
 ## Mattermost (Webhook)
 
@@ -327,6 +333,22 @@ Every delivery derives a stable protocol-valid record key from its transaction
 identifier. On a record-key conflict, CiviNeo Notify reads the record and only
 treats an identical post as delivered. A timeout remains an unknown delivery
 outcome and is not retried automatically, avoiding duplicate public posts.
+
+## Message templates and images
+
+Message templates render text. A URL in a template remains a URL; CiviNeo does
+not download, upload, or attach that URL as media. A receiving client may
+unfurl it, but that is controlled by the receiving platform and must not be
+relied on for delivery.
+
+This distinction matters for publishing transports: Mastodon needs a separate
+media-upload request followed by attachment IDs on the status, Bluesky needs
+an uploaded blob embedded in the post record, and Telegram needs a media
+method such as `sendPhoto`. Those workflows are intentionally not part of the
+current text transports. Telegram link previews may be enabled by the
+transport setting, but they are previews rather than sent media. ntfy is the
+exception for a small per-notification icon, and Gotify can optionally show a
+large Android notification image as documented above.
 
 ## Matrix
 
