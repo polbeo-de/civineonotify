@@ -369,7 +369,7 @@ msgstr ""
 msgid "ntfy access token"
 msgstr ""
 
-msgid "ntfy notification icon URL"
+msgid "ntfy Android notification icon URL"
 msgstr ""
 
 msgid "Gotify notification image URL"
@@ -409,7 +409,7 @@ msgstr ""
 msgid "Choose a supported transport type."
 msgstr ""
 
-msgid "Use a public HTTPS PNG or JPEG URL for the ntfy notification icon."
+msgid "Use a public HTTPS PNG or JPEG URL for the ntfy Android notification icon."
 msgstr ""
 
 msgid "Use a public HTTPS image URL for the Gotify notification image."
@@ -1191,7 +1191,7 @@ msgstr ""
 msgid "Optional. Stored outside CiviCRM in the protected token store."
 msgstr ""
 
-msgid "The bundled CiviNeo icon is used by default. Use a public HTTPS PNG or JPEG URL to override it."
+msgid "Used by the ntfy Android client. Firefox and other web clients use the ntfy web-app icon."
 msgstr ""
 
 msgid "Optional public HTTPS image URL. Supported by the Gotify Android client as a large notification image."

@@ -380,8 +380,8 @@ msgstr "URL des Benachrichtigungsservers"
 msgid "ntfy access token"
 msgstr "ntfy-Zugriffs-Token"
 
-msgid "ntfy notification icon URL"
-msgstr "URL des ntfy-Benachrichtigungssymbols"
+msgid "ntfy Android notification icon URL"
+msgstr "URL des ntfy-Android-Benachrichtigungssymbols"
 
 msgid "Gotify notification image URL"
 msgstr "URL des Gotify-Benachrichtigungsbildes"
@@ -423,8 +423,8 @@ msgstr "Transport speichern"
 msgid "Choose a supported transport type."
 msgstr "Wählen Sie einen unterstützten Transporttyp aus."
 
-msgid "Use a public HTTPS PNG or JPEG URL for the ntfy notification icon."
-msgstr "Verwenden Sie eine öffentliche HTTPS-URL zu einem PNG- oder JPEG-Bild für das ntfy-Benachrichtigungssymbol."
+msgid "Use a public HTTPS PNG or JPEG URL for the ntfy Android notification icon."
+msgstr "Verwenden Sie eine öffentliche HTTPS-URL zu einem PNG- oder JPEG-Bild für das ntfy-Android-Benachrichtigungssymbol."
 
 msgid "Use a public HTTPS image URL for the Gotify notification image."
 msgstr "Verwenden Sie eine öffentliche HTTPS-Bild-URL für das Gotify-Benachrichtigungsbild."
@@ -1273,8 +1273,8 @@ msgid "Optional. Stored outside CiviCRM in the protected token store."
 msgstr ""
 "Optional. Wird außerhalb von CiviCRM im geschützten Token-Speicher abgelegt."
 
-msgid "The bundled CiviNeo icon is used by default. Use a public HTTPS PNG or JPEG URL to override it."
-msgstr "Das mitgelieferte CiviNeo-Symbol wird standardmäßig verwendet. Verwenden Sie zum Überschreiben eine öffentliche HTTPS-URL zu einem PNG- oder JPEG-Bild."
+msgid "Used by the ntfy Android client. Firefox and other web clients use the ntfy web-app icon."
+msgstr "Wird vom ntfy-Android-Client verwendet. Firefox und andere Web-Clients verwenden das ntfy-Web-App-Symbol."
 
 msgid "Optional public HTTPS image URL. Supported by the Gotify Android client as a large notification image."
 msgstr "Optionale öffentliche HTTPS-Bild-URL. Wird vom Gotify-Android-Client als großes Benachrichtigungsbild unterstützt."

@@ -139,12 +139,14 @@ protects publishing to the selected topic, and is stored outside CiviCRM.
 Create one **ntfy topic** destination per topic. Topics are deliberately
 limited to letters, digits, underscores, and hyphens so that the destination
 can safely form one URL path segment. CiviNeo posts the rendered message as
-plain text, its durable transaction ID in ntfy's `X-Id` header, and a CiviNeo
-notification icon. The bundled icon is the default; an administrator may set a
-different public HTTPS PNG or JPEG URL on the transport. The CiviCRM site must
-therefore make the bundled static extension asset reachable from the ntfy
-server and clients. The first named version keeps priorities, tags,
-attachments, actions, and scheduled publishing out of scope.
+plain text and its durable transaction ID in ntfy's `X-Id` header. The
+transport also supplies the bundled CiviNeo icon to ntfy's Android client; an
+administrator may override it with a public HTTPS PNG or JPEG URL. Firefox and
+other ntfy web clients use the ntfy web-app icon and cannot change it per
+message. The CiviCRM site must therefore make the bundled static extension
+asset reachable from the ntfy server and Android clients. The first named
+version keeps priorities, tags, attachments, actions, and scheduled publishing
+out of scope.
 
 ## Gotify
 
