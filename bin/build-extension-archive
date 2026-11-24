@@ -59,7 +59,9 @@ git archive --format=tar "$commit" | tar -xf - -C "$tmpdir/$extension_dir"
 rm -f "$output"
 (
   cd "$tmpdir"
-  find "$extension_dir" -print | LC_ALL=C sort | zip -X -q "$output" -@
+  # Archive file entries only. `zip` otherwise records freshly-created
+  # directory mtimes, making two builds of the same commit differ.
+  find "$extension_dir" -type f -print | LC_ALL=C sort | zip -X -q "$output" -@
 )
 entries=$(unzip -Z1 "$output")
 printf '%s\n' "$entries" | grep -qx "$extension_dir/info.xml" || { printf '%s\n' 'ZIP validation failed: info.xml missing.' >&2; exit 1; }
